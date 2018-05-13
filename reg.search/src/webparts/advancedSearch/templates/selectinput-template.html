@@ -1,0 +1,7 @@
+
+<div class="md-form form-sm">
+    <select id="{{property}}" ng-model="bindModel" class="mdb-select">
+        <option ng-repeat="choice in choices" value="{{choice.value}}" class="reg-appear-disabled" selected="{{choice.selected}}">{{choice.label}}</option>
+    </select>
+    <label for="{{property}}" class="">{{name}}</label>
+</div>

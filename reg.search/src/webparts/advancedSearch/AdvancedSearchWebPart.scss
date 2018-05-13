@@ -1,0 +1,143 @@
+/*@import '~office-ui-fabric-core/dist/sass/Fabric.scss';*/
+
+$reg-line-color: rgb(189, 189, 189);
+
+.reg-advanced-search {
+
+  .reg-panel {
+    box-shadow: 0 0 5px 0 rgba(0,0,0,.4);
+    background-color: #FFF;
+    padding-left:30px;
+    padding-right:30px;
+    padding-top: 10px;
+    padding-bottom: 20px;
+  }
+
+  .reg-search-filter {
+  }
+
+  .reg-command-bar {
+    display:flex;
+    justify-content: flex-end;
+    margin-top:20px;
+  }
+
+  uif-dropdown.ng-empty .ms-Dropdown-title, .reg-placeholder {
+    color:#666;
+    font-size:12px;
+  }
+  
+  .reg-filter-label > .ms-Label {
+    font-weight:bold;
+  }
+
+  .reg-debug {
+    margin-top:30px;
+    width:100%;
+
+    .ms-MessageBar-icon {
+      display:block;
+    }
+  }
+
+  .ms-Button .ms-Icon {
+    margin-right: 5px;
+  }
+
+  .hidden {
+    display:none;
+  }
+
+  .reg-search-filter > .ms-Grid > .ms-Grid-row {
+    margin-bottom:10px;
+  }
+  .ms-Grid-col {
+    padding-left:10px;
+    padding-right:10px;
+  }
+
+  .ms-TextField-field {
+    min-width: 130px;
+  }
+
+  .ms-CommandBar-sideCommands {
+    float:left;
+  }
+
+}
+
+
+
+.icon-list ul li {
+  float: left;
+  font-size: 11px;
+  color: black;
+  width:15%;
+  text-align: center;
+  height: 100px;
+  padding:10px;
+  overflow:hidden;
+}
+.icon-list ul li .ms-Icon {
+  font-size:35px;
+  display:block;
+  margin:10px auto;
+}
+
+
+/*
+
+.mdb.reg-advanced-search {
+
+  .mdb-select ul.dropdown-content > li:first-of-type > span {
+    color: rgba(0,0,0,.3);
+  }
+
+  .md-form.form-sm input {
+    font-size: 0.8rem !important;
+    line-height: 0.5 !important;
+  }
+
+  .md-form.form-sm input.select-dropdown {
+    padding-bottom:0px;
+    height: 2.7rem;
+  }
+
+
+  .reg-date-range {
+    border-bottom: 1px solid $reg-line-color;
+    margin-left:0px;
+    margin-right:0px;
+
+    .form-sm {
+      margin-bottom: 0px;
+    }
+
+    input.datepicker {
+      border-bottom-width: 0px;
+      margin-bottom: 0px;
+    }
+
+    .md-form:not(:first-of-type) > label {
+      margin-left:20px;
+    }
+
+    .md-form.form-sm{
+      display: flex;
+      flex-direction: row;
+      justify-content: space-around;
+    }
+
+    .btn {
+      margin-top:2px;
+      margin-bottom: 2px;
+      padding-left: 0.5rem;
+      padding-right: 0.5rem;
+    }
+
+    .fa {
+      color: #FFFFFF;
+    }
+  }
+}
+*/

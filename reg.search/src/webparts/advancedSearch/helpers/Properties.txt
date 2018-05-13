@@ -1,0 +1,29 @@
+Author
+Created
+CreatedBy
+CreatedById
+FileType
+Filename
+FileExtension
+IsDocument
+LastModifiedTime
+LastModifiedTimeForRetention
+ModifiedBy
+ModifiedById
+Size
+
+
+
+
+/*
+
+,
+            "SPContentType",
+            "Path", 
+            "Rank", 
+            "Size", 
+            "owsID", 
+            "WorkId", 
+            "SiteName"
+
+            */

@@ -1,0 +1,28 @@
+{
+  "$schema": "https://dev.office.com/json-schemas/spfx/client-side-web-part-manifest.schema.json",
+  "id": "5f7e9344-a6b7-44ba-820b-19e11df4304f",
+  "alias": "AdvancedSearchWebPart",
+  "componentType": "WebPart",
+
+  // The "*" signifies that the version should be taken from the package.json
+  "version": "*",
+  "manifestVersion": 2,
+
+  // If true, the component can only be installed on sites where Custom Script is allowed.
+  // Components that allow authors to embed arbitrary script code should set this to true.
+  // https://support.office.com/en-us/article/Turn-scripting-capabilities-on-or-off-1f2c515f-5d7e-448a-9fd7-835da935584f
+  "requiresCustomScript": false,
+
+  "preconfiguredEntries": [{
+    "groupId": "5c03119e-3074-46fd-976b-c60198311f70", // Other
+    "group": { "default": "Other" },
+    "title": { "default": "AdvancedSearch" },
+    "description": { "default": "Customizable advanced search webpart" },
+    "officeFabricIconFontName": "Page",
+    "properties": {
+      "description": "AdvancedSearch",
+      "options": "{\"fields\":[{\"name\":\"Title\",\"property\":\"ows_title\",\"operator\":\"like\",\"control\":\"TextField\"},{\"name\":\"Department\",\"property\":\"ows_department\",\"operator\":\"equals\",\"control\":\"SelectField\",\"data\":[\"IT\",\"Hr\",\"Marketing\",\"Film\",\"Operations\",\"Food\"]},{\"name\":\"Created\",\"property\":\"ows_created\",\"operator\":\"between\",\"control\":\"DateRange\"}]}",
+      "rowLimit": 10
+    }
+  }]
+}

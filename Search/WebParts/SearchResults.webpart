@@ -1,0 +1,100 @@
+﻿<webParts>
+  <webPart xmlns="http://schemas.microsoft.com/WebPart/v3">
+    <metaData>
+      <type name="Microsoft.SharePoint.WebPartPages.DataFormWebPart, Microsoft.SharePoint, Version=14.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" />
+      <importErrorMessage>Cannot import this Web Part.</importErrorMessage>
+    </metaData>
+    <data>
+      <properties>
+        <property name="InitialAsyncDataFetch" type="bool">False</property>
+        <property name="ChromeType" type="chrometype">None</property>
+        <property name="Title" type="string">Search Results DataView</property>
+        <property name="Height" type="string" />
+        <property name="CacheXslStorage" type="bool">True</property>
+        <property name="XslLink" type="string">/dept/risk/Style Library/RegalNetBranding/XSLT/DocumentResults.xslt</property>
+        <property name="AllowZoneChange" type="bool">True</property>
+        <property name="AllowEdit" type="bool">True</property>
+        <property name="XmlDefinitionLink" type="string" />
+        <property name="DataFields" type="string" />
+        <property name="AutoRefreshInterval" type="int">60</property>
+        <property name="NoDefaultStyle" type="string">TRUE</property>
+        <property name="ListDisplayName" type="string" null="true" />
+        <property name="AutoRefresh" type="bool">False</property>
+        <property name="ViewFlag" type="string">8</property>
+        <property name="ListUrl" type="string" null="true" />
+        <property name="AllowConnect" type="bool">True</property>
+        <property name="Description" type="string" />
+        <property name="AllowClose" type="bool">True</property>
+        <property name="ShowWithSampleData" type="bool">False</property>
+        <property name="ParameterBindings" type="string">
+				   &lt;ParameterBinding Name="DisplayFields" Location="None" DefaultValue="ClaimNumber,ClaimType,ClaimantName,DateofLoss,SSNLastFour,owsState,owsTheatrex0020Number"/&gt;
+				   &lt;ParameterBinding Name="DisplayNames" Location="None" DefaultValue="Claim Number,Claim Type,Claimants Name,Date of Loss,SSN Last Four,State,Theatre Number"/&gt;
+				   &lt;ParameterBinding Name="DisplayTypes" Location="None" DefaultValue="text, text, text, date, text, text, text"/&gt;
+				   &lt;ParameterBinding Name="SiteURL" Location="None" DefaultValue="http://regteams.corporate.reg/dept/risk/claims" /&gt;
+				   &lt;ParameterBinding Name="OtherFields" Location="None" DefaultValue="Title, Path, Rank, Size, owsID, WorkId, SiteName"/&gt;
+				   &lt;ParameterBinding Name="Clause" Location="QueryString(search)" DefaultValue="ContentType='Nothing'"/&gt;
+				   &lt;ParameterBinding Name="OtherCriteria" Location="None" DefaultValue="AND ContentType='Claim'"/&gt;
+				   &lt;ParameterBinding Name="Scope" Location="None" DefaultValue="All Sites"/&gt;
+				   &lt;ParameterBinding Name="SortColumn" Location="Form(sort_column)" DefaultValue="ClaimNumber"/&gt;
+				   &lt;ParameterBinding Name="SortDirection" Location="Form(sort_direction)" DefaultValue="DESC"/&gt;
+				   &lt;ParameterBinding Name="LimitRows" Location="Form(itemLimit)" DefaultValue="20"/&gt;
+				   &lt;ParameterBinding Name="StartAt" Location="Form(startAt)" DefaultValue="1"/&gt;
+				   &lt;ParameterBinding Name="CurrentUrl" Location="ServerVariable(URL)" DefaultValue=""/&gt;
+			   </property>
+        <property name="Xsl" type="string" null="true" />
+        <property name="EnableOriginalValue" type="bool">False</property>
+        <property name="CacheXslTimeOut" type="int">86400</property>
+        <property name="Hidden" type="bool">False</property>
+        <property name="ListName" type="string" />
+        <property name="DataSourceID" type="string" />
+        <property name="FireInitialRow" type="bool">True</property>
+        <property name="ManualRefresh" type="bool">False</property>
+        <property name="ViewFlags" type="Microsoft.SharePoint.SPViewFlags, Microsoft.SharePoint, Version=14.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">Hidden</property>
+        <property name="ChromeState" type="chromestate">Normal</property>
+        <property name="AllowHide" type="bool">True</property>
+        <property name="PageSize" type="int">-1</property>
+        <property name="SampleData" type="string" null="true" />
+        <property name="AsyncRefresh" type="bool">True</property>
+        <property name="HelpMode" type="helpmode">Modeless</property>
+        <property name="ListId" type="System.Guid, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">00000000-0000-0000-0000-000000000000</property>
+        <property name="UseSQLDataSourcePaging" type="bool">True</property>
+        <property name="AllowMinimize" type="bool">True</property>
+        <property name="TitleUrl" type="string" />
+        <property name="CatalogIconImageUrl" type="string" />
+        <property name="DataSourcesString" type="string">&lt;%@ Register TagPrefix="sharepoint" Namespace="Microsoft.SharePoint.WebControls" Assembly="Microsoft.SharePoint, Version=14.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" %&gt;&lt;%@ Register TagPrefix="webpartpages" Namespace="Microsoft.SharePoint.WebPartPages" Assembly="Microsoft.SharePoint, Version=14.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" %&gt;&lt;sharepoint:SoapDataSource runat="server" SelectUrl="http://regteams.corporate.reg/dept/risk/claims/_vti_bin/search.asmx" InsertUrl="" UpdateUrl="" DeleteUrl="" SelectAction="http://microsoft.com/webservices/OfficeServer/QueryService/QueryEx" InsertAction="" UpdateAction="" DeleteAction="" SelectPort="QueryServiceSoap" InsertPort="" UpdatePort="" DeletePort="" SelectServiceName="QueryService" InsertServiceName="" UpdateServiceName="" DeleteServiceName="" AuthType="None" WsdlPath="http://regteams.corporate.reg/dept/risk/claims/_vti_bin/search.asmx?wsdl" XPath="" ID="SoapDataSource1"&gt;&lt;SelectCommand&gt;
+&lt;soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"&gt;&lt;soap:Body&gt;&lt;QueryEx xmlns="http://microsoft.com/webservices/OfficeServer/QueryService"&gt;&lt;queryXml&gt;&amp;amp;lt;QueryPacket xmlns=&amp;amp;quot;urn:Microsoft.Search.Query&amp;amp;quot; Revision=&amp;amp;quot;1000&amp;amp;quot;&amp;amp;gt;&amp;amp;lt;Query domain=&amp;amp;quot;QDomain&amp;amp;quot;&amp;amp;gt;&amp;amp;lt;SupportedFormats&amp;amp;gt;&amp;amp;lt;Format&amp;amp;gt;urn:Microsoft.Search.Response.Document.Document&amp;amp;lt;/Format&amp;amp;gt;&amp;amp;lt;/SupportedFormats&amp;amp;gt;&amp;amp;lt;Range&amp;amp;gt;&amp;amp;lt;Count&amp;amp;gt;{LimitRows}&amp;amp;lt;/Count&amp;amp;gt;&amp;amp;lt;StartAt&amp;amp;gt;{StartAt}&amp;amp;lt;/StartAt&amp;amp;gt;&amp;amp;lt;/Range&amp;amp;gt;&amp;amp;lt;Context&amp;amp;gt;&amp;amp;lt;QueryText language=&amp;amp;quot;en-US&amp;amp;quot; type=&amp;amp;quot;MSSQLFT&amp;amp;quot;&amp;amp;gt;SELECT {DisplayFields}, {OtherFields} FROM Scope() WHERE {Clause} {OtherCriteria} AND &amp;amp;quot;Scope&amp;amp;quot; = '{Scope}' ORDER BY {SortColumn} {SortDirection}&amp;amp;lt;/QueryText&amp;amp;gt;&amp;amp;lt;/Context&amp;amp;gt;&amp;amp;lt;/Query&amp;amp;gt;&amp;amp;lt;/QueryPacket&amp;amp;gt;&lt;/queryXml&gt;&lt;/QueryEx&gt;&lt;/soap:Body&gt;&lt;/soap:Envelope&gt;&lt;/SelectCommand&gt;
+&lt;InsertCommand&gt;
+&lt;/InsertCommand&gt;
+&lt;UpdateCommand&gt;
+&lt;/UpdateCommand&gt;
+&lt;DeleteCommand&gt;
+&lt;/DeleteCommand&gt;
+&lt;SelectParameters&gt;
+&lt;asp:Parameter DefaultValue="&amp;amp;lt;QueryPacket xmlns=&amp;amp;quot;urn:Microsoft.Search.Query&amp;amp;quot; Revision=&amp;amp;quot;1000&amp;amp;quot;&amp;amp;gt;&amp;amp;lt;Query domain=&amp;amp;quot;QDomain&amp;amp;quot;&amp;amp;gt;&amp;amp;lt;SupportedFormats&amp;amp;gt;&amp;amp;lt;Format&amp;amp;gt;urn:Microsoft.Search.Response.Document.Document&amp;amp;lt;/Format&amp;amp;gt;&amp;amp;lt;/SupportedFormats&amp;amp;gt;&amp;amp;lt;Context&amp;amp;gt;&amp;amp;lt;QueryText language=&amp;amp;quot;en-US&amp;amp;quot; type=&amp;amp;quot;MSSQLFT&amp;amp;quot;&amp;amp;gt;SELECT Title, Path, Description, Write, Rank, Size FROM Scope() WHERE {Clause} AND &amp;amp;quot;Scope&amp;amp;quot; = '{Scope}'&amp;amp;lt;/QueryText&amp;amp;gt;&amp;amp;lt;/Context&amp;amp;gt;&amp;amp;lt;/Query&amp;amp;gt;&amp;amp;lt;/QueryPacket&amp;amp;gt;" Name="queryXml"&gt;&lt;/asp:Parameter&gt;
+&lt;webpartpages:DataFormParameter ParameterKey="DisplayFields" PropertyName="ParameterValues" DefaultValue="" Name="DisplayFields"&gt;&lt;/webpartpages:DataFormParameter&gt;
+&lt;webpartpages:DataFormParameter ParameterKey="OtherFields" PropertyName="ParameterValues" DefaultValue="" Name="OtherFields"&gt;&lt;/webpartpages:DataFormParameter&gt;
+&lt;webpartpages:DataFormParameter ParameterKey="Clause" PropertyName="ParameterValues" DefaultValue="" Name="Clause"&gt;&lt;/webpartpages:DataFormParameter&gt;
+&lt;webpartpages:DataFormParameter ParameterKey="OtherCriteria" PropertyName="ParameterValues" DefaultValue="" Name="OtherCriteria"&gt;&lt;/webpartpages:DataFormParameter&gt;
+&lt;webpartpages:DataFormParameter ParameterKey="Scope" PropertyName="ParameterValues" DefaultValue="" Name="Scope"&gt;&lt;/webpartpages:DataFormParameter&gt;
+&lt;webpartpages:DataFormParameter ParameterKey="SortColumn" PropertyName="ParameterValues" DefaultValue="" Name="SortColumn"&gt;&lt;/webpartpages:DataFormParameter&gt;
+&lt;webpartpages:DataFormParameter ParameterKey="SortDirection" PropertyName="ParameterValues" DefaultValue="" Name="SortDirection"&gt;&lt;/webpartpages:DataFormParameter&gt;
+&lt;webpartpages:DataFormParameter ParameterKey="LimitRows" PropertyName="ParameterValues" DefaultValue="" Name="LimitRows"&gt;&lt;/webpartpages:DataFormParameter&gt;
+&lt;webpartpages:DataFormParameter ParameterKey="StartAt" PropertyName="ParameterValues" DefaultValue="" Name="StartAt"&gt;&lt;/webpartpages:DataFormParameter&gt;
+&lt;/SelectParameters&gt;
+&lt;/sharepoint:SoapDataSource&gt;
+</property>
+        <property name="DisplayName" type="string" />
+        <property name="PageType" type="Microsoft.SharePoint.PAGETYPE, Microsoft.SharePoint, Version=14.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">PAGE_NORMALVIEW</property>
+        <property name="Width" type="string" />
+        <property name="ExportMode" type="exportmode">All</property>
+        <property name="Direction" type="direction">NotSet</property>
+        <property name="ViewContentTypeId" type="string" />
+        <property name="HelpUrl" type="string" />
+        <property name="XmlDefinition" type="string" />
+        <property name="Default" type="string" />
+        <property name="TitleIconImageUrl" type="string" />
+        <property name="MissingAssembly" type="string">Cannot import this Web Part.</property>
+      </properties>
+    </data>
+  </webPart>
+</webParts>

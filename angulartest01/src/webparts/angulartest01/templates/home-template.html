@@ -1,0 +1,41 @@
+<div data-ng-controller="HomeController as vm">
+  <div class="{{vm.styles.toDo}}">
+    <div>
+      <div class="{{vm.styles.loading}}" ng-show="vm.isLoading">
+        <div class="{{vm.styles.spinner}}">
+          <div class="{{vm.styles.spinnerCircle}} {{vm.styles.spinnerLarge}}"></div>
+          <div class="{{vm.styles.spinnerLabel}}">Loading...</div>
+        </div>
+      </div>
+      <div ng-show="vm.isLoading === false">
+        <div class="{{::vm.styles.textField}} {{vm.styles.underlined}}" ng-class="{'{{vm.styles.isActive}}': vm.newToDoActive}">
+          <label for="newToDo" class="{{vm.styles.label}}">New to do:</label>
+          <input type="text" label="New to do:" id="newToDo" value="" class="{{vm.styles.field}}" aria-invalid="false" ng-model="vm.newItem" ng-keydown="vm.todoKeyDown($event)" ng-focus="vm.newToDoActive = true" ng-blur="vm.newToDoActive = false">
+        </div>
+      </div>
+      <div class="list" ng-show="vm.isLoading === false">
+        <div class="listSurface">
+          <div class="listPage">
+            <div class="listCell" ng-repeat="todo in vm.todoCollection" uif-item="todo" ng-class="{'{{vm.styles.done}}': todo.done}">
+              <div class="{{vm.styles.listItem}}">
+                <span class="{{vm.styles.listItemPrimaryText}}">{{todo.title}}</span>
+                <div class="{{vm.styles.listItemActions}}">
+                  <div class="{{vm.styles.listItemAction}}" ng-click="vm.completeTodo(todo)" ng-show="todo.done === false">
+                    <i class="{{vm.styles.icon}} {{vm.styles.iconCheckMark}}"></i>
+                  </div>
+                  <div class="{{vm.styles.listItemAction}}" ng-click="vm.undoTodo(todo)" ng-show="todo.done">
+                    <i class="{{vm.styles.icon}} {{vm.styles.iconUndo}}"></i>
+                  </div>
+                  <div class="{{vm.styles.listItemAction}}" ng-click="vm.deleteTodo(todo)">
+                    <i class="{{vm.styles.icon}} {{vm.styles.iconRecycleBin}}"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <farted></farted>
+</div>

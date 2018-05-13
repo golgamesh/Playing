@@ -1,0 +1,675 @@
+{
+    "_url": "_api/search/postquery",
+    "_query": {
+        "Querytext": "IsDocument=true",
+        "RowLimit": 5,
+        "SelectProperties": {
+            "results": [
+                "Filename",
+                "FileExtension",
+                "IsDocument",
+                "LastModifiedTime",
+                "SPContentType",
+                "Title",
+                "Path",
+                "Rank",
+                "Size",
+                "owsID",
+                "WorkId",
+                "SiteName"
+            ]
+        }
+    },
+    "_raw": {
+        "odata.metadata": "https://regal.sharepoint.com/sites/devpoint/_api/$metadata#Microsoft.Office.Server.Search.REST.SearchResult",
+        "ElapsedTime": 302,
+        "PrimaryQueryResult": {
+            "CustomResults": [],
+            "QueryId": "8ecf006b-c6e8-4de9-b72a-ffafde18cf3f",
+            "QueryRuleId": "00000000-0000-0000-0000-000000000000",
+            "RefinementResults": null,
+            "RelevantResults": {
+                "GroupTemplateId": null,
+                "ItemTemplateId": null,
+                "Properties": [
+                    {
+                        "Key": "GenerationId",
+                        "Value": "9223372036854775806",
+                        "ValueType": "Edm.Int64"
+                    },
+                    {
+                        "Key": "indexSystem",
+                        "Value": "",
+                        "ValueType": "Edm.String"
+                    },
+                    {
+                        "Key": "ExecutionTimeMs",
+                        "Value": "94",
+                        "ValueType": "Edm.Int32"
+                    },
+                    {
+                        "Key": "QueryModification",
+                        "Value": "IsDocument=true -ContentClass=urn:content-class:SPSPeople",
+                        "ValueType": "Edm.String"
+                    },
+                    {
+                        "Key": "RenderTemplateId",
+                        "Value": "~sitecollection/_catalogs/masterpage/Display Templates/Search/Group_Default.js",
+                        "ValueType": "Edm.String"
+                    },
+                    {
+                        "Key": "StartRecord",
+                        "Value": "0",
+                        "ValueType": "Edm.Int32"
+                    },
+                    {
+                        "Key": "IsLastBlockInSubstrate",
+                        "Value": "true",
+                        "ValueType": "Edm.Boolean"
+                    },
+                    {
+                        "Key": "IsFirstBlockInSubstrate",
+                        "Value": "false",
+                        "ValueType": "Edm.Boolean"
+                    },
+                    {
+                        "Key": "IsFirstPinnedResultBlock",
+                        "Value": "false",
+                        "ValueType": "Edm.Boolean"
+                    },
+                    {
+                        "Key": "IsLastPinnedResultBlock",
+                        "Value": "false",
+                        "ValueType": "Edm.Boolean"
+                    },
+                    {
+                        "Key": "IsFirstRankedResultBlock",
+                        "Value": "true",
+                        "ValueType": "Edm.Boolean"
+                    },
+                    {
+                        "Key": "IsLastRankedResultBlock",
+                        "Value": "true",
+                        "ValueType": "Edm.Boolean"
+                    },
+                    {
+                        "Key": "MixedTableOrder",
+                        "Value": "0",
+                        "ValueType": "Edm.Int32"
+                    }
+                ],
+                "ResultTitle": null,
+                "ResultTitleUrl": null,
+                "RowCount": 5,
+                "Table": {
+                    "Rows": [
+                        {
+                            "Cells": [
+                                {
+                                    "Key": "Rank",
+                                    "Value": "17.0755615234375",
+                                    "ValueType": "Edm.Double"
+                                },
+                                {
+                                    "Key": "DocId",
+                                    "Value": "17592370898682",
+                                    "ValueType": "Edm.Int64"
+                                },
+                                {
+                                    "Key": "Filename",
+                                    "Value": "Categories.aspx",
+                                    "ValueType": "Edm.String"
+                                },
+                                {
+                                    "Key": "FileExtension",
+                                    "Value": "aspx",
+                                    "ValueType": "Edm.String"
+                                },
+                                {
+                                    "Key": "IsDocument",
+                                    "Value": "true",
+                                    "ValueType": "Edm.Boolean"
+                                },
+                                {
+                                    "Key": "LastModifiedTime",
+                                    "Value": "2016-11-21T19:57:42.0000000Z",
+                                    "ValueType": "Edm.DateTime"
+                                },
+                                {
+                                    "Key": "Title",
+                                    "Value": "Categories",
+                                    "ValueType": "Edm.String"
+                                },
+                                {
+                                    "Key": "Path",
+                                    "Value": "https://regal.sharepoint.com/SitePages/Categories.aspx",
+                                    "ValueType": "Edm.String"
+                                },
+                                {
+                                    "Key": "Size",
+                                    "Value": "134336",
+                                    "ValueType": "Edm.Int64"
+                                },
+                                {
+                                    "Key": "WorkId",
+                                    "Value": "17592370898682",
+                                    "ValueType": "Edm.Int64"
+                                },
+                                {
+                                    "Key": "SiteName",
+                                    "Value": "https://regal.sharepoint.com",
+                                    "ValueType": "Edm.String"
+                                },
+                                {
+                                    "Key": "OriginalPath",
+                                    "Value": "https://regal.sharepoint.com/SitePages/Categories.aspx",
+                                    "ValueType": "Edm.String"
+                                },
+                                {
+                                    "Key": "SPContentType",
+                                    "Value": null,
+                                    "ValueType": "Null"
+                                },
+                                {
+                                    "Key": "owsID",
+                                    "Value": null,
+                                    "ValueType": "Null"
+                                },
+                                {
+                                    "Key": "PartitionId",
+                                    "Value": "816db88a-adaf-41b9-8adc-4a566325fa9c",
+                                    "ValueType": "Edm.Guid"
+                                },
+                                {
+                                    "Key": "UrlZone",
+                                    "Value": "0",
+                                    "ValueType": "Edm.Int32"
+                                },
+                                {
+                                    "Key": "Culture",
+                                    "Value": "en-US",
+                                    "ValueType": "Edm.String"
+                                },
+                                {
+                                    "Key": "ResultTypeId",
+                                    "Value": "0",
+                                    "ValueType": "Edm.Int32"
+                                },
+                                {
+                                    "Key": "RenderTemplateId",
+                                    "Value": "~sitecollection/_catalogs/masterpage/Display Templates/Search/Item_Default.js",
+                                    "ValueType": "Edm.String"
+                                }
+                            ]
+                        },
+                        {
+                            "Cells": [
+                                {
+                                    "Key": "Rank",
+                                    "Value": "17.0755615234375",
+                                    "ValueType": "Edm.Double"
+                                },
+                                {
+                                    "Key": "DocId",
+                                    "Value": "17592373438869",
+                                    "ValueType": "Edm.Int64"
+                                },
+                                {
+                                    "Key": "Filename",
+                                    "Value": "Category.aspx",
+                                    "ValueType": "Edm.String"
+                                },
+                                {
+                                    "Key": "FileExtension",
+                                    "Value": "aspx",
+                                    "ValueType": "Edm.String"
+                                },
+                                {
+                                    "Key": "IsDocument",
+                                    "Value": "true",
+                                    "ValueType": "Edm.Boolean"
+                                },
+                                {
+                                    "Key": "LastModifiedTime",
+                                    "Value": "2016-11-21T19:57:42.0000000Z",
+                                    "ValueType": "Edm.DateTime"
+                                },
+                                {
+                                    "Key": "Title",
+                                    "Value": "Category",
+                                    "ValueType": "Edm.String"
+                                },
+                                {
+                                    "Key": "Path",
+                                    "Value": "https://regal.sharepoint.com/SitePages/Category.aspx",
+                                    "ValueType": "Edm.String"
+                                },
+                                {
+                                    "Key": "Size",
+                                    "Value": "153190",
+                                    "ValueType": "Edm.Int64"
+                                },
+                                {
+                                    "Key": "WorkId",
+                                    "Value": "17592373438869",
+                                    "ValueType": "Edm.Int64"
+                                },
+                                {
+                                    "Key": "SiteName",
+                                    "Value": "https://regal.sharepoint.com",
+                                    "ValueType": "Edm.String"
+                                },
+                                {
+                                    "Key": "OriginalPath",
+                                    "Value": "https://regal.sharepoint.com/SitePages/Category.aspx",
+                                    "ValueType": "Edm.String"
+                                },
+                                {
+                                    "Key": "SPContentType",
+                                    "Value": null,
+                                    "ValueType": "Null"
+                                },
+                                {
+                                    "Key": "owsID",
+                                    "Value": null,
+                                    "ValueType": "Null"
+                                },
+                                {
+                                    "Key": "PartitionId",
+                                    "Value": "816db88a-adaf-41b9-8adc-4a566325fa9c",
+                                    "ValueType": "Edm.Guid"
+                                },
+                                {
+                                    "Key": "UrlZone",
+                                    "Value": "0",
+                                    "ValueType": "Edm.Int32"
+                                },
+                                {
+                                    "Key": "Culture",
+                                    "Value": "en-US",
+                                    "ValueType": "Edm.String"
+                                },
+                                {
+                                    "Key": "ResultTypeId",
+                                    "Value": "0",
+                                    "ValueType": "Edm.Int32"
+                                },
+                                {
+                                    "Key": "RenderTemplateId",
+                                    "Value": "~sitecollection/_catalogs/masterpage/Display Templates/Search/Item_Default.js",
+                                    "ValueType": "Edm.String"
+                                }
+                            ]
+                        },
+                        {
+                            "Cells": [
+                                {
+                                    "Key": "Rank",
+                                    "Value": "17.0755615234375",
+                                    "ValueType": "Edm.Double"
+                                },
+                                {
+                                    "Key": "DocId",
+                                    "Value": "17592374563383",
+                                    "ValueType": "Edm.Int64"
+                                },
+                                {
+                                    "Key": "Filename",
+                                    "Value": "About.aspx",
+                                    "ValueType": "Edm.String"
+                                },
+                                {
+                                    "Key": "FileExtension",
+                                    "Value": "aspx",
+                                    "ValueType": "Edm.String"
+                                },
+                                {
+                                    "Key": "IsDocument",
+                                    "Value": "true",
+                                    "ValueType": "Edm.Boolean"
+                                },
+                                {
+                                    "Key": "LastModifiedTime",
+                                    "Value": "2016-11-21T19:57:40.0000000Z",
+                                    "ValueType": "Edm.DateTime"
+                                },
+                                {
+                                    "Key": "Title",
+                                    "Value": "About",
+                                    "ValueType": "Edm.String"
+                                },
+                                {
+                                    "Key": "Path",
+                                    "Value": "https://regal.sharepoint.com/SitePages/About.aspx",
+                                    "ValueType": "Edm.String"
+                                },
+                                {
+                                    "Key": "Size",
+                                    "Value": "116147",
+                                    "ValueType": "Edm.Int64"
+                                },
+                                {
+                                    "Key": "WorkId",
+                                    "Value": "17592374563383",
+                                    "ValueType": "Edm.Int64"
+                                },
+                                {
+                                    "Key": "SiteName",
+                                    "Value": "https://regal.sharepoint.com",
+                                    "ValueType": "Edm.String"
+                                },
+                                {
+                                    "Key": "OriginalPath",
+                                    "Value": "https://regal.sharepoint.com/SitePages/About.aspx",
+                                    "ValueType": "Edm.String"
+                                },
+                                {
+                                    "Key": "SPContentType",
+                                    "Value": null,
+                                    "ValueType": "Null"
+                                },
+                                {
+                                    "Key": "owsID",
+                                    "Value": null,
+                                    "ValueType": "Null"
+                                },
+                                {
+                                    "Key": "PartitionId",
+                                    "Value": "816db88a-adaf-41b9-8adc-4a566325fa9c",
+                                    "ValueType": "Edm.Guid"
+                                },
+                                {
+                                    "Key": "UrlZone",
+                                    "Value": "0",
+                                    "ValueType": "Edm.Int32"
+                                },
+                                {
+                                    "Key": "Culture",
+                                    "Value": "en-US",
+                                    "ValueType": "Edm.String"
+                                },
+                                {
+                                    "Key": "ResultTypeId",
+                                    "Value": "0",
+                                    "ValueType": "Edm.Int32"
+                                },
+                                {
+                                    "Key": "RenderTemplateId",
+                                    "Value": "~sitecollection/_catalogs/masterpage/Display Templates/Search/Item_Default.js",
+                                    "ValueType": "Edm.String"
+                                }
+                            ]
+                        },
+                        {
+                            "Cells": [
+                                {
+                                    "Key": "Rank",
+                                    "Value": "17.0755615234375",
+                                    "ValueType": "Edm.Double"
+                                },
+                                {
+                                    "Key": "DocId",
+                                    "Value": "17592375779365",
+                                    "ValueType": "Edm.Int64"
+                                },
+                                {
+                                    "Key": "Filename",
+                                    "Value": "Members.aspx",
+                                    "ValueType": "Edm.String"
+                                },
+                                {
+                                    "Key": "FileExtension",
+                                    "Value": "aspx",
+                                    "ValueType": "Edm.String"
+                                },
+                                {
+                                    "Key": "IsDocument",
+                                    "Value": "true",
+                                    "ValueType": "Edm.Boolean"
+                                },
+                                {
+                                    "Key": "LastModifiedTime",
+                                    "Value": "2016-11-21T19:57:43.0000000Z",
+                                    "ValueType": "Edm.DateTime"
+                                },
+                                {
+                                    "Key": "Title",
+                                    "Value": "Members",
+                                    "ValueType": "Edm.String"
+                                },
+                                {
+                                    "Key": "Path",
+                                    "Value": "https://regal.sharepoint.com/SitePages/Members.aspx",
+                                    "ValueType": "Edm.String"
+                                },
+                                {
+                                    "Key": "Size",
+                                    "Value": "111648",
+                                    "ValueType": "Edm.Int64"
+                                },
+                                {
+                                    "Key": "WorkId",
+                                    "Value": "17592375779365",
+                                    "ValueType": "Edm.Int64"
+                                },
+                                {
+                                    "Key": "SiteName",
+                                    "Value": "https://regal.sharepoint.com",
+                                    "ValueType": "Edm.String"
+                                },
+                                {
+                                    "Key": "OriginalPath",
+                                    "Value": "https://regal.sharepoint.com/SitePages/Members.aspx",
+                                    "ValueType": "Edm.String"
+                                },
+                                {
+                                    "Key": "SPContentType",
+                                    "Value": null,
+                                    "ValueType": "Null"
+                                },
+                                {
+                                    "Key": "owsID",
+                                    "Value": null,
+                                    "ValueType": "Null"
+                                },
+                                {
+                                    "Key": "PartitionId",
+                                    "Value": "816db88a-adaf-41b9-8adc-4a566325fa9c",
+                                    "ValueType": "Edm.Guid"
+                                },
+                                {
+                                    "Key": "UrlZone",
+                                    "Value": "0",
+                                    "ValueType": "Edm.Int32"
+                                },
+                                {
+                                    "Key": "Culture",
+                                    "Value": "en-US",
+                                    "ValueType": "Edm.String"
+                                },
+                                {
+                                    "Key": "ResultTypeId",
+                                    "Value": "0",
+                                    "ValueType": "Edm.Int32"
+                                },
+                                {
+                                    "Key": "RenderTemplateId",
+                                    "Value": "~sitecollection/_catalogs/masterpage/Display Templates/Search/Item_Default.js",
+                                    "ValueType": "Edm.String"
+                                }
+                            ]
+                        },
+                        {
+                            "Cells": [
+                                {
+                                    "Key": "Rank",
+                                    "Value": "17.0755615234375",
+                                    "ValueType": "Edm.Double"
+                                },
+                                {
+                                    "Key": "DocId",
+                                    "Value": "17592377043547",
+                                    "ValueType": "Edm.Int64"
+                                },
+                                {
+                                    "Key": "Filename",
+                                    "Value": "Community Home.aspx",
+                                    "ValueType": "Edm.String"
+                                },
+                                {
+                                    "Key": "FileExtension",
+                                    "Value": "aspx",
+                                    "ValueType": "Edm.String"
+                                },
+                                {
+                                    "Key": "IsDocument",
+                                    "Value": "true",
+                                    "ValueType": "Edm.Boolean"
+                                },
+                                {
+                                    "Key": "LastModifiedTime",
+                                    "Value": "2016-11-21T19:57:39.0000000Z",
+                                    "ValueType": "Edm.DateTime"
+                                },
+                                {
+                                    "Key": "Title",
+                                    "Value": "Community Home",
+                                    "ValueType": "Edm.String"
+                                },
+                                {
+                                    "Key": "Path",
+                                    "Value": "https://regal.sharepoint.com/SitePages/Community Home.aspx",
+                                    "ValueType": "Edm.String"
+                                },
+                                {
+                                    "Key": "Size",
+                                    "Value": "124535",
+                                    "ValueType": "Edm.Int64"
+                                },
+                                {
+                                    "Key": "WorkId",
+                                    "Value": "17592377043547",
+                                    "ValueType": "Edm.Int64"
+                                },
+                                {
+                                    "Key": "SiteName",
+                                    "Value": "https://regal.sharepoint.com",
+                                    "ValueType": "Edm.String"
+                                },
+                                {
+                                    "Key": "OriginalPath",
+                                    "Value": "https://regal.sharepoint.com/SitePages/Community Home.aspx",
+                                    "ValueType": "Edm.String"
+                                },
+                                {
+                                    "Key": "SPContentType",
+                                    "Value": null,
+                                    "ValueType": "Null"
+                                },
+                                {
+                                    "Key": "owsID",
+                                    "Value": null,
+                                    "ValueType": "Null"
+                                },
+                                {
+                                    "Key": "PartitionId",
+                                    "Value": "816db88a-adaf-41b9-8adc-4a566325fa9c",
+                                    "ValueType": "Edm.Guid"
+                                },
+                                {
+                                    "Key": "UrlZone",
+                                    "Value": "0",
+                                    "ValueType": "Edm.Int32"
+                                },
+                                {
+                                    "Key": "Culture",
+                                    "Value": "en-US",
+                                    "ValueType": "Edm.String"
+                                },
+                                {
+                                    "Key": "ResultTypeId",
+                                    "Value": "0",
+                                    "ValueType": "Edm.Int32"
+                                },
+                                {
+                                    "Key": "RenderTemplateId",
+                                    "Value": "~sitecollection/_catalogs/masterpage/Display Templates/Search/Item_Default.js",
+                                    "ValueType": "Edm.String"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "TotalRows": 5908,
+                "TotalRowsIncludingDuplicates": 6074
+            },
+            "SpecialTermResults": null
+        },
+        "Properties": [
+            {
+                "Key": "RowLimit",
+                "Value": "5",
+                "ValueType": "Edm.Int32"
+            },
+            {
+                "Key": "SourceId",
+                "Value": "8413cd39-2156-4e00-b54d-11efd9abdb89",
+                "ValueType": "Edm.Guid"
+            },
+            {
+                "Key": "CorrelationId",
+                "Value": "8503479e-206f-5000-3120-08ddad8f058a",
+                "ValueType": "Edm.Guid"
+            },
+            {
+                "Key": "WasGroupRestricted",
+                "Value": "false",
+                "ValueType": "Edm.Boolean"
+            },
+            {
+                "Key": "IsPartial",
+                "Value": "false",
+                "ValueType": "Edm.Boolean"
+            },
+            {
+                "Key": "HasParseException",
+                "Value": "false",
+                "ValueType": "Edm.Boolean"
+            },
+            {
+                "Key": "WordBreakerLanguage",
+                "Value": "en",
+                "ValueType": "Edm.String"
+            },
+            {
+                "Key": "IsPartialUpnDocIdMapping",
+                "Value": "false",
+                "ValueType": "Edm.Boolean"
+            },
+            {
+                "Key": "EnableInterleaving",
+                "Value": "true",
+                "ValueType": "Edm.Boolean"
+            },
+            {
+                "Key": "IsMissingUnifiedGroups",
+                "Value": "false",
+                "ValueType": "Edm.Boolean"
+            },
+            {
+                "Key": "Constellation",
+                "Value": "4C24EA",
+                "ValueType": "Edm.String"
+            },
+            {
+                "Key": "SerializedQuery",
+                "Value": "<Query Culture=\"en-US\" EnableStemming=\"True\" EnablePhonetic=\"False\" EnableNicknames=\"False\" IgnoreAllNoiseQuery=\"True\" SummaryLength=\"180\" MaxSnippetLength=\"180\" DesiredSnippetLength=\"90\" KeywordInclusion=\"0\" QueryText=\"IsDocument=true\" QueryTemplate=\"\" TrimDuplicates=\"True\" Site=\"a511d3d2-6740-4498-87f4-84d665fafbca\" Web=\"17dfd35c-5c05-41b7-8b6e-42c08c872315\" KeywordType=\"True\" HiddenConstraints=\"\" />",
+                "ValueType": "Edm.String"
+            }
+        ],
+        "SecondaryQueryResults": [],
+        "SpellingSuggestion": "",
+        "TriggeredRules": []
+    },
+    "_primary": null
+}

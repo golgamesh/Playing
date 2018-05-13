@@ -1,0 +1,23 @@
+{
+  "$schema": "https://dev.office.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "angulartest-01-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/angulartest01/Angulartest01WebPart.js",
+          "manifest": "./src/webparts/angulartest01/Angulartest01WebPart.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {
+    "angular": {
+      "path": "https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.6/angular.min.js",
+      "globalName": "angular"
+    }
+  },
+  "localizedResources": {
+    "Angulartest01WebPartStrings": "lib/webparts/angulartest01/loc/{locale}.js"
+  }
+}

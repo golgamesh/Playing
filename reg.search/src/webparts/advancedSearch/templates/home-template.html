@@ -1,0 +1,64 @@
+<div class="reg-advanced-search" ng-controller="HomeController as vm">
+    <div class="reg-panel">
+        <h1>Advanced Search</h1>
+        <div>
+            <div class="reg-search-filter"></div>
+            <hr/>
+            <div class="reg-command-bar">
+                <uif-button ng-click="getResults()">
+                    <i class="ms-Icon ms-Icon--Search" aria-hidden="true"></i>
+                    Search
+                </uif-button>
+                <uif-button ng-click="reset()">
+                    <i class="ms-Icon ms-Icon--Sync" aria-hidden="true"></i>
+                    Reset
+                </uif-button>
+            </div>
+        </div>
+    </div>
+
+    <div class="reg-panel" style="margin-top:50px;">
+        <h1>Search Results</h1>
+        <div class="reg-search-results"></div>
+    </div>
+
+    <!-- BEGIN Debug Panel -->
+    <div class="ms-MessageBar reg-debug" ng-show="wpProps.debug">
+        <div class="ms-MessageBar-content">
+            <div class="ms-MessageBar-icon">
+                <i class="ms-Icon ms-Icon--Info"></i>
+                Debug
+                <hr/>
+            </div>
+            <div class="ms-MessageBar-text">
+                <table class="ms-Table">
+                    <tr ng-repeat="field in fields" ng-show="field.value != ''">
+                        <th>{{field.name}}</th>
+                        <td>{{field.value}}</td>
+                    </tr>
+                    <tr ng-show="searchQuery() != ''">
+                        <th>
+                            Search Clause
+                        </th>
+                        <td>
+                            {{searchQuery()}} 
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    <!-- BEGIN Debug Panel -->
+
+</div> <!-- /reg-advanced-search -->
+
+<div class="ms-font-su">Office UI Fabric Icons</div>
+
+<div class="icon-list clearfix">
+    <ul>
+        <li><i class="ms-Icon ms-Icon--checkbox"></i><span class="ms-font-m">.ms-Icon--smiley</span></li>
+        <li><i class="ms-Icon ms-Icon--checkboxCheck"></i><span class="ms-font-m">.ms-Icon--sites</span></li>
+        <li><i class="ms-Icon ms-Icon--checkboxEmpty"></i><span class="ms-font-m">.ms-Icon--shield</span></li>
+        <li><i class="ms-Icon ms-Icon--checkboxMixed"></i><span class="ms-font-m">.ms-Icon--share</span></li>
+    </ul>
+</div>

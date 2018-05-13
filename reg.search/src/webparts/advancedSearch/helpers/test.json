@@ -1,0 +1,24 @@
+{
+    "fields": [
+        {
+            "name": "Title",
+            "property": "ows_title",
+            "operator": "like",
+            "control": "TextField"
+        },
+        {
+            "name": "Department",
+            "property": "ows_department",
+            "operator": "equals",
+            "control": "SelectField",
+            "data": [
+                "IT",
+                "Hr",
+                "Marketing",
+                "Film",
+                "Operations",
+                "Food"
+            ]
+        }
+    ]
+}

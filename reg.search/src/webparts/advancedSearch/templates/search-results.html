@@ -1,0 +1,101 @@
+<div class="">
+    
+
+    <uif-table uif-row-select-mode="none" uif-table-type="fixed" uif-selected-items="selectedFiles">
+        <uif-table-head>
+            <uif-table-row>
+                <uif-table-row-select></uif-table-row-select>
+                <uif-table-header ng-repeat="p in properties">
+                    <a href="#">{{p.label}}<i class="ms-Icon ms-Icon--ascending"></i></a>
+                </uif-table-header>
+            </uif-table-row>
+        </uif-table-head>
+        <uif-table-body>
+            <uif-table-row ng-repeat="r in results" data-is-document="" uif-selected="{{r.IsSelected}}" data-index="{{$index}}" ng-click="$root.row_click($event)">
+                <uif-table-row-select></uif-table-row-select>
+                <uif-table-cell ng-repeat="p in properties">
+                    <div ng-switch="p.type">
+                        <div ng-switch-when="Edm.Boolean">{{$root.formatBool(r[p.property])}}</div>
+                        <div ng-switch-when="Edm.DateTime">{{$root.formatDate(r[p.property]) }}</div>
+                        <div ng-switch-default>{{r[p.property]}}</div>
+                    </div>
+                </uif-table-cell>
+            </uif-table-row>
+        </uif-table-body>
+    </uif-table>
+
+    <hr class=""/>
+
+    <div paging
+        page="35" 
+        page-size="10" 
+        total="1000"
+        paging-action="$root.getPage(page)">
+    </div> 
+
+    <!--Bottom Table UI-->
+    <div class="">
+        <div>
+            totalRows: {{$root.search.totalRows}}<br/>
+            page: {{$root.search.pageNumber}}<br/>
+            pages: {{$root.pager.pages.length}}<br/>
+        </div>
+    </div>
+
+    <!--Bottom Table UI-->
+    <ul ng-if="$root.pager.pages.length" class="pagination">
+        <li ng-class="{disabled:$root.pager.currentPage === 1}">
+            <a ng-click="$root.getPage(1)">First</a>
+        </li>
+        <li ng-class="{disabled:$root.pager.currentPage === 1}">
+            <a ng-click="$root.getPage($root.pager.currentPage - 1)">Previous</a>
+        </li>
+        <li ng-repeat="page in $root.pager.pages" ng-class="{active:$root.pager.currentPage === page}">
+            <a ng-click="$root.getPage(page)">{{page}}</a>
+        </li>               
+        <li ng-class="{disabled:$root.pager.currentPage === $root.pager.totalPages}">
+            <a ng-click="$root.getPage($root.pager.currentPage + 1)">Next</a>
+        </li>
+        <li ng-class="{disabled:$root.pager.currentPage === $root.pager.totalPages}">
+            <a ng-click="$root.getPage($root.pager.totalPages)">Last</a>
+        </li>
+    </ul>
+
+<!--Pagination -->
+<nav class="">
+    <ul ng-if="$root.pager.pages.length"  class="pagination pagination-circle pg-purple mb-0">
+
+        <!--First-->
+        <li ng-class="{disabled:$root.pager.currentPage === 1}" class="page-item clearfix d-none d-md-block">
+            <a ng-click="$root.getPage(1)" class="page-link">First</a>
+        </li>
+
+        <!--Arrow left-->
+        <li ng-class="{disabled:$root.pager.currentPage === 1}" class="page-item">
+            <a ng-click="$root.getPage($root.pager.currentPage - 1)" class="page-link" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+                <span class="sr-only">Previous</span>
+            </a>
+        </li>
+
+        <!--Numbers-->
+        <li ng-repeat="page in $root.pager.pages" ng-class="{active:$root.pager.currentPage === page}" class="page-item">
+            <a ng-click="$root.getPage(page)" class="page-link">{{page}}</a>
+        </li>
+
+        <!--Arrow right-->
+        <li ng-class="{disabled:$root.pager.currentPage === $root.pager.totalPages}" class="page-item">
+            <a ng-click="$root.getPage($root.pager.currentPage + 1)" class="page-link" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+                <span class="sr-only">Next</span>
+            </a>
+        </li>
+
+        <!--First-->
+        <li ng-class="{disabled:$root.pager.currentPage === $root.pager.totalPages}" class="page-item clearfix d-none d-md-block">
+            <a ng-click="$root.getPage($root.pager.totalPages)" class="page-link">Last</a>
+        </li>
+    </ul>
+</nav>
+<!--/Pagination -->
+</div>

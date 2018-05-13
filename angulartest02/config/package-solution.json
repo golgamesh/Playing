@@ -1,0 +1,12 @@
+{
+  "$schema": "https://dev.office.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "angulartest-02-client-side-solution",
+    "id": "f889658c-37ff-47c4-9e52-e26e9d61282d",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true
+  },
+  "paths": {
+    "zippedPackage": "solution/angulartest-02.sppkg"
+  }
+}
