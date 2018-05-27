@@ -1,0 +1,12 @@
+{
+  "$schema": "https://dev.office.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "react-advanced-search-webpart-client-side-solution",
+    "id": "5f1a41f5-b523-455f-be39-395a055a9230",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true
+  },
+  "paths": {
+    "zippedPackage": "solution/react-advanced-search-webpart.sppkg"
+  }
+}
