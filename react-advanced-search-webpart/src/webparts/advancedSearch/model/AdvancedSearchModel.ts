@@ -7,14 +7,16 @@ export interface ISearchPropertyData {
     control?: SearchControlType;
     options?: ISearchPropertyOptions;
     value?: string;
+    propIndex?: number;
 }
 
 export interface ISearchPropertyOptions {
+    //selectedItem?: ISelectOption;
     choices: Array<String | Number | ISelectOption>;
 }
 
 export interface ISelectOption {
-    key: any;
+    key: string | number | undefined;
     text: any;
 }
 

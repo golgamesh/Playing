@@ -16,19 +16,18 @@ export default class AdvancedSearch extends React.Component<IAdvancedSearchProps
     };
   }
 
-  public state: any;
 
   public render(): React.ReactElement<IAdvancedSearchProps> {
     return (
       <div className={ styles.advancedSearch }>
-        <SearchInterface options={this.state.options} changeHandler={e => this.control_change(e)} />
+        <SearchInterface initialOptions={this.props.initialOptions} changeHandler={e => this.control_change(e)} />
       </div>
     );
   }
 
-  protected control_change(e: Event): void {
+  protected control_change(e: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>): void {
+    console.log(e);
     let ctrl  = e.currentTarget as HTMLInputElement;
 
-    console.log(ctrl.value);
   }
 }

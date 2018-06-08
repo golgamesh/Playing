@@ -5,24 +5,34 @@ import { IAdvancedSearchWebPartProps } from '../AdvancedSearchWebPart';
 import * as Model from '../model/AdvancedSearchModel';
 
 export interface ISearchInterfaceProps {
-    options: Model.IAdvancedSearchOptions;
+    initialOptions: Model.IAdvancedSearchOptions;
     changeHandler: Function;
 }
 
 export default class SearchInterface extends React.Component<ISearchInterfaceProps, {}> {
 
+    constructor(props) {
+        super();
+
+        this.state = {
+            options: {
+                ...props.initialOptions
+            }
+        };
+
+    }
+
+    public state: any;
+
     private readonly columns: number = 3;
 
     public render(): React.ReactElement<ISearchTextFieldProps> {
-        return this.buildInterface(this.props.options);
-    }
 
-    public buildInterface(options: Model.IAdvancedSearchOptions) {
         let controls: JSX.Element[] = [];
         let rows: JSX.Element[] = [];
-        let key: number = 0;
+        let key: number = 1;
         
-        options.fields.forEach((field: Model.ISearchPropertyData, i: number) => {
+        this.state.options.fields.forEach((field: Model.ISearchPropertyData, i: number) => {
 
             switch(field.type) {
                 case Model.PropertyValueType.Int32:
@@ -36,16 +46,21 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
                                 field.options.choices[idx] = { key: item, text: item };
                             }
                         });
-                        //controls.push(this.selectField(field.name, field.property, 'fields[' + i + '].value', 'fields[' + i + '].options.choices'));
                         controls.push(<Dropdown
                             placeHolder={field.name}
-                            options={ field.options.choices }
-                            onChange={e => this.props.changeHandler(e)}
+                            options={field.options.choices}
+                            selectedKey={field.value}
+                            onChanged={(e, b) => this.ctrl_change(e, field)}
+                            data-index={i}
                             key={key++} />);
                     }
                     else {
-                        //controls.push(this.textField(field.name, field.property, 'fields[' + i + '].value'));
-                        controls.push(<TextField placeholder={field.name} onChange={e => this.props.changeHandler(e)} key={key++} />)
+                        controls.push(<TextField 
+                            placeholder={field.name} 
+                            onChanged={(e) => this.ctrl_change(e, field)}
+                            data-index={i}
+                            value={field.value}
+                            key={key++} />);
                     }
                     break;
                 case Model.PropertyValueType.Boolean:
@@ -53,8 +68,13 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
                         field.options = {} as any;
                     }
                     field.options.choices = [{ key: 'Yes', text: 'true' }, { key: 'No', text: 'false' }];
-                    //controls.push(this.selectField(field.name, field.property, 'fields[' + i + '].value', 'fields[' + i + '].options.choices'));
-                    controls.push(<Dropdown placeHolder={field.name} options={field.options.choices} onChange={e => this.props.changeHandler(e)} key={key++} />);
+                    controls.push(<Dropdown 
+                        placeHolder={field.name} 
+                        onChanged={(e) => this.ctrl_change(e, field)} 
+                        options={field.options.choices}
+                        selectedKey={field.value}
+                        data-index={i} 
+                        key={key++} />);
                     break;
                 case Model.PropertyValueType.DateTime:
                     //controls.push(this.daterangeField(field.name, field.property, 'fields[' + i + '].value'));
@@ -81,25 +101,39 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
             rows.push(r);
         }
 
-        let container = this._container(rows, key);
+        return (
+            <div className="ms-Grid" key="0">
+                {rows}
+            </div>
+        );
 
-        //let it = this._iterate(container as any);
+    }
 
-        return container;
+    public formChange(): void {
+        console.log('form change');
+    }
+
+    public buildInterface(options: Model.IAdvancedSearchOptions): Array<JSX.Element> {
+        return null;
         
     }
 
-/*     private _iterate(el: Element, iterator: number = 0): number {
-        for(let i = 0; i < el.children.length; i++) {
-            iterator = this._iterate(el.children[i], iterator);
-        }
-        el['key'] = iterator++;
-        return iterator;
-    } */
+    protected ctrl_change(val: any, field: Model.ISearchPropertyData): void {
+        
+        console.log(val, field);
+
+        let newOptions = { ...this.state.options } as Model.IAdvancedSearchOptions;
+
+        newOptions.fields[field.propIndex].value = val.key ? val.key.toString() : val;
+
+        this.setState({
+            options: newOptions
+        });
+    }
 
     private _container(rows: JSX.Element[], key: number): JSX.Element {
         return (
-            <div className="container" key={key++}>{rows}</div>
+            <div className="ms-Grid" key={key++}>{rows}</div>
         );
     }
 
@@ -109,11 +143,11 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
 
         controls.forEach((control: JSX.Element, i: number) => {
             cells.push(
-                <div className="col-4 col-6-lg col-12-sm" key={key++}>{control}</div>
+                <div className="ms-Grid-col ms-sm12 ms-xl6 ms-xxl4" key={key++}>{control}</div>
             );
         });
         return (
-            <div className="row" key={key++}>
+            <div className="ms-Grid-row" key={key++}>
                 {cells}
             </div>
         );
@@ -122,4 +156,10 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
     private _isSelectOption(arg: any): arg is Model.ISelectOption {
         return (arg as Model.ISelectOption).key !== undefined || (arg as Model.ISelectOption).text !== undefined;
     } 
+
+}
+
+
+function change() {
+    console.log('yup');
 }

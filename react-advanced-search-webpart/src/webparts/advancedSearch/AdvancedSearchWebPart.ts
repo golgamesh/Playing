@@ -14,6 +14,8 @@ import * as Model from './model/AdvancedSearchModel';
 import * as strings from 'AdvancedSearchWebPartStrings';
 import AdvancedSearch from './components/AdvancedSearch';
 import { IAdvancedSearchProps } from './components/IAdvancedSearchProps';
+import { ISearchInterfaceProps } from './components/SearchInterface';
+import { ISearchPropertyData } from '../../../lib/webparts/advancedSearch/model/AdvancedSearchModel';
 
 export interface IAdvancedSearchWebPartProps {
   description: string;
@@ -28,6 +30,7 @@ export default class AdvancedSearchWebPart extends BaseClientSideWebPart<IAdvanc
   protected onInit(): Promise<void> {
     return super.onInit().then(_ => {
       this.initialOptions = <Model.IAdvancedSearchOptions>JSON.parse(this.properties.options);
+      this._indexProperties();
     });
   }
 
@@ -47,6 +50,11 @@ export default class AdvancedSearchWebPart extends BaseClientSideWebPart<IAdvanc
     ReactDom.render(element, this.domElement);
   }
 
+  private _indexProperties() {
+    this.initialOptions.fields.forEach((field: ISearchPropertyData, idx: number) => {
+      field.propIndex = idx;
+    });
+  }
 
   protected get dataVersion(): Version {
     return Version.parse('1.0');
