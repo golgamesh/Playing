@@ -118,10 +118,14 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
 
         this.searchData.search(nextProps.searchQuery).then((res: SearchResults) => {
             let totalPages = 0;
-
+            
             if(res.TotalRows !== 0) {
-                let totalPages = Math.ceil(res.TotalRows / this.props.rowLimit);
+                totalPages = Math.ceil(res.TotalRows / this.props.rowLimit);
             }
+            console.log('totalrows: ', res.TotalRows);
+            console.log('rowlimit: ', this.props.rowLimit);
+            console.log('currpage: ', this.searchData.page);
+            console.log('totpages: ', totalPages);
 
             this.setState({
                 ...this.state,
