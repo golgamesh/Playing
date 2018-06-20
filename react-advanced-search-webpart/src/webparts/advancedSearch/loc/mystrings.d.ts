@@ -3,8 +3,10 @@ declare interface IAdvancedSearchWebPartStrings {
   BasicGroupName: string;
   DescriptionFieldLabel: string;
   RowLimitFieldLabel: string;
-  OptionsFieldLabel: string;
-  OptionsFieldDesc: string;
+  SearchConfigFieldLabel: string;
+  SearchConfigFieldDesc: string;
+  ResultsConfigFieldLabel: string;
+  ResultsConfigFieldDesc: string;
   IsDebugFieldLabel: string;
   AddCriteriaFieldLabel: string;
   AddCriteriaFieldDesc: string;

@@ -1,12 +1,14 @@
 
-export interface ISearchPropertyData {
+import { IColumn } from 'office-ui-fabric-react/lib/DetailsList';
+
+export interface ISearchProperty {
     name: string;
     property: string;
     operator: SearchOperator;
     type: PropertyValueType;
     control?: SearchControlType;
     options?: ISearchPropertyOptions;
-    value?: string;
+    value?: string | number | undefined;
     propIndex?: number;
 }
 
@@ -33,21 +35,22 @@ export enum SearchControlType {
     DateRangeField = "DateRange"
 }
 
-export interface IAdvancedSearchOptions {
-    fields: Array<ISearchPropertyData>;
-    results: IResultsData;
+export interface IAdvancedSearchConfig {
+    properties: Array<ISearchProperty>;
 }
 
-export interface IResultsData {
-    properties: Array<IResultPropertyData>;
+export interface IResultsConfig {
+    columns: Array<IResultProperty>;
 }
 
-export interface IResultPropertyData {
-    property: string;
-    label: string;
+export interface IResultProperty extends IColumn {
+    fieldName: string;
+    name: string;
     sortable: boolean;
     type: ResultPropertyValueType;
 }
+
+
 
 export enum ResultPropertyValueType {
     Boolean = "Edm.Boolean",

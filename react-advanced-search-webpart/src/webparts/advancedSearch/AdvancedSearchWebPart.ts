@@ -10,17 +10,16 @@ import {
 } from '@microsoft/sp-webpart-base';
 import Validation from './helpers/Validation';
 import * as Model from './model/AdvancedSearchModel';
-
 import * as strings from 'AdvancedSearchWebPartStrings';
 import AdvancedSearch from './components/AdvancedSearch';
-import { IAdvancedSearchProps } from './components/IAdvancedSearchProps';
+import { IAdvancedSearchProps } from './components/AdvancedSearch';
 import { ISearchInterfaceProps } from './components/SearchInterface';
-import { ISearchPropertyData } from '../../../lib/webparts/advancedSearch/model/AdvancedSearchModel';
 
 export interface IAdvancedSearchWebPartProps {
   description: string;
   rowLimit: number;
-  options: string;
+  searchConfig: string;
+  resultsConfig: string;
   addCriteria: string;
   isDebug: boolean;
 }
@@ -29,21 +28,25 @@ export default class AdvancedSearchWebPart extends BaseClientSideWebPart<IAdvanc
 
   protected onInit(): Promise<void> {
     return super.onInit().then(_ => {
-      this.initialOptions = <Model.IAdvancedSearchOptions>JSON.parse(this.properties.options);
+      this.searchConfig = <Model.IAdvancedSearchConfig>JSON.parse(this.properties.searchConfig);
+      this.resultsConfig = <Model.IResultsConfig>JSON.parse(this.properties.resultsConfig);
       this._indexProperties();
     });
   }
 
-  public initialOptions: Model.IAdvancedSearchOptions;
+  public searchConfig: Model.IAdvancedSearchConfig;
+  public resultsConfig: Model.IResultsConfig;
 
   public render(): void {
-    const element: React.ReactElement<IAdvancedSearchProps > = React.createElement(
+    const element: React.ReactElement<IAdvancedSearchProps> = React.createElement(
       AdvancedSearch,
-      {
+      <IAdvancedSearchProps>{
         description: this.properties.description,
         rowLimit: this.properties.rowLimit,
-        initialOptions: this.initialOptions,
-        isDebug: this.properties.isDebug
+        searchConfig: this.searchConfig,
+        resultsConfig: this.resultsConfig,
+        isDebug: this.properties.isDebug,
+        context: this.context
       }
     );
 
@@ -51,7 +54,7 @@ export default class AdvancedSearchWebPart extends BaseClientSideWebPart<IAdvanc
   }
 
   private _indexProperties() {
-    this.initialOptions.fields.forEach((field: ISearchPropertyData, idx: number) => {
+    this.searchConfig.properties.forEach((field: Model.ISearchProperty, idx: number) => {
       field.propIndex = idx;
     });
   }
@@ -75,12 +78,19 @@ export default class AdvancedSearchWebPart extends BaseClientSideWebPart<IAdvanc
                   label: strings.DescriptionFieldLabel,
                   multiline: true
                 }),
-                PropertyPaneTextField('options', {
-                  label: strings.OptionsFieldLabel,
+                PropertyPaneTextField('searchConfig', {
+                  label: strings.SearchConfigFieldLabel,
                   multiline: true,
-                  description: strings.OptionsFieldDesc,
+                  description: strings.SearchConfigFieldDesc,
                   validateOnFocusOut: true,
-                  onGetErrorMessage: Validation.validateOptions.bind(this)
+                  onGetErrorMessage: Validation.validateSearchConfig.bind(this)
+                }),
+                PropertyPaneTextField('resultsConfig', {
+                  label: strings.ResultsConfigFieldLabel,
+                  multiline: true,
+                  description: strings.ResultsConfigFieldDesc,
+                  validateOnFocusOut: true,
+                  onGetErrorMessage: Validation.validateResultsConfig.bind(this)
                 }),
                 PropertyPaneTextField('addCriteria', {
                   label: strings.AddCriteriaFieldLabel,

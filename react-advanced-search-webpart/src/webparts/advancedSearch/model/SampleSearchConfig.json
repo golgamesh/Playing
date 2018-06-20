@@ -1,5 +1,5 @@
 {
-    "fields": [
+    "properties": [
         {
             "name": "Title",
             "property": "ows_title",
@@ -52,39 +52,5 @@
                 ]
             }
         }
-    ],
-    "results": {
-        "properties": [
-            {
-                "property": "Title",
-                "label": "Title",
-                "sortable": false
-            },
-            {
-                "property": "Filename",
-                "label": "Filename",
-                "sortable": true
-            },
-            {
-                "property": "FileExtension",
-                "label": "File Extension",
-                "sortable": true
-            },
-            {
-                "property": "IsDocument",
-                "label": "Is Document",
-                "sortable": false
-            },
-            {
-                "property": "LastModifiedTime",
-                "label": "Modified",
-                "sortable": true
-            },
-            {
-                "property": "NavEnabled",
-                "label": "NavEnabled",
-                "sortable": false
-            }
-        ]
-    }
+    ]
 }

@@ -2,24 +2,44 @@ import * as Model from '../model/AdvancedSearchModel';
 
 export default class Validation {
 
-    public static validateOptions(strOptions: string): string {
+    public static validateSearchConfig(strConfig: string): string {
 
         var o: any;
-        var sample: Model.IAdvancedSearchOptions = require('../model/SampleOptions');
+        var sample: Model.IAdvancedSearchConfig = require('../model/SampleSearchConfig');
 
         try {
-            o = JSON.parse(strOptions);
+            o = JSON.parse(strConfig);
         }
         catch (ex) {
             return 'Invalid JSON Syntax';
         }
 
-        if (Validation.is<Model.IAdvancedSearchOptions>(o, sample, false)) {
+        if (Validation.is<Model.IAdvancedSearchConfig>(o, sample, false)) {
             return '';
         } else {
             return 'Fails To Implement IAdvancedSearchOptions, see console for details';
         }
     }
+
+    public static validateResultsConfig(strConfig: string): string {
+        
+        var o: any;
+        var sample: Model.IResultsConfig = require('../model/SampleResultsConfig');
+
+        try {
+            o = JSON.parse(strConfig);
+        }
+        catch (ex) {
+            return 'Invalid JSON Syntax';
+        }
+
+        if (Validation.is<Model.IResultsConfig>(o, sample, false)) {
+            return '';
+        } else {
+            return 'Fails To Implement IResultsConfig, see console for details';
+        }
+    }
+    
 
     /**
      * Checks if given object implements interface by comparing it 
@@ -66,8 +86,8 @@ export default class Validation {
         return true;
     }
 
-    public static verifyOptionalProperties(options: Model.IAdvancedSearchOptions): boolean {
-        options.fields.forEach((field: Model.ISearchPropertyData) => {
+    public static verifyOptionalProperties(options: Model.IAdvancedSearchConfig): boolean {
+        options.properties.forEach((prop: Model.ISearchProperty) => {
         });
 
         return true;
