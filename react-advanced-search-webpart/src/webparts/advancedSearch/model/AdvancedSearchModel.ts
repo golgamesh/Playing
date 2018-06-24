@@ -22,6 +22,12 @@ export interface ISelectOption {
     text: any;
 }
 
+export interface IResultPropertyDef {
+    Key: string;
+    Value: string;
+    ValueType: ResultPropertyValueType;
+}
+
 export enum SearchOperator {
     Equals = "equals",
     Between = "between",

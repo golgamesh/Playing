@@ -46,6 +46,10 @@ export interface IResultInterfaceState {
     columns: Model.IResultProperty[];
 }
 
+const ColumnDefaults: any = {
+    
+}
+
 const defaultColumns: Model.IResultProperty[] = [{
     key: 'column1',
     name: 'File Type',
@@ -118,6 +122,7 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
 
         this.searchData.search(nextProps.searchQuery).then((res: SearchResults) => {
             let totalPages = 0;
+            let currentPage = 0;
             
             if(res.TotalRows !== 0) {
                 totalPages = Math.ceil(res.TotalRows / this.props.rowLimit);
@@ -127,12 +132,22 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
             console.log('currpage: ', this.searchData.page);
             console.log('totpages: ', totalPages);
 
+            if(res.RowCount > 0) {
+
+                //let colTypes: Model.IResultPropertyDef[] = res.RawSearchResults.Properties as any;
+                let colTypes: Model.IResultPropertyDef[] = res.RawSearchResults.PrimaryQueryResult.RelevantResults.Table.Rows[0].Cells as any;
+
+                this._applyLastSecondColumnConfig(colTypes);
+
+                currentPage = 1;
+
+            }
             this.setState({
                 ...this.state,
                 config: nextProps.config,
                 searchQuery: nextProps.searchQuery,
                 results: res.PrimarySearchResults,
-                currentPage: this.searchData.page,
+                currentPage: currentPage,
                 totalPages: totalPages,
                 totalResults: this.searchData.totalRows,
                 faritems: [this.resultCountLabel(this.searchData.totalRows)]
@@ -186,12 +201,12 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
 
         if(page < 1 || page > this.state.totalPages) { return; }
 
-        this.searchData.getPage(page).then((res: SearchResults) => {
+        this.searchData.getPage(page - 1).then((res: SearchResults) => {
 
             this.setState({
                 ...this.state,
                 results: res.PrimarySearchResults,
-                currentPage: this.searchData.page
+                currentPage: this.searchData.page + 1
             });
         });
     }
@@ -220,6 +235,68 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
         }
     }
 
+    private _applyLastSecondColumnConfig(colTypes: Model.IResultPropertyDef[]): void {
+        var cols = [
+            ...this.state.columns
+        ];
+
+        cols.forEach((col, idx, cols) => {
+            if(!col.type) {
+                let colType = colTypes.filter((type) => {    
+                    return type.Key === col.fieldName; 
+                });
+                if(colType.length === 0) { return; }
+                col.type = colType[0].ValueType;
+                cols[idx] = this._applyResultPropertyDefaults(col);
+            }
+        });
+
+        this.setState({
+            ...this.state,
+            columns: cols
+        });
+    }
+
+    private _applyResultPropertyDefaults(colConfig: Model.IResultProperty): Model.IResultProperty {
+        let typeDefaults: any = {};
+
+        switch(colConfig.type) {
+            case Model.ResultPropertyValueType.DateTime:
+                typeDefaults = {
+                    onRender: (item: IAdvancedSearchResult) => {
+                      return this._formatDate(item[colConfig.fieldName] as string);
+                    }
+                };
+                break;
+            case Model.ResultPropertyValueType.Boolean:
+                typeDefaults = {
+                    onRender: (item: IAdvancedSearchResult) => {
+                        return this._formatBool(item[colConfig.fieldName] as string);
+                    }
+                };
+                break;
+        }
+
+        return {
+            ...ColumnDefaults,
+            ...typeDefaults,
+            ...colConfig
+        } as Model.IResultProperty;
+    }
+
+    private _formatDate (isoDate: string): string {
+        return (new Date(isoDate)).toLocaleDateString();
+    };
+
+    private _formatBool (bool: string): string {
+        if(bool === 'true'){
+            return 'Yes';
+        }
+        else {
+            return 'No';
+        }
+    };
+
     private _getSelectionDetails(): IAdvancedSearchResult {
         
         const selectionCount = this._selection.getSelectedCount();
@@ -232,7 +309,7 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
         }
     }
 
-    private  commandbarButtons(result: IAdvancedSearchResult): ICommandBarItemProps[] {
+    private commandbarButtons(result: IAdvancedSearchResult): ICommandBarItemProps[] {
         let items: ICommandBarItemProps[] = [];
 
         if(!result) { return items; }

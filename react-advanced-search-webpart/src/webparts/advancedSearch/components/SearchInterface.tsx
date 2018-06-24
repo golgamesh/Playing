@@ -1,3 +1,4 @@
+import { DefaultButton } from 'office-ui-fabric-react/lib/Button';
 import { TextField } from 'office-ui-fabric-react/lib/TextField';
 import { 
     Dropdown, 
@@ -7,7 +8,10 @@ import {
 } from 'office-ui-fabric-react/lib/Dropdown';
 import * as React from 'react';
 import { IAdvancedSearchWebPartProps } from '../AdvancedSearchWebPart';
+import DateRange, { IDateRangeProps } from './DateRange';
 import * as Model from '../model/AdvancedSearchModel';
+import styles from './AdvancedSearch.module.scss';
+
 
 export interface ISearchInterfaceProps {
     initialConfig: Model.IAdvancedSearchConfig;
@@ -113,12 +117,26 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
         }
         
         return (
-            <div>
+            <div className={styles.searchInterface}>
                 <div className="ms-Grid" key="0">
                     {rows}          
                 </div>
-                <button onClick={e => this.btnReset_click(e)}>reset</button>
-                <button onClick={e => this.btnSearch_click(e)}>Search</button>
+                <div className={styles.buttonRow}>
+                    <DefaultButton
+                        primary={true}
+                        data-automation-id="test"
+                        text="Search"
+                        onClick={e => this.btnSearch_click(e)}
+                    />
+                    <DefaultButton
+                        primary={true}
+                        data-automation-id="test"
+                        text="Reset"
+                        onClick={e => this.btnReset_click(e)}
+                    />
+                </div>
+                
+                <DateRange />
             </div>
         );
 

@@ -83,12 +83,12 @@ export default class AdvancedSearchData {
         return sp.search(q).then((r: SearchResults) => {
             
             this.currentResults = r;    // update the current results
-            this.page = 1;              // reset if needed
+            this.page = 0;              // reset if needed
             this.totalRows = r.TotalRows;
-
+/* 
             if(this.totalRows === 0) {
                 this.page = 0;
-            }
+            } */
 
             console.log(r);
 
