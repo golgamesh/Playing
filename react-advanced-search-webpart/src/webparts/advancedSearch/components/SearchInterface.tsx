@@ -8,7 +8,7 @@ import {
 } from 'office-ui-fabric-react/lib/Dropdown';
 import * as React from 'react';
 import { IAdvancedSearchWebPartProps } from '../AdvancedSearchWebPart';
-import DateRange, { IDateRangeProps } from './DateRange';
+import DateRange, { IDateRangeProps, IDateRangeValue, DateRangeOperator } from './DateRange';
 import * as Model from '../model/AdvancedSearchModel';
 import styles from './AdvancedSearch.module.scss';
 
@@ -115,6 +115,11 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
             key++;
             rows.push(r);
         }
+
+        let dateRangeVal = {
+            operator: DateRangeOperator.Before, 
+            date: new Date('10/2/2015') 
+        } as IDateRangeValue;
         
         return (
             <div className={styles.searchInterface}>
@@ -136,7 +141,7 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
                     />
                 </div>
                 
-                <DateRange />
+                <DateRange value={dateRangeVal} />
             </div>
         );
 
