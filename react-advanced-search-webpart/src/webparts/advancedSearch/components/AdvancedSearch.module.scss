@@ -1,5 +1,4 @@
 @import '~@microsoft/sp-office-ui-fabric-core/dist/sass/SPFabricCore.scss';
-@import './AdvancedSearchFabricOverrides.scss';
 
 .advancedSearch {
 
@@ -88,7 +87,6 @@
   .dateRange {
     display:flex;
     flex-direction: row;
-    max-width: 315px;
     position: relative;
 
     .dateOperator {
@@ -101,6 +99,10 @@
 
     :global .ms-DatePicker {
       width: 100%;
+
+      :global .ms-Label {
+        visibility: hidden;
+      }
     }
 
     .dateEnd :global .ms-TextField-fieldGroup {
@@ -118,10 +120,6 @@
         right:0px;
       }
     }
-
-    /*       &:global .ms-TextField-fieldGroup {
-        border-left-width: 0px !important;
-      } */
   }
 }
 

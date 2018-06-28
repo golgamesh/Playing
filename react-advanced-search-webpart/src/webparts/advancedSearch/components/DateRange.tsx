@@ -9,19 +9,21 @@ import {
 import styles from './AdvancedSearch.module.scss';
 
 export interface IDateRangeProps {
-    value?: IDateRangeValue
+    value?: IDateRangeValue;
+    placeHolder?: string;
+    label?: string;
+    onChanged?: Function;
 }
 
 export interface IDateRangeState {
     classNameDateEnd: string;
-    value: IDateRangeValue;
 }
 
 export enum DateRangeOperator {
     After = "after",
     Before = "before",
     Between = "between",
-    On = "on"
+    On = "equals"
 }
 
 export interface IDateRangeValue {
@@ -34,10 +36,12 @@ export default class DateRange extends React.Component<IDateRangeProps, {}> {
     constructor(props: IDateRangeProps) {
         super(props);
 
+        if(!props.value) {
+            props.value = DateRange.emptyValue;
+        }
 
         this.state = {
-            classNameDateEnd: styles.dateEndHidden,
-            value: props.value
+            classNameDateEnd: styles.dateEndHidden
         } as IDateRangeState;
         
         if(props.value && props.value.operator) {
@@ -48,17 +52,28 @@ export default class DateRange extends React.Component<IDateRangeProps, {}> {
         
     }
 
-    public state: IDateRangeState;
-
-    public get value(): IDateRangeValue {
-        return this.state.value;
+    
+    public static get emptyValue(): IDateRangeValue {
+        return {
+            operator: DateRangeOperator.After,
+            date: null
+        };
     }
 
-    public set value(value: IDateRangeValue) {
+    public state: IDateRangeState;
+    
+    public componentWillReceiveProps(nextProps: IDateRangeProps): void {
+
+        let val = nextProps.value;
+        if(!val) {
+            val = DateRange.emptyValue;
+        }
+/* 
         this.setState({
             ...this.state,
-            value: value
-        } as IDateRangeState);
+            value: val
+        } as IDateRangeState); */
+
     }
 
     private _options: IDropdownOption[] = [];
@@ -100,67 +115,87 @@ export default class DateRange extends React.Component<IDateRangeProps, {}> {
 
     public render(): React.ReactElement<IDateRangeProps> {
 
-        DatePicker.defaultProps
-        console.log('date: ', this.state.value.date);
-        console.log('op: ', this.state.value.operator);
-
         return (
             <div className={styles.dateRange}>
                 <Dropdown
+                    label={this.props.label}
                     options={this._options} 
                     className={styles.dateOperator}
                     onChanged={(e) => this._onOperator_changed(e)}
+                    selectedKey={this.props.value.operator}
                 />
 
                 <DatePicker 
-                    placeholder="Date" 
-                    value={this.state.value.date}
+                    label={this.props.label}
+                    placeholder={this.props.label} 
+                    value={this.props.value.date}
                     onSelectDate={date => this._onSelectDate(date)} 
                     formatDate={this._onFormatDate}
                     strings={this.dateRangeStrings}
                 />
 
                 <DatePicker 
-                    placeholder="Date" 
-                    value={this.state.value.dateEnd}
+                    label={this.props.label}
+                    placeholder={this.props.label}
+                    value={this.props.value.dateEnd}
                     onSelectDate={date => this._onSelectDate_end(date)} 
                     formatDate={this._onFormatDate}
                     className={this.state.classNameDateEnd}
-                    minDate={this.state.value.date}
+                    minDate={this.props.value.date}
                     strings={this.dateRangeStrings}
-                    isRequired={this.state.value.date !== null && this.state.value.operator === DateRangeOperator.Between}
+                    isRequired={this.props.value.date !== null && this.props.value.operator === DateRangeOperator.Between}
                 />
             </div>
         );
     }
 
+    protected _changed(value: IDateRangeValue) {
+        if(this.props.onChanged) {
+            this.props.onChanged(value);
+        }
+    }
+
     protected _onSelectDate(date: Date | null | undefined): void {
         console.log('start', date);
-        this.setState({
+/*         this.setState({
             ...this.state,
             value: {
                 ...this.state.value,
                 date: date
             }
-        });
+        }); */
+
+        let val = {
+            ...this.props.value,
+            date: date
+        } as IDateRangeValue;
+
+        this._changed(val);
     }
     
     protected _onSelectDate_end(date: Date | null | undefined): void {
         console.log('end', date);
-        this.setState({
+/*         this.setState({
             ...this.state,
             value: {
                 ...this.state.value,
                 dateEnd: date
             }
-        });
+        }); */
+
+        let val = {
+            ...this.props.value,
+            dateEnd: date
+        } as IDateRangeValue;
+
+        this._changed(val);
     }
 
 
     protected _onOperator_changed(optionOrValue: string): void;
     protected _onOperator_changed(optionOrValue: IDropdownOption): void;
     protected _onOperator_changed(optionOrValue: IDropdownOption | string): void {
-    
+
         let op = '';
         let className = '';
 
@@ -177,15 +212,17 @@ export default class DateRange extends React.Component<IDateRangeProps, {}> {
                 break;
         }
 
+        let val = {
+            ...this.props.value,
+            operator: op
+        } as IDateRangeValue;
+
         this.setState({
             ...this.state,
-            classNameDateEnd: className,
-            value: {
-                ...this.state.value,
-                operator: op
-            }
+            classNameDateEnd: className
         } as IDateRangeState);
 
+        this._changed(val);
     }
 
     protected _populateOptions(): void {
@@ -193,17 +230,18 @@ export default class DateRange extends React.Component<IDateRangeProps, {}> {
             console.log( op );
             this._options.push({
                 text: op,
+                key: DateRangeOperator[op],
                 data: {
                     value: DateRangeOperator[op]
                 },
-                selected: (DateRangeOperator[op] == this.state.value.operator) ? true : undefined
+                selected: (DateRangeOperator[op] == this.props.value.operator) ? true : undefined
             } as IDropdownOption);
         }
 
         console.log(this._options);
     }
     
-    private _onFormatDate = (date: Date): string => {
+    private _onFormatDate (date: Date): string {
         return (date.getMonth() + 1) + '/' + date.getDate() + '/' + (date.getFullYear() % 100);
-    };
+    }
 }

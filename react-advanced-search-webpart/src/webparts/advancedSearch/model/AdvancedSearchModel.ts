@@ -1,5 +1,6 @@
 
 import { IColumn } from 'office-ui-fabric-react/lib/DetailsList';
+import { IDateRangeValue } from '../components/DateRange';
 
 export interface ISearchProperty {
     name: string;
@@ -8,7 +9,7 @@ export interface ISearchProperty {
     type: PropertyValueType;
     control?: SearchControlType;
     options?: ISearchPropertyOptions;
-    value?: string | number | undefined;
+    value?: string | number | undefined | IDateRangeValue;
     propIndex?: number;
 }
 
@@ -31,6 +32,8 @@ export interface IResultPropertyDef {
 export enum SearchOperator {
     Equals = "equals",
     Between = "between",
+    Before = "before",
+    After = "after",
     Like = "like",
     Freetext = "freetext"
 }
@@ -55,8 +58,6 @@ export interface IResultProperty extends IColumn {
     sortable: boolean;
     type: ResultPropertyValueType;
 }
-
-
 
 export enum ResultPropertyValueType {
     Boolean = "Edm.Boolean",

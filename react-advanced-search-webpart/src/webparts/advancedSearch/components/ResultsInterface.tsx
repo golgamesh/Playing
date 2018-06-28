@@ -48,7 +48,7 @@ export interface IResultInterfaceState {
 
 const ColumnDefaults: any = {
     
-}
+};
 
 const defaultColumns: Model.IResultProperty[] = [{
     key: 'column1',
@@ -236,11 +236,11 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
     }
 
     private _applyLastSecondColumnConfig(colTypes: Model.IResultPropertyDef[]): void {
-        var cols = [
+        var columns = [
             ...this.state.columns
         ];
 
-        cols.forEach((col, idx, cols) => {
+        columns.forEach((col, idx, cols) => {
             if(!col.type) {
                 let colType = colTypes.filter((type) => {    
                     return type.Key === col.fieldName; 
@@ -253,7 +253,7 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
 
         this.setState({
             ...this.state,
-            columns: cols
+            columns: columns
         });
     }
 
@@ -286,7 +286,7 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
 
     private _formatDate (isoDate: string): string {
         return (new Date(isoDate)).toLocaleDateString();
-    };
+    }
 
     private _formatBool (bool: string): string {
         if(bool === 'true'){
@@ -295,7 +295,7 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
         else {
             return 'No';
         }
-    };
+    }
 
     private _getSelectionDetails(): IAdvancedSearchResult {
         

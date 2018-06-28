@@ -12,7 +12,6 @@ import DateRange, { IDateRangeProps, IDateRangeValue, DateRangeOperator } from '
 import * as Model from '../model/AdvancedSearchModel';
 import styles from './AdvancedSearch.module.scss';
 
-
 export interface ISearchInterfaceProps {
     initialConfig: Model.IAdvancedSearchConfig;
     searchHandler: Function;
@@ -55,13 +54,13 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
                             }
                         });
                         controls.push(<Dropdown
-                            placeHolder={field.name}
-                            label={field.name}
-                            options={field.options.choices}
-                            selectedKey={field.value}
-                            onChanged={(e) => this.ctrl_change(e, field)}
-                            data-index={i}
-                            key={key++} 
+                                placeHolder={field.name}
+                                label={field.name}
+                                options={field.options.choices}
+                                selectedKey={field.value as any}
+                                onChanged={(e) => this.ctrl_change(e, field)}
+                                data-index={i}
+                                key={key++} 
                             />);
                     }
                     else {
@@ -71,7 +70,8 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
                             onChanged={(e) => this.ctrl_change(e, field)}
                             data-index={i}
                             value={field.value ? field.value.toString() : ''}
-                            key={key++} />);
+                            key={key++} 
+                        />);
                     }
                     break;
                 case Model.PropertyValueType.Boolean:
@@ -82,17 +82,24 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
                         { key: 'true', text: 'Yes' }, 
                         { key: 'false', text: 'No' }];
                     controls.push(<Dropdown 
-                        placeHolder={field.name}
-                        label={field.name} 
-                        onChanged={(e) => this.ctrl_change(e, field)} 
-                        options={field.options.choices}
-                        selectedKey={field.value}
-                        data-index={i} 
-                        key={key++} 
+                            placeHolder={field.name}
+                            label={field.name} 
+                            onChanged={e => this.ctrl_change(e, field)} 
+                            options={field.options.choices}
+                            selectedKey={field.value as any}
+                            data-index={i} 
+                            key={key++} 
                         />);
                     break;
                 case Model.PropertyValueType.DateTime:
-                    //controls.push(this.daterangeField(field.name, field.property, 'fields[' + i + '].value'));
+                    controls.push(<DateRange
+                            placeHolder={field.name} 
+                            label={field.name}
+                            onChanged={e => this.ctrl_change(e, field)}
+                            value={field.value as any}
+                            data-index={i}
+                            key={key++} 
+                        />);
                     break;
                 default:
                     console.error('unknown property type: ' + field.type);
@@ -115,11 +122,6 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
             key++;
             rows.push(r);
         }
-
-        let dateRangeVal = {
-            operator: DateRangeOperator.Before, 
-            date: new Date('10/2/2015') 
-        } as IDateRangeValue;
         
         return (
             <div className={styles.searchInterface}>
@@ -141,7 +143,6 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
                     />
                 </div>
                 
-                <DateRange value={dateRangeVal} />
             </div>
         );
 
@@ -162,7 +163,11 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
         } as Model.IAdvancedSearchConfig;
 
         newOptions.properties.forEach((field: Model.ISearchProperty) => {
-            field.value = '';
+/*             if(field.type == Model.PropertyValueType.DateTime) {
+                field.value = DateRange.emptyValue;
+            } else { */
+                field.value = '';
+           // }
         });
 
         this.setState({
@@ -177,12 +182,18 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
         console.log(val, prop);
 
         let newOptions = { ...this.state.searchModel } as Model.IAdvancedSearchConfig;
-
+ 
         newOptions.properties[prop.propIndex].value = val.key != undefined ? val.key : val;
+
+        if(prop.type === Model.PropertyValueType.DateTime) {
+            newOptions.properties[prop.propIndex].operator = (val as IDateRangeValue).operator as any;
+        }
 
         this.setState({
             options: newOptions
         });
+
+        console.log(this.state.options);
     }
 
     private _container(rows: JSX.Element[], key: number): JSX.Element {

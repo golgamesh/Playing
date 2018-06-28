@@ -1,4 +1,5 @@
 import * as Model from '../model/AdvancedSearchModel';
+import { IDateRangeValue, DateRangeOperator } from '../components/DateRange';
 
 export default class SearchQueryBuilder {
     constructor () {
@@ -36,8 +37,14 @@ export default class SearchQueryBuilder {
             var oper = field.operator || '';
             var type = field.type;
 
-            if (!field.value)
+            if (!field.value) {
                 continue;
+            } else if((<IDateRangeValue>field.value).operator) {
+                let rangeVal: IDateRangeValue = <IDateRangeValue>field.value;
+                if(!rangeVal.date || (rangeVal.operator == DateRangeOperator.Between && !rangeVal.dateEnd)){
+                    continue;
+                }
+            }
 
             switch (oper.toLowerCase()) {
                 case Model.SearchOperator.Freetext:
@@ -62,6 +69,9 @@ export default class SearchQueryBuilder {
                     //LastModifiedTime>='06/28/2011' AND LastModifiedTime<='06/30/2012'
                     searchString += prop + ">='" + this._convertToSPSQLSearchDateFormat((<string>field.value).split(',')[0]) + "'" + strAndOperator + prop + "&amp;lt;='" + this._convertToSPSQLSearchDateFormat((<string>field.value).split(',')[1]) + timetail + "'";
                     break;
+                default:
+                    console.log('Unknow Operator: ', oper, ', on field: ', field);
+                    break;
             }
 
             searchString += strAndOperator;
@@ -83,27 +93,42 @@ export default class SearchQueryBuilder {
         var strAndOperator = ' AND ';
         var properties = searchModel.properties;
         for (var i = 0; i < properties.length; i++) {
-            var field = properties[i];
-            var prop = field.property;
-            var oper = field.operator;
-            var type = field.control;
-
-            if (!field.value)
+            var field: Model.ISearchProperty = properties[i];
+            var prop: string = field.property;
+            var oper: Model.SearchOperator = field.operator;
+            var type: Model.SearchControlType = field.control;
+            var value: string | number | IDateRangeValue = field.value;
+            var rangeVal: IDateRangeValue = <IDateRangeValue>field.value;
+            if (!value) {
                 continue;
+            } else if(rangeVal.operator) {
+                if(!rangeVal.date || (rangeVal.operator == DateRangeOperator.Between && !rangeVal.dateEnd)){
+                    continue;
+                } else {
+                    value = this._convertToKeywordQueryFormat(rangeVal.date);
+                }
+            }
             
             switch (oper.toLowerCase()) {
                 case Model.SearchOperator.Equals:
-                    searchString += prop + ':"' + field.value + '"';
+                    searchString += prop + ':"' + value + '"';
                     //author: "John Smith"
                     break;
                 case Model.SearchOperator.Like:
-                    searchString += prop + ':"*' + field.value + '*"';
+                    searchString += prop + ':"*' + value + '*"';
                     //author: "*Smith*"
                     break;
                 case Model.SearchOperator.Between:
                     //LastModifiedTime:06/28/2011..06/30/2012
-                    searchString += prop + ':' + (<string>field.value).replace(';', '..');
+                    searchString += prop + ':' + value + '..' + this._convertToKeywordQueryFormat(rangeVal.dateEnd);
                     break;
+                case Model.SearchOperator.Before:
+                    searchString += prop + '<=' + value;
+                    break;
+                case Model.SearchOperator.After:
+                    searchString += prop + '>=' + value;
+                    break;
+
             }
 
             searchString += strAndOperator;
@@ -118,6 +143,20 @@ export default class SearchQueryBuilder {
     private static _convertToSPSQLSearchDateFormat(strDate): string {
         var arr = strDate.split('/');
         return arr[2] + '/' + arr[0] + '/' + arr[1];
+    }
+
+    private static _convertToKeywordQueryFormat(date: Date): string {
+        return this._padToDoubleDigits(date.getMonth() + 1) + '/' +
+               this._padToDoubleDigits(date.getDate()) + '/' + date.getFullYear();
+    }
+
+
+    private static _padToDoubleDigits(num: number): string {
+        if(num < 10){
+            return '0' + num.toString();
+        } else {
+            return num.toString();
+        }
     }
 
     private static _endsWith(str, suffix): boolean {
