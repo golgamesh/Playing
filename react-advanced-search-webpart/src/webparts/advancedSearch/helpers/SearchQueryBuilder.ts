@@ -96,16 +96,16 @@ export default class SearchQueryBuilder {
             var field: Model.ISearchProperty = properties[i];
             var prop: string = field.property;
             var oper: Model.SearchOperator = field.operator;
-            var type: Model.SearchControlType = field.control;
             var value: string | number | IDateRangeValue = field.value;
             var rangeVal: IDateRangeValue = <IDateRangeValue>field.value;
+
             if (!value) {
+                // skip if value is empty
                 continue;
             } else if(rangeVal.operator) {
                 if(!rangeVal.date || (rangeVal.operator == DateRangeOperator.Between && !rangeVal.dateEnd)){
+                    // skip if date range value is invalid
                     continue;
-                } else {
-                    value = this._convertToKeywordQueryFormat(rangeVal.date);
                 }
             }
             
@@ -119,13 +119,19 @@ export default class SearchQueryBuilder {
                     //author: "*Smith*"
                     break;
                 case Model.SearchOperator.Between:
-                    //LastModifiedTime:06/28/2011..06/30/2012
-                    searchString += prop + ':' + value + '..' + this._convertToKeywordQueryFormat(rangeVal.dateEnd);
+                    //LastModifiedTime:2017-06-30T04:00:00.000Z..2018-06-30T04:00:00.000Z
+                    //add a tday to endDate to include selected date in results 
+                    let startDate = (value as string).split(';')[0];
+                    let endDate = this._addDays(new Date((value as string).split(';')[1]), 1).toISOString();
+                    searchString += prop + ':' + startDate + '..' + endDate;
                     break;
                 case Model.SearchOperator.Before:
-                    searchString += prop + '<=' + value;
+                    //LastModifiedTime<=2018-06-30T04:00:00.000Z
+                    //add day to include selected date in results
+                    searchString += prop + '<=' + this._addDays(new Date(value as string), 1).toISOString();
                     break;
                 case Model.SearchOperator.After:
+                    //LastModifiedTime>=2018-06-30T04:00:00.000Z
                     searchString += prop + '>=' + value;
                     break;
 
@@ -145,7 +151,7 @@ export default class SearchQueryBuilder {
         return arr[2] + '/' + arr[0] + '/' + arr[1];
     }
 
-    private static _convertToKeywordQueryFormat(date: Date): string {
+    public static convertToKeywordQueryFormat(date: Date): string {
         return this._padToDoubleDigits(date.getMonth() + 1) + '/' +
                this._padToDoubleDigits(date.getDate()) + '/' + date.getFullYear();
     }
@@ -159,8 +165,24 @@ export default class SearchQueryBuilder {
         }
     }
 
+    /**
+     * 
+     * @param str 
+     * @param suffix 
+     */
     private static _endsWith(str, suffix): boolean {
         return str.indexOf(suffix, str.length - suffix.length) !== -1;
+    }
+
+    /**
+     * function increases given date by number of days
+     * @param date Date object to adjust
+     * @param days number of days to add
+     */
+    private static _addDays(date, days) {
+        var result = new Date(date);
+        result.setDate(result.getDate() + days);
+        return result;
     }
 
 /*     private trimX (str, x): void {

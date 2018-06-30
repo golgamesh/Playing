@@ -23,9 +23,9 @@
             }
         },
         {
-            "name": "Created",
-            "property": "ows_created",
-            "operator": "between",
+            "name": "Modified",
+            "property": "LastModifiedTime",
+            "operator": "after",
             "type": "DateTime"
         },
         {

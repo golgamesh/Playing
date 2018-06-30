@@ -44,11 +44,12 @@ export default class DateRange extends React.Component<IDateRangeProps, {}> {
             classNameDateEnd: styles.dateEndHidden
         } as IDateRangeState;
         
+        this._populateOptions();
+    /*     
         if(props.value && props.value.operator) {
             this._onOperator_changed(props.value.operator);
         }
-
-        this._populateOptions();
+ */
         
     }
 

@@ -11,6 +11,7 @@ import { IAdvancedSearchWebPartProps } from '../AdvancedSearchWebPart';
 import DateRange, { IDateRangeProps, IDateRangeValue, DateRangeOperator } from './DateRange';
 import * as Model from '../model/AdvancedSearchModel';
 import styles from './AdvancedSearch.module.scss';
+import SearchQueryBuilder from '../helpers/SearchQueryBuilder';
 
 export interface ISearchInterfaceProps {
     initialConfig: Model.IAdvancedSearchConfig;
@@ -22,16 +23,20 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
     constructor(props) {
         super();
         console.log('Interfaceprops: ', props);
+        let initialState: Model.IAdvancedSearchConfig = {
+            ...props.initialConfig
+        };
+        this._conformPropertyChoices(initialState);
         this.state = {
             searchModel: {
-                ...props.initialConfig
+                ...initialState
             }
         };
 
     }
 
     public state: any;
-    private readonly columns: number = 3;
+    private readonly columns: number = 2;
 
     public render(): React.ReactElement<ISearchInterfaceProps> {
 
@@ -47,23 +52,21 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
                 case Model.PropertyValueType.Guid:
                 case Model.PropertyValueType.Double:
                 case Model.PropertyValueType.String:
-                    if(field.options && field.options.choices && field.options.choices.length) {
-                        field.options.choices.forEach((item: any, idx: number) => {
-                            if(!this._isSelectOption(item)) {
-                                field.options.choices[idx] = { key: item, text: item };
-                            }
-                        });
-                        controls.push(<Dropdown
-                                placeHolder={field.name}
-                                label={field.name}
-                                options={field.options.choices}
-                                selectedKey={field.value as any}
-                                onChanged={(e) => this.ctrl_change(e, field)}
-                                data-index={i}
-                                key={key++} 
-                            />);
+                    if(this._hasChoices(field)) {
+                        
+                    controls.push(<Dropdown
+                            placeHolder={field.name}
+                            label={field.name}
+                            options={field.options.choices}
+                            //selectedKey={field.value as any}
+                            onChanged={(e) => this.ctrl_change(e, field)}
+                            data-index={i}
+                            key={key++} 
+                        />);
+
                     }
                     else {
+
                         controls.push(<TextField 
                             placeholder={field.name}
                             label={field.name} 
@@ -72,34 +75,36 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
                             value={field.value ? field.value.toString() : ''}
                             key={key++} 
                         />);
+
                     }
                     break;
                 case Model.PropertyValueType.Boolean:
-                    if(!field.options){
-                        field.options = {} as any;
-                    }
-                    field.options.choices = [
-                        { key: 'true', text: 'Yes' }, 
-                        { key: 'false', text: 'No' }];
+
                     controls.push(<Dropdown 
                             placeHolder={field.name}
                             label={field.name} 
                             onChanged={e => this.ctrl_change(e, field)} 
                             options={field.options.choices}
-                            selectedKey={field.value as any}
+                            //selectedKey={field.value as any}
                             data-index={i} 
                             key={key++} 
                         />);
+                        
                     break;
                 case Model.PropertyValueType.DateTime:
+                    field.options = field.options || {} as Model.ISearchPropertyOptions;
+                    field.options.data = field.options.data || {} as any;
+                    field.options.data.value = field.options.data.value || DateRange.emptyValue; 
+
                     controls.push(<DateRange
                             placeHolder={field.name} 
                             label={field.name}
                             onChanged={e => this.ctrl_change(e, field)}
-                            value={field.value as any}
+                            value={field.options.data.value as any}
                             data-index={i}
                             key={key++} 
                         />);
+
                     break;
                 default:
                     console.error('unknown property type: ' + field.type);
@@ -163,11 +168,12 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
         } as Model.IAdvancedSearchConfig;
 
         newOptions.properties.forEach((field: Model.ISearchProperty) => {
-/*             if(field.type == Model.PropertyValueType.DateTime) {
-                field.value = DateRange.emptyValue;
-            } else { */
-                field.value = '';
-           // }
+            field.value = '';
+
+            if(field.type == Model.PropertyValueType.DateTime && 
+               this._hasChoices(field)) {
+                field.options.data.value = DateRange.emptyValue;
+            }
         });
 
         this.setState({
@@ -182,11 +188,27 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
         console.log(val, prop);
 
         let newOptions = { ...this.state.searchModel } as Model.IAdvancedSearchConfig;
- 
-        newOptions.properties[prop.propIndex].value = val.key != undefined ? val.key : val;
+        let newProp = newOptions.properties[prop.propIndex];
+        newProp.value = val.value !== undefined ? val.value : val;
 
         if(prop.type === Model.PropertyValueType.DateTime) {
-            newOptions.properties[prop.propIndex].operator = (val as IDateRangeValue).operator as any;
+
+            let drVal = val as IDateRangeValue;
+            newProp.options.data.value = drVal;
+            newProp.operator = drVal.operator as any;
+
+            if(drVal.date) {
+                newProp.value = drVal.date.toISOString();
+            }
+
+            if(drVal.operator === DateRangeOperator.Between && drVal.dateEnd) {
+                newProp.value += ';' + drVal.dateEnd;
+            }
+
+        } else if(this._hasChoices(prop)){
+
+            newProp.options.choicesSelectedKey = (val as Model.ISearchPropertyChoice).key;
+
         }
 
         this.setState({
@@ -217,9 +239,49 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
             </div>
         );
     }
+
+    private _hasChoices(field: Model.ISearchProperty): boolean {
+        return field.options && field.options.choices && field.options.choices.length > 0;
+    }
     
-    private _isSelectOption(arg: any): arg is Model.ISelectOption {
-        return (arg as Model.ISelectOption).key !== undefined || (arg as Model.ISelectOption).text !== undefined;
+    private _isSearchPropertyChoice(choice: any): choice is Model.ISearchPropertyChoice {
+        return choice && typeof choice !== 'string' && typeof choice !== 'number';
     }
 
+    private _conformPropertyChoices(config: Model.IAdvancedSearchConfig): void {
+
+        config.properties.forEach(field => {
+            if(field.type == Model.PropertyValueType.Boolean) {
+                field.options = field.options || {} as Model.ISearchPropertyOptions;
+                field.options.data = field.options.data || DateRange.emptyValue;
+
+                if(!field.options){
+                    field.options = {} as Model.ISearchPropertyOptions;
+                }
+                field.options.choices = [
+                    { key: `${field.property}-0`, text: field.name, value: '' }, 
+                    { key: `${field.property}-1`, text: 'Yes', value: 'true' }, 
+                    { key: `${field.property}-2`, text: 'No', value: 'false' }
+                ] as Model.ISearchPropertyChoice[];
+
+            }
+            if(this._hasChoices(field)) {
+                field.options.choices.unshift('');
+                field.options.choices.forEach((choice, idx) => {
+                    let choiceKey = `${field.property}-${idx}`; 
+                    if(this._isSearchPropertyChoice(choice)) {
+                        (choice as Model.ISearchPropertyChoice).key = choiceKey;
+                    } else {
+                        field.options.choices[idx] = {
+                            key: choiceKey,
+                            text: choice,
+                            value: choice
+                        } as Model.ISearchPropertyChoice;
+                    }
+                });
+
+            }
+
+        });
+    }
 }

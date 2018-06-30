@@ -1,6 +1,7 @@
 
 import { IColumn } from 'office-ui-fabric-react/lib/DetailsList';
 import { IDateRangeValue } from '../components/DateRange';
+import { IDropdownOption } from 'office-ui-fabric-react/lib/Dropdown';
 
 export interface ISearchProperty {
     name: string;
@@ -15,12 +16,15 @@ export interface ISearchProperty {
 
 export interface ISearchPropertyOptions {
     //selectedItem?: ISelectOption;
-    choices: Array<String | Number | ISelectOption>;
+    choicesSelectedKey: number | string;
+    choices?: Array<String | Number | ISearchPropertyChoice>;
+    data?: any;
 }
 
-export interface ISelectOption {
+export interface ISearchPropertyChoice extends IDropdownOption {
     key: string | number | undefined;
-    text: any;
+    text: string;
+    value: string | number | undefined;
 }
 
 export interface IResultPropertyDef {
