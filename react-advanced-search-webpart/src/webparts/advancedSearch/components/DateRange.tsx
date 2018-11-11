@@ -67,8 +67,11 @@ export default class DateRange extends React.Component<IDateRangeProps, {}> {
 
         let val = nextProps.value;
         if(!val) {
-            val = DateRange.emptyValue;
+            nextProps.value = DateRange.emptyValue;
         }
+
+        this._onOperator_changed(nextProps.value.operator);
+
 /* 
         this.setState({
             ...this.state,
