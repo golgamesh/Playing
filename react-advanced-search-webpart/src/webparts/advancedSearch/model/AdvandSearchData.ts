@@ -78,7 +78,7 @@ export default class AdvancedSearchData {
             RowLimit: this.rowLimit
         };
 
-        const q = SearchQueryBuilder.create(queryText, queryOptions);
+        const q = SearchQueryBuilder(queryText, queryOptions);
 
         return sp.search(q).then((r: SearchResults) => {
             

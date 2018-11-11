@@ -17,6 +17,7 @@ export interface IDateRangeProps {
 
 export interface IDateRangeState {
     classNameDateEnd: string;
+    value: IDateRangeValue;
 }
 
 export enum DateRangeOperator {
@@ -41,7 +42,8 @@ export default class DateRange extends React.Component<IDateRangeProps, {}> {
         }
 
         this.state = {
-            classNameDateEnd: styles.dateEndHidden
+            classNameDateEnd: styles.dateEndHidden,
+            value: props.value
         } as IDateRangeState;
         
         this._populateOptions();
@@ -125,14 +127,15 @@ export default class DateRange extends React.Component<IDateRangeProps, {}> {
                     label={this.props.label}
                     options={this._options} 
                     className={styles.dateOperator}
+                    onChange={(e) => this._onOperator_change(e)}
                     onChanged={(e) => this._onOperator_changed(e)}
-                    selectedKey={this.props.value.operator}
+                    selectedKey={DateRangeOperator[this.props.value.operator]}
                 />
 
                 <DatePicker 
                     label={this.props.label}
                     placeholder={this.props.label} 
-                    value={this.props.value.date}
+                    value={this.state.value.date}
                     onSelectDate={date => this._onSelectDate(date)} 
                     formatDate={this._onFormatDate}
                     strings={this.dateRangeStrings}
@@ -141,7 +144,7 @@ export default class DateRange extends React.Component<IDateRangeProps, {}> {
                 <DatePicker 
                     label={this.props.label}
                     placeholder={this.props.label}
-                    value={this.props.value.dateEnd}
+                    value={this.state.value.dateEnd}
                     onSelectDate={date => this._onSelectDate_end(date)} 
                     formatDate={this._onFormatDate}
                     className={this.state.classNameDateEnd}
@@ -153,7 +156,9 @@ export default class DateRange extends React.Component<IDateRangeProps, {}> {
         );
     }
 
-    protected _changed(value: IDateRangeValue) {
+    protected _changed() {
+        let value = this.state.value;
+        console.log(value);
         if(this.props.onChanged) {
             this.props.onChanged(value);
         }
@@ -161,40 +166,43 @@ export default class DateRange extends React.Component<IDateRangeProps, {}> {
 
     protected _onSelectDate(date: Date | null | undefined): void {
         console.log('start', date);
-/*         this.setState({
+        this.setState({
             ...this.state,
             value: {
                 ...this.state.value,
                 date: date
             }
-        }); */
+        }, () => this._changed());
 
-        let val = {
+/*         let val = {
             ...this.props.value,
             date: date
-        } as IDateRangeValue;
+        } as IDateRangeValue; */
 
-        this._changed(val);
+        //this._changed(this.state.value);
     }
     
     protected _onSelectDate_end(date: Date | null | undefined): void {
         console.log('end', date);
-/*         this.setState({
+        this.setState({
             ...this.state,
             value: {
                 ...this.state.value,
                 dateEnd: date
             }
-        }); */
+        }, () => this._changed());
 
-        let val = {
+/*         let val = {
             ...this.props.value,
             dateEnd: date
-        } as IDateRangeValue;
+        } as IDateRangeValue; */
 
-        this._changed(val);
+        //this._changed(this.state.value);
     }
 
+    protected _onOperator_change(e: React.FormEvent<HTMLDivElement>): void {
+        console.log('formelement: ', e);
+    }
 
     protected _onOperator_changed(optionOrValue: string): void;
     protected _onOperator_changed(optionOrValue: IDropdownOption): void;
@@ -217,16 +225,21 @@ export default class DateRange extends React.Component<IDateRangeProps, {}> {
         }
 
         let val = {
-            ...this.props.value,
+            ...this.state.value,
             operator: op
         } as IDateRangeValue;
-
-        this.setState({
+        
+        let newState = {
             ...this.state,
-            classNameDateEnd: className
-        } as IDateRangeState);
+            classNameDateEnd: className,
+            value: val
+        };
 
-        this._changed(val);
+        this.setState(newState, 
+            () => this._changed());
+        
+
+        //this._changed(this.state.value);
     }
 
     protected _populateOptions(): void {

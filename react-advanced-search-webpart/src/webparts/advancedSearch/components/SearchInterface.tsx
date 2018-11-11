@@ -94,11 +94,10 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
                 case Model.PropertyValueType.Boolean:
 
                     controls.push(<Dropdown 
-                            placeHolder={field.name}
+                            //placeHolder={field.name}
                             label={field.name} 
                             //onChange={e => this.ctrl_change(e, field)}
                             onChanged={e => this.ctrl_changed(e, field)}
-                            //onRenderList={(props: IDropdownProps, render: Function) => this.dropdown_renderList(props, render, field)} 
                             options={field.options.choices}
                             selectedKey={field.options.choicesSelectedKey as any}
                             data-index={i} 
@@ -162,12 +161,6 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
                         onClick={e => this.btnReset_click(e)}
                     />
                 </div>
-                <DropdownResettable options={[
-                        { key: `test-1`, text: 'Yes', value: 'true' }, 
-                        { key: `test-2`, text: 'No', value: 'false' }
-                    ]}
-                    selectedKey={this.state.resettableKey} 
-                    onChanged={selected => this.resettableChanged(selected)} />
 
             </div>
         );
@@ -205,7 +198,6 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
             } else if(this._hasChoices(field)) {
                 field.options.choicesSelectedKey = null;
                 field.value = null;
-                field.options.choices = this._includeResetDropdownChoice(field, false);
             }
         });
 
@@ -214,19 +206,6 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
                 ...newOptions
             }
         } as ISearchInterfaceState);
-    }
-//ISelectableDroppableTextProps<HTMLDivElement>
-    protected dropdown_renderList(props: IDropdownProps, render: Function, field: Model.ISearchProperty): any  {
-        console.log('render list: ', render);
-/* 
-        if(field.value) {
-            props.options = this._includeResetDropdownChoice(field, true);
-        } */
-
-        //newProp.options.choicesSelectedKey = choice.key;
-
-        return render(props);
-
     }
 
     protected ctrl_change(val: React.FormEvent<HTMLDivElement>, field: Model.ISearchProperty): void {
@@ -258,22 +237,11 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
                 newProp.value += ';' + drVal.dateEnd;
             }
 
-        } else if(this._hasChoices(field)){
-
-            let choice = (val as Model.ISearchPropertyChoice);
-
-            if(choice.value === null) {
-                newProp.options.choices = this._includeResetDropdownChoice(field, false);
-            } else {
-                newProp.options.choices = this._includeResetDropdownChoice(field, true);
-            }
-            
-            newProp.options.choicesSelectedKey = choice.key;
         }
 
-        this.setState({
+/*         this.setState({
             searchModel: newOptions
-        } as ISearchInterfaceState);
+        } as ISearchInterfaceState); */
     }
 
     private _container(rows: JSX.Element[], key: number): JSX.Element {
@@ -298,34 +266,6 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
         );
     }
 
-    private _includeResetDropdownChoice(field: Model.ISearchProperty, include: boolean): Array<Model.ISearchPropertyChoice> {
-
-        
-        let choices = [...field.options.choices] as Array<Model.ISearchPropertyChoice>;
-
-        if(include) {
-            if(!this._hasDropdownResetChoice(field)) {
-                const resetChoice: Model.ISearchPropertyChoice = {
-                    key: `${field.property}-reset`,
-                    text: '',
-                    value: null
-                };
-                choices.unshift(resetChoice);
-            }
-        } else {
-            if(this._hasDropdownResetChoice(field)) {
-                choices.shift();
-            }
-        }
-
-        return choices;
-    }
-
-    private _hasDropdownResetChoice(field: Model.ISearchProperty): boolean {
-        return this._hasChoices(field) && 
-            (field.options.choices[0] as Model.ISearchPropertyChoice).value === null;
-    }
-
     private _hasChoices(field: Model.ISearchProperty): boolean {
         return field.options && field.options.choices && field.options.choices.length > 0;
     }
@@ -345,7 +285,7 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
                     field.options = {} as Model.ISearchPropertyOptions;
                 }
                 field.options.choices = [
-                    //{ key: `${field.property}-0`, text: field.name, value: '' }, 
+                    { key: `${field.property}-0`, text: '', value: '', disabled: true, selected: true },
                     { key: `${field.property}-1`, text: 'Yes', value: 'true' }, 
                     { key: `${field.property}-2`, text: 'No', value: 'false' }
                 ] as Model.ISearchPropertyChoice[];
