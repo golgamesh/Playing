@@ -80,7 +80,8 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
                     }
                     else {
 
-                        controls.push(<TextField 
+                        controls.push(<TextField
+                            spellCheck={false}
                             placeholder={field.name}
                             label={field.name} 
                             onChanged={(e) => this.ctrl_changed(e, field)}
@@ -159,6 +160,16 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
                         data-automation-id="test"
                         text="Reset"
                         onClick={e => this.btnReset_click(e)}
+                    />
+                </div>
+                <div>
+                    <DropdownResettable label={"Test"}
+                        placeHolder={"Placeholder"}
+                        options={[
+                            { key: `test-1`, text: 'Yes', value: '1' }, 
+                            { key: `test-2`, text: 'No', value: '0' }
+                        ]}
+                        onChanged={e => this.resettableChanged(e)}
                     />
                 </div>
 

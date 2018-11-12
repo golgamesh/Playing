@@ -67,12 +67,12 @@ export default class DateRange extends React.Component<IDateRangeProps, {}> {
     
     public componentWillReceiveProps(nextProps: IDateRangeProps): void {
 
-        let val = nextProps.value;
+/*         let val = nextProps.value;
         if(!val) {
             nextProps.value = DateRange.emptyValue;
         }
 
-        this._onOperator_changed(nextProps.value.operator);
+        this._onOperator_changed(nextProps.value.operator); */
 
 /* 
         this.setState({
@@ -116,7 +116,7 @@ export default class DateRange extends React.Component<IDateRangeProps, {}> {
     
         invalidInputErrorMessage: 'Invalid date format.',
     
-        isOutOfBoundsErrorMessage: `End range date must be greater than the previous date.`
+        isOutOfBoundsErrorMessage: 'End range date must be greater than the previous date.'
     };
 
     public render(): React.ReactElement<IDateRangeProps> {
@@ -165,7 +165,6 @@ export default class DateRange extends React.Component<IDateRangeProps, {}> {
     }
 
     protected _onSelectDate(date: Date | null | undefined): void {
-        console.log('start', date);
         this.setState({
             ...this.state,
             value: {
@@ -174,16 +173,9 @@ export default class DateRange extends React.Component<IDateRangeProps, {}> {
             }
         }, () => this._changed());
 
-/*         let val = {
-            ...this.props.value,
-            date: date
-        } as IDateRangeValue; */
-
-        //this._changed(this.state.value);
     }
     
     protected _onSelectDate_end(date: Date | null | undefined): void {
-        console.log('end', date);
         this.setState({
             ...this.state,
             value: {
@@ -191,13 +183,6 @@ export default class DateRange extends React.Component<IDateRangeProps, {}> {
                 dateEnd: date
             }
         }, () => this._changed());
-
-/*         let val = {
-            ...this.props.value,
-            dateEnd: date
-        } as IDateRangeValue; */
-
-        //this._changed(this.state.value);
     }
 
     protected _onOperator_change(e: React.FormEvent<HTMLDivElement>): void {
@@ -220,26 +205,35 @@ export default class DateRange extends React.Component<IDateRangeProps, {}> {
                 className = styles.dateEnd;
                 break;
             default:
-                className = `${styles.dateEndHidden} ${styles.dateEndHidden}`;
+                className = `${styles.dateEnd} ${styles.dateEndHidden}`;
                 break;
         }
 
-        let val = {
+/*         let val = {
             ...this.state.value,
             operator: op
-        } as IDateRangeValue;
+        } as IDateRangeValue; */
         
-        let newState = {
+        /* let newState = {
             ...this.state,
             classNameDateEnd: className,
-            value: val
-        };
+            value: {
+                ...this.state.value,
+                operator: op
+            }
+        }; */
 
-        this.setState(newState, 
-            () => this._changed());
+        this.setState({
+            ...this.state,
+            classNameDateEnd: className,
+            value: {
+                ...this.state.value,
+                operator: op
+            }
+        }, 
+        () => this._changed());
         
 
-        //this._changed(this.state.value);
     }
 
     protected _populateOptions(): void {
