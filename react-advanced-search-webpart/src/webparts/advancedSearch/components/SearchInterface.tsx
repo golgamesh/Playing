@@ -15,7 +15,7 @@ import * as Model from '../model/AdvancedSearchModel';
 import styles from './AdvancedSearch.module.scss';
 import SearchQueryBuilder from '../helpers/SearchQueryBuilder';
 import { divProperties } from '@uifabric/utilities/lib';
-import DropdownResettable from './DropdownResettable';
+import DropdownResettable, { IDropdownResettableOption } from './DropdownResettable';
 
 export interface ISearchInterfaceProps {
     initialConfig: Model.IAdvancedSearchConfig;
@@ -66,10 +66,10 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
                 case Model.PropertyValueType.String:
                     if(this._hasChoices(field)) {
                         
-                    controls.push(<Dropdown
+                    controls.push(<DropdownResettable
                             placeHolder={field.name}
                             label={field.name}
-                            options={field.options.choices}
+                            options={field.options.choices as IDropdownResettableOption[]}
                             selectedKey={field.options.choicesSelectedKey as any}
                             //onChange={e => this.ctrl_change(e, field)}
                             onChanged={e => this.ctrl_changed(e, field)}
@@ -94,12 +94,12 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
                     break;
                 case Model.PropertyValueType.Boolean:
 
-                    controls.push(<Dropdown 
-                            //placeHolder={field.name}
+                    controls.push(<DropdownResettable 
+                            placeHolder={field.name}
                             label={field.name} 
                             //onChange={e => this.ctrl_change(e, field)}
                             onChanged={e => this.ctrl_changed(e, field)}
-                            options={field.options.choices}
+                            options={field.options.choices as IDropdownResettableOption[]}
                             selectedKey={field.options.choicesSelectedKey as any}
                             data-index={i} 
                             key={key++} 
@@ -296,7 +296,7 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
                     field.options = {} as Model.ISearchPropertyOptions;
                 }
                 field.options.choices = [
-                    { key: `${field.property}-0`, text: '', value: '', disabled: true, selected: true },
+                   // { key: `${field.property}-0`, text: '', value: '', disabled: true, selected: true },
                     { key: `${field.property}-1`, text: 'Yes', value: 'true' }, 
                     { key: `${field.property}-2`, text: 'No', value: 'false' }
                 ] as Model.ISearchPropertyChoice[];
