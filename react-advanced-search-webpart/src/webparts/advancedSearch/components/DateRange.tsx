@@ -67,19 +67,16 @@ export default class DateRange extends React.Component<IDateRangeProps, {}> {
     
     public componentWillReceiveProps(nextProps: IDateRangeProps): void {
 
-/*         let val = nextProps.value;
+        let val = nextProps.value;
         if(!val) {
             nextProps.value = DateRange.emptyValue;
         }
 
-        this._onOperator_changed(nextProps.value.operator); */
-
-/* 
         this.setState({
             ...this.state,
             value: val
-        } as IDateRangeState); */
-
+        } as IDateRangeState,
+        () => this._onOperator_changed(nextProps.value.operator));
     }
 
     private _options: IDropdownOption[] = [];

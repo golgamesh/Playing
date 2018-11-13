@@ -48,12 +48,10 @@ export default class DropdownResettable extends React.Component<IDropdownResetta
     }
 
     public componentWillReceiveProps(nextProps: IDropdownResettableProps): void {
-/*         if(this.state.selectedKey === nextProps.selectedKey) {
-            return;
-        }
         this.setState({
+            ...this.state,
             selectedKey: nextProps.selectedKey
-        } as IDropdownResettableState); */
+        } as IDropdownResettableState);
     }
 
     /* 

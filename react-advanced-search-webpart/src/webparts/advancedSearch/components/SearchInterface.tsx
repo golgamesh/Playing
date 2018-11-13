@@ -197,6 +197,7 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
 
     protected btnReset_click(e): void {
         console.log('reset');
+
         let newOptions = {
             ...this.state.searchModel
         } as Model.IAdvancedSearchConfig;
@@ -213,9 +214,8 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
         });
 
         this.setState({
-            searchModel: {
-                ...newOptions
-            }
+            ...this.state,
+            searchModel: newOptions
         } as ISearchInterfaceState);
     }
 
