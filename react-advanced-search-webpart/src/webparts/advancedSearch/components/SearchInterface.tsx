@@ -228,8 +228,6 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
 
     protected ctrl_changed(val: any, field: Model.ISearchProperty): void {
         
-        console.log('changed');
-
         let newOptions = { ...this.state.searchModel } as Model.IAdvancedSearchConfig;
         let newProp = newOptions.properties[field.propIndex];
         newProp.value = val.value !== undefined ? val.value : val;
