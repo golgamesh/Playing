@@ -11,7 +11,7 @@ import {
  * This component's property interface
  */
 export interface IDropdownResettableProps extends IDropdownProps {
-    options: Array<IDropdownResettableOption>
+    options: Array<IDropdownResettableOption>;
 }
 
 /**

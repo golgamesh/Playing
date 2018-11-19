@@ -13,6 +13,10 @@ import {
     ICommandBarProps,
     ICommandBarItemProps 
 } from 'office-ui-fabric-react/lib/CommandBar';
+import { 
+    Panel, 
+    PanelType 
+} from 'office-ui-fabric-react/lib/Panel';
 import * as Model from '../model/AdvancedSearchModel';
 import Pagination from 'office-ui-fabric-react-pagination';
 import AdvancedSearchData, {
@@ -44,6 +48,8 @@ export interface IResultInterfaceState {
     totalPages: number;
     totalResults: number;
     columns: Model.IResultProperty[];
+    viewPanelOpen: boolean;
+    viewPanelUrl: string;
 }
 
 const ColumnDefaults: any = {
@@ -95,7 +101,9 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
             currentPage:0,
             totalPages:0,
             totalResults:0,
-            columns: cols
+            columns: cols,
+            viewPanelOpen: false,
+            viewPanelUrl: ""
         };
 
         this._selection = new Selection({
@@ -193,11 +201,29 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
                     searchQuery={this.state.searchQuery} 
                     isDebug={this.props.isDebug} 
                 />
+
+                <Panel 
+                    isOpen={this.state.viewPanelOpen}
+                    type={PanelType.smallFluid}
+                    onDismiss={() => this.viewPanel_dismiss()}
+                    headerText="Header">
+                    <div style={
+                        {
+                            border: "1px solid blue"
+                        }}>
+                        <iframe 
+                            src={this.state.viewPanelUrl} 
+                            className={styles.frmViewPanel} 
+                            frameBorder={0}
+                        />
+                    </div>
+
+                </Panel>
             </div>
         );
     }
 
-    protected pagination_click(page: number) {
+    protected pagination_click(page: number): void {
 
         if(page < 1 || page > this.state.totalPages) { return; }
 
@@ -214,10 +240,15 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
     protected btnCommandbar_click(e: React.MouseEvent<HTMLElement>, btn: ICommandBarItemProps): void {
         let action: string = btn.key;
         let selected: IAdvancedSearchResult = this._getSelectionDetails();
+        let newState = {
+            ...this.state
+        } as IResultInterfaceState;
 
         switch(action) {
             case 'view':
                 console.log(action, selected);
+                newState.viewPanelOpen = true;
+                newState.viewPanelUrl = selected.ServerRedirectedEmbedURL;
                 break;
             case 'opencontainer':
                 window.open(selected.ParentLink);
@@ -233,6 +264,17 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
                 break;
 
         }
+
+        this.setState(newState);
+    }
+
+    protected viewPanel_dismiss(): void {
+        let newState = {
+            ...this.state,
+            viewPanelOpen: false
+        } as IResultInterfaceState;
+
+        this.setState(newState);
     }
 
     private _applyLastSecondColumnConfig(colTypes: Model.IResultPropertyDef[]): void {

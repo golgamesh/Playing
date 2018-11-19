@@ -9,7 +9,6 @@ export interface IDebugPanelProps {
 export default class DebugPanel extends React.Component<IDebugPanelProps, {}> {
     constructor() {
         super();
-
     }
 
     public render(): React.ReactElement<IDebugPanelProps> {

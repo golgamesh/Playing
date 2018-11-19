@@ -17,7 +17,6 @@
     }
   }
 
-
   .panelDebug {
     background-color: #F4F4F4;
     padding:20px;
@@ -126,4 +125,10 @@
 
 .hide {
   display: none !important;
+}
+
+.frmViewPanel {
+  width:100%;
+  height:calc(100vh - 70px);
+  border:1px solid coral;
 }

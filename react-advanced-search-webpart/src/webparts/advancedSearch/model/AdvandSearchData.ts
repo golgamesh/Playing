@@ -62,6 +62,8 @@ export default class AdvancedSearchData {
         "owsID", 
         "WorkId", 
         "ServerRedirectedURL",
+        "ServerRedirectedPreviewURL",
+        "ServerRedirectedEmbedURL",
         "SiteName", 
         "ParentLink"
     ];

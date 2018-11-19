@@ -7,6 +7,18 @@
             "type": "String"
         },
         {
+            "name": "File Type",
+            "property": "FileType",
+            "operator": "equals",
+            "type": "String",
+            "options": {
+                "choices": [
+                    "pdf",
+                    "docx"
+                ]
+            }
+        },
+        {
             "name": "Department",
             "property": "ows_department",
             "operator": "equals",
