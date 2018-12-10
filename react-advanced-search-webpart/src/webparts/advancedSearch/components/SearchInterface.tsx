@@ -162,16 +162,6 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
                         onClick={e => this.btnReset_click(e)}
                     />
                 </div>
-                <div>
-                    <DropdownResettable label={"Test"}
-                        placeHolder={"Placeholder"}
-                        options={[
-                            { key: `test-1`, text: 'Yes', value: '1' }, 
-                            { key: `test-2`, text: 'No', value: '0' }
-                        ]}
-                        onChanged={e => this.resettableChanged(e)}
-                    />
-                </div>
 
             </div>
         );

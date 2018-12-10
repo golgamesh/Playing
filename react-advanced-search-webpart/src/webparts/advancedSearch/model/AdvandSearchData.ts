@@ -9,17 +9,21 @@ import { uniq } from '@microsoft/sp-lodash-subset';
 import { BaseComponentContext } from '@microsoft/sp-component-base';
 import * as Model from './AdvancedSearchModel';
 
+
 export interface IAdvancedSearchResult extends SearchResult {
     Title: string; 
     Filename: string;
     IsListItem: string;
-    SPWebURL: string;
+    SPWebUrl: string;
     FileType: string;
     Path: string; 
     OriginalPath: string;
     owsID: string;
     ServerRedirectedURL: string;
     SiteName: string;
+    ListID: string;
+    ContentTypeId: string;
+    ListItemID: string;
 }
 
 export default class AdvancedSearchData {
@@ -55,7 +59,7 @@ export default class AdvancedSearchData {
         "IsContainer",
         "IsListItem",
         "Rank", 
-        "SPWebURL",
+        "SPWebUrl",
         "FileType",
         "Path", 
         "OriginalPath",
@@ -65,7 +69,10 @@ export default class AdvancedSearchData {
         "ServerRedirectedPreviewURL",
         "ServerRedirectedEmbedURL",
         "SiteName", 
-        "ParentLink"
+        "ParentLink",
+        "ListID",
+        "ContentTypeId",
+        "ListItemID"
     ];
 
     public search(queryText: string): Promise<SearchResults> {
@@ -83,14 +90,16 @@ export default class AdvancedSearchData {
         const q = SearchQueryBuilder(queryText, queryOptions);
 
         return sp.search(q).then((r: SearchResults) => {
+
             
-            this.currentResults = r;    // update the current results
-            this.page = 0;              // reset if needed
-            this.totalRows = r.TotalRows;
-/* 
-            if(this.totalRows === 0) {
-                this.page = 0;
-            } */
+            this.currentResults = r;                                        // update the current results
+            this.page = 0;                                                  // reset if needed
+            
+            if(r && r.RawSearchResults && r.RawSearchResults.PrimaryQueryResult) {
+                this.totalRows = r.TotalRows;
+            } else {
+                this.totalRows = 0;
+            }
 
             console.log(r);
 

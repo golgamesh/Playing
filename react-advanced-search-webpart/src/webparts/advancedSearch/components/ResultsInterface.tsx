@@ -28,6 +28,20 @@ import { SearchResults, SearchResult } from '@pnp/sp';
 import { Icon } from 'office-ui-fabric-react/lib/Icon';
 import { getFileTypeIconProps, initializeFileTypeIcons } from '@uifabric/file-type-icons';
 import { uniq } from '@microsoft/sp-lodash-subset';
+import { ThemeSettingName } from '@uifabric/styling/lib';
+
+export enum PageType {
+    ListView = 0,
+    ViewForm = 4,
+    EditForm = 6
+}
+
+export enum FrameState {
+    NotLoaded = 0,
+    Loaded,
+    Reloaded,
+    EmptySource
+}
 
 export interface IResultsInterfaceProps {
     isDebug: boolean;
@@ -48,6 +62,7 @@ export interface IResultInterfaceState {
     totalPages: number;
     totalResults: number;
     columns: Model.IResultProperty[];
+    viewPanelType: PanelType;
     viewPanelOpen: boolean;
     viewPanelUrl: string;
 }
@@ -80,6 +95,7 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
     constructor(props: IResultsInterfaceProps) {
         super(props);
         
+        this._frameState = FrameState.NotLoaded;
         this.searchData = new AdvancedSearchData(props.context, props.config);
         this.searchData.rowLimit = props.rowLimit;
         initializeFileTypeIcons();
@@ -102,6 +118,7 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
             totalPages:0,
             totalResults:0,
             columns: cols,
+            viewPanelType: PanelType.smallFluid,
             viewPanelOpen: false,
             viewPanelUrl: ""
         };
@@ -125,22 +142,32 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
     public searchData: AdvancedSearchData;
     public state: IResultInterfaceState;
     private _selection: Selection;
+    private _frameState: FrameState;
 
     public componentWillReceiveProps(nextProps: IResultsInterfaceProps): void {
 
         this.searchData.search(nextProps.searchQuery).then((res: SearchResults) => {
+
             let totalPages = 0;
             let currentPage = 0;
+            let totalRows = 0;
+            let results: SearchResult[] = [];
             
-            if(res.TotalRows !== 0) {
-                totalPages = Math.ceil(res.TotalRows / this.props.rowLimit);
+            if( res && 
+                res.RawSearchResults && 
+                res.RawSearchResults.PrimaryQueryResult && 
+                res.TotalRows !== 0) {
+                    totalRows = res.TotalRows; 
+                    totalPages = Math.ceil(res.TotalRows / this.props.rowLimit);
+                    results = res.PrimarySearchResults;
             }
-            console.log('totalrows: ', res.TotalRows);
+
+            console.log('totalrows: ', totalRows);
             console.log('rowlimit: ', this.props.rowLimit);
             console.log('currpage: ', this.searchData.page);
             console.log('totpages: ', totalPages);
 
-            if(res.RowCount > 0) {
+            if(totalRows > 0) {
 
                 //let colTypes: Model.IResultPropertyDef[] = res.RawSearchResults.Properties as any;
                 let colTypes: Model.IResultPropertyDef[] = res.RawSearchResults.PrimaryQueryResult.RelevantResults.Table.Rows[0].Cells as any;
@@ -150,16 +177,18 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
                 currentPage = 1;
 
             }
+
             this.setState({
                 ...this.state,
                 config: nextProps.config,
                 searchQuery: nextProps.searchQuery,
-                results: res.PrimarySearchResults,
+                results: results,
                 currentPage: currentPage,
                 totalPages: totalPages,
-                totalResults: this.searchData.totalRows,
-                faritems: [this.resultCountLabel(this.searchData.totalRows)]
+                totalResults: totalRows,
+                faritems: [this.resultCountLabel(totalRows)]
             } as IResultInterfaceState);
+
         });
     }
 
@@ -204,9 +233,9 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
 
                 <Panel 
                     isOpen={this.state.viewPanelOpen}
-                    type={PanelType.smallFluid}
-                    onDismiss={() => this.viewPanel_dismiss()}
-                    headerText="Header">
+                    type={this.state.viewPanelType}
+                    isLightDismiss={true}
+                    onDismiss={() => this.viewPanel_dismiss()}>
                     <div style={
                         {
                             border: "1px solid blue"
@@ -215,9 +244,9 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
                             src={this.state.viewPanelUrl} 
                             className={styles.frmViewPanel} 
                             frameBorder={0}
+                            onLoad={e => this.panelFrame_load(e)} 
                         />
                     </div>
-
                 </Panel>
             </div>
         );
@@ -247,6 +276,7 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
         switch(action) {
             case 'view':
                 console.log(action, selected);
+                newState.viewPanelType = PanelType.smallFluid;
                 newState.viewPanelOpen = true;
                 newState.viewPanelUrl = selected.ServerRedirectedEmbedURL;
                 break;
@@ -254,7 +284,12 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
                 window.open(selected.ParentLink);
                 break;
             case 'viewproperties':
-                window.open(selected.Path);
+                const url = `${selected.SPWebUrl}/_layouts/15/listform.aspx?PageType=${PageType.EditForm}&ListID=${selected.ListID}&ID=${selected.ListItemID}&ContentTypeId=${selected.ContentTypeId}&isDlg=1&Source=${encodeURIComponent(selected.SPWebUrl)}`;
+                console.log(url);
+                newState.viewPanelType = PanelType.medium;
+                newState.viewPanelOpen = true;
+                newState.viewPanelUrl = url;
+                //window.open(url);
                 break;
             case 'clientopen':
                 break;
@@ -268,11 +303,35 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
         this.setState(newState);
     }
 
+    protected panelFrame_load(e: React.SyntheticEvent<HTMLIFrameElement>): void {
+        switch(this._frameState) {
+            case FrameState.NotLoaded:
+                this._frameState = FrameState.Loaded;
+                break;
+            case FrameState.Loaded:
+                this._frameState = FrameState.Reloaded;
+                break;
+            default:
+                this._frameState = FrameState.NotLoaded;
+        }
+
+        console.log('frame load: ', this._frameState);
+
+        if(this._frameState === FrameState.Reloaded) {
+            console.log('Frame reloaded, closing dialog');
+            this.viewPanel_dismiss();
+        }
+    }
+
     protected viewPanel_dismiss(): void {
         let newState = {
             ...this.state,
-            viewPanelOpen: false
+            viewPanelOpen: false,
+            viewPanelUrl: ''
         } as IResultInterfaceState;
+
+        this._frameState = FrameState.EmptySource;
+        console.log('Frame state reset');
 
         this.setState(newState);
     }
@@ -367,16 +426,15 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
             });
         }
 
-        if(result.IsListItem == "true" as any) {
-            items.push({
-                key: 'viewproperties',
-                name: 'View Properties',
-                iconProps: {
-                    iconName: 'View' 
-                },
-                onClick: (e, btn) => this.btnCommandbar_click(e, btn)
-            });
-        }
+        items.push({
+            key: 'viewproperties',
+            name: 'View Properties',
+            iconProps: {
+                iconName: 'View'
+            },
+            onClick: (e, btn) => this.btnCommandbar_click(e, btn)
+        });
+
 
         items.push({
             key: 'opencontainer',
