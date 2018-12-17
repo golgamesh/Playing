@@ -3,8 +3,22 @@
   "solution": {
     "name": "react-advanced-search-webpart-client-side-solution",
     "id": "5f1a41f5-b523-455f-be39-395a055a9230",
-    "version": "1.0.0.0",
-    "includeClientSideAssets": true
+    "version": "0.9.0.1",
+    "includeClientSideAssets": true,
+    "features": [{
+      "title": "react-advanced-search-webpart-asset-deployment",
+      "description": "Deploys needed local assets to assist the Advanced Search Web Part",
+      "id": "f283fd8a-e2ab-42ed-8e7b-56036d2220d9",
+      "version": "1.0.0.0",
+      "assets": {
+        "elementManifests": [
+          "elements.xml"
+        ],
+        "elementFiles":[
+          "advanced-search-webpart-close-panel.aspx"
+        ]
+      }
+    }]
   },
   "paths": {
     "zippedPackage": "solution/react-advanced-search-webpart.sppkg"

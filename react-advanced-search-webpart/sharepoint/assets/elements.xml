@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Elements xmlns="http://schemas.microsoft.com/sharepoint/">
+
+    <Module Name="advanced-search-webpart-close-panel" Url="SiteAssets">
+        <File Path="advanced-search-webpart-close-panel.aspx" Url="advanced-search-webpart-close-panel.aspx" Type="GhostableInLibrary" ReplaceContent="True"></File>
+    </Module>
+
+</Elements>

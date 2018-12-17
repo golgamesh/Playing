@@ -29,11 +29,14 @@ import { Icon } from 'office-ui-fabric-react/lib/Icon';
 import { getFileTypeIconProps, initializeFileTypeIcons } from '@uifabric/file-type-icons';
 import { uniq } from '@microsoft/sp-lodash-subset';
 import { ThemeSettingName } from '@uifabric/styling/lib';
+import ListFormDialogHeler from '../helpers/ListFormDialogHelper';
+import { Spinner, SpinnerSize } from 'office-ui-fabric-react/lib/Spinner';
 
 export enum PageType {
     ListView = 0,
     ViewForm = 4,
-    EditForm = 6
+    EditForm = 6,
+    NewForm = 8
 }
 
 export enum FrameState {
@@ -99,7 +102,8 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
         this.searchData = new AdvancedSearchData(props.context, props.config);
         this.searchData.rowLimit = props.rowLimit;
         initializeFileTypeIcons();
-
+        this._closePanelRedirectUrl = `${this.props.context.pageContext.web.absoluteUrl}/siteassets/advanced-search-webpart-close-panel.aspx`;
+        this._listenForClosePanelEvent();
         let cols = uniq<Model.IResultProperty>([
             ...defaultColumns, 
             ...props.config.columns
@@ -136,6 +140,8 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
                 });
             }
           });
+          
+        this._dialogHelper = new ListFormDialogHeler(() => this.viewPanel_dismiss());
 
     }
 
@@ -143,6 +149,8 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
     public state: IResultInterfaceState;
     private _selection: Selection;
     private _frameState: FrameState;
+    private _dialogHelper: ListFormDialogHeler;
+    private _closePanelRedirectUrl: string;
 
     public componentWillReceiveProps(nextProps: IResultsInterfaceProps): void {
 
@@ -166,6 +174,7 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
             console.log('rowlimit: ', this.props.rowLimit);
             console.log('currpage: ', this.searchData.page);
             console.log('totpages: ', totalPages);
+            console.log('assets: ', this.props.context.manifest.loaderConfig.internalModuleBaseUrls);
 
             if(totalRows > 0) {
 
@@ -236,13 +245,16 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
                     type={this.state.viewPanelType}
                     isLightDismiss={true}
                     onDismiss={() => this.viewPanel_dismiss()}>
-                    <div style={
+                    <div className={styles.frmPropsAnchor} style={
                         {
-                            border: "1px solid blue"
+                            
                         }}>
+                        <div className={styles.frmPropsLoading}>
+                            <Spinner size={SpinnerSize.large} />
+                        </div>
                         <iframe 
                             src={this.state.viewPanelUrl} 
-                            className={styles.frmViewPanel} 
+                            className={`${styles.frmViewPanel} mg-results-form-dialog`}
                             frameBorder={0}
                             onLoad={e => this.panelFrame_load(e)} 
                         />
@@ -284,7 +296,7 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
                 window.open(selected.ParentLink);
                 break;
             case 'viewproperties':
-                const url = `${selected.SPWebUrl}/_layouts/15/listform.aspx?PageType=${PageType.EditForm}&ListID=${selected.ListID}&ID=${selected.ListItemID}&ContentTypeId=${selected.ContentTypeId}&isDlg=1&Source=${encodeURIComponent(selected.SPWebUrl)}`;
+                const url = `${selected.SPWebUrl}/_layouts/15/listform.aspx?PageType=${PageType.EditForm}&ListID=${selected.ListID}&ID=${selected.ListItemID}&ContentTypeId=${selected.ContentTypeId}&source=${encodeURIComponent(this._closePanelRedirectUrl)}`;
                 console.log(url);
                 newState.viewPanelType = PanelType.medium;
                 newState.viewPanelOpen = true;
@@ -304,23 +316,13 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
     }
 
     protected panelFrame_load(e: React.SyntheticEvent<HTMLIFrameElement>): void {
-        switch(this._frameState) {
-            case FrameState.NotLoaded:
-                this._frameState = FrameState.Loaded;
-                break;
-            case FrameState.Loaded:
-                this._frameState = FrameState.Reloaded;
-                break;
-            default:
-                this._frameState = FrameState.NotLoaded;
-        }
+        let frm = e.currentTarget;
+        console.log('Frame loaded at: ', frm.src);
+        this._dialogHelper.ensureDialogFriendlyPage(frm);
+    }
 
-        console.log('frame load: ', this._frameState);
-
-        if(this._frameState === FrameState.Reloaded) {
-            console.log('Frame reloaded, closing dialog');
-            this.viewPanel_dismiss();
-        }
+    protected handleFrameEvents(): void {
+        //this._dialogHelper.activateCancelButtons();
     }
 
     protected viewPanel_dismiss(): void {
@@ -383,6 +385,14 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
             ...typeDefaults,
             ...colConfig
         } as Model.IResultProperty;
+    }
+
+    private _listenForClosePanelEvent(): void {
+        window.addEventListener('mg-announce-close-panel', (e: any) => {
+            if(e.detail.closePanel) {
+                this.viewPanel_dismiss();
+            }
+        }, false);
     }
 
     private _formatDate (isoDate: string): string {

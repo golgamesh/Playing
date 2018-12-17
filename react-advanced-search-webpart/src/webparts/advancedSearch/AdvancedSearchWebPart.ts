@@ -38,6 +38,7 @@ export default class AdvancedSearchWebPart extends BaseClientSideWebPart<IAdvanc
   public resultsConfig: Model.IResultsConfig;
 
   public render(): void {
+    console.log(this.context.manifest.loaderConfig.internalModuleBaseUrls);
     const element: React.ReactElement<IAdvancedSearchProps> = React.createElement(
       AdvancedSearch,
       <IAdvancedSearchProps>{
