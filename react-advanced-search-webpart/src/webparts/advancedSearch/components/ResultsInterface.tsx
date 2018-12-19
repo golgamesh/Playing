@@ -13,10 +13,6 @@ import {
     ICommandBarProps,
     ICommandBarItemProps 
 } from 'office-ui-fabric-react/lib/CommandBar';
-import { 
-    Panel, 
-    PanelType 
-} from 'office-ui-fabric-react/lib/Panel';
 import * as Model from '../model/AdvancedSearchModel';
 import Pagination from 'office-ui-fabric-react-pagination';
 import AdvancedSearchData, {
@@ -29,22 +25,11 @@ import { Icon } from 'office-ui-fabric-react/lib/Icon';
 import { getFileTypeIconProps, initializeFileTypeIcons } from '@uifabric/file-type-icons';
 import { uniq } from '@microsoft/sp-lodash-subset';
 import { ThemeSettingName } from '@uifabric/styling/lib';
-import ListFormDialogHeler from '../helpers/ListFormDialogHelper';
 import { Spinner, SpinnerSize } from 'office-ui-fabric-react/lib/Spinner';
-
-export enum PageType {
-    ListView = 0,
-    ViewForm = 4,
-    EditForm = 6,
-    NewForm = 8
-}
-
-export enum FrameState {
-    NotLoaded = 0,
-    Loaded,
-    Reloaded,
-    EmptySource
-}
+import ItemPropertiesPanel, {
+    PageType
+} from './ItemPropertiesPanel';
+import { PanelType } from 'office-ui-fabric-react/lib/Panel';
 
 export interface IResultsInterfaceProps {
     isDebug: boolean;
@@ -65,9 +50,11 @@ export interface IResultInterfaceState {
     totalPages: number;
     totalResults: number;
     columns: Model.IResultProperty[];
-    viewPanelType: PanelType;
-    viewPanelOpen: boolean;
-    viewPanelUrl: string;
+    SPWebUrl: string;
+    ListID: string;
+    ListItemID: string;
+    ContentTypeId: string;
+    ItemPropPanelOpen: boolean;
 }
 
 const ColumnDefaults: any = {
@@ -98,12 +85,10 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
     constructor(props: IResultsInterfaceProps) {
         super(props);
         
-        this._frameState = FrameState.NotLoaded;
         this.searchData = new AdvancedSearchData(props.context, props.config);
         this.searchData.rowLimit = props.rowLimit;
         initializeFileTypeIcons();
-        this._closePanelRedirectUrl = `${this.props.context.pageContext.web.absoluteUrl}/siteassets/advanced-search-webpart-close-panel.aspx`;
-        this._listenForClosePanelEvent();
+        //this._closePanelRedirectUrl = `${this.props.context.pageContext.web.absoluteUrl}/siteassets/advanced-search-webpart-close-panel.aspx`;
         let cols = uniq<Model.IResultProperty>([
             ...defaultColumns, 
             ...props.config.columns
@@ -122,9 +107,11 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
             totalPages:0,
             totalResults:0,
             columns: cols,
-            viewPanelType: PanelType.smallFluid,
-            viewPanelOpen: false,
-            viewPanelUrl: ""
+            SPWebUrl: '',
+            ListID: '',
+            ListItemID: '',
+            ContentTypeId: '',
+            ItemPropPanelOpen: false
         };
 
         this._selection = new Selection({
@@ -136,21 +123,18 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
                 this.setState({
                     ...this.state,
                     items,
-                    overflowItems
+                    overflowItems,
+                    isOpen: false
                 });
             }
           });
-          
-        this._dialogHelper = new ListFormDialogHeler(() => this.viewPanel_dismiss());
 
     }
 
     public searchData: AdvancedSearchData;
     public state: IResultInterfaceState;
     private _selection: Selection;
-    private _frameState: FrameState;
-    private _dialogHelper: ListFormDialogHeler;
-    private _closePanelRedirectUrl: string;
+    //private _closePanelRedirectUrl: string;
 
     public componentWillReceiveProps(nextProps: IResultsInterfaceProps): void {
 
@@ -240,28 +224,35 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
                     isDebug={this.props.isDebug} 
                 />
 
-                <Panel 
-                    isOpen={this.state.viewPanelOpen}
-                    type={this.state.viewPanelType}
-                    isLightDismiss={true}
-                    onDismiss={() => this.viewPanel_dismiss()}>
-                    <div className={styles.frmPropsAnchor} style={
-                        {
-                            
-                        }}>
-                        <div className={styles.frmPropsLoading}>
-                            <Spinner size={SpinnerSize.large} />
-                        </div>
-                        <iframe 
-                            src={this.state.viewPanelUrl} 
-                            className={`${styles.frmViewPanel} mg-results-form-dialog`}
-                            frameBorder={0}
-                            onLoad={e => this.panelFrame_load(e)} 
-                        />
-                    </div>
-                </Panel>
+                <ItemPropertiesPanel
+                    PageType={PageType.EditForm}
+                    SPWebUrl={this.state.SPWebUrl}
+                    ListID={this.state.ListID}
+                    ListItemID={this.state.ListItemID}
+                    ContentTypeId={this.state.ContentTypeId}
+                    SPWebUrlLocal={this.props.context.pageContext.web.absoluteUrl}                    
+                    isOpen={this.state.ItemPropPanelOpen}
+                    onDismiss={() => this.itemPropertiesPanel_dismiss()}
+                    type={PanelType.medium}
+                    isLightDismiss={true}>
+                </ItemPropertiesPanel>
             </div>
         );
+    }
+
+    protected itemPropertiesPanel_dismiss(): void {
+        let newState: IResultInterfaceState = {
+            ...this.state,
+            ItemPropPanelOpen: false,
+            SPWebUrl: '',
+            ListID: '',
+            ListItemID: '',
+            ContentTypeId: ''
+        };
+
+        console.log('Frame state reset');
+
+        this.setState(newState);
     }
 
     protected pagination_click(page: number): void {
@@ -288,19 +279,21 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
         switch(action) {
             case 'view':
                 console.log(action, selected);
-                newState.viewPanelType = PanelType.smallFluid;
+                /* newState.viewPanelType = PanelType.smallFluid;
                 newState.viewPanelOpen = true;
-                newState.viewPanelUrl = selected.ServerRedirectedEmbedURL;
+                newState.viewPanelUrl = selected.ServerRedirectedEmbedURL; */
                 break;
             case 'opencontainer':
                 window.open(selected.ParentLink);
                 break;
             case 'viewproperties':
-                const url = `${selected.SPWebUrl}/_layouts/15/listform.aspx?PageType=${PageType.EditForm}&ListID=${selected.ListID}&ID=${selected.ListItemID}&ContentTypeId=${selected.ContentTypeId}&source=${encodeURIComponent(this._closePanelRedirectUrl)}`;
-                console.log(url);
-                newState.viewPanelType = PanelType.medium;
-                newState.viewPanelOpen = true;
-                newState.viewPanelUrl = url;
+                //const url = `${selected.SPWebUrl}/_layouts/15/listform.aspx?PageType=${PageType.EditForm}&ListID=${selected.ListID}&ID=${selected.ListItemID}&ContentTypeId=${selected.ContentTypeId}&source=${encodeURIComponent(this._closePanelRedirectUrl)}`;
+                //console.log(url);
+                newState.ItemPropPanelOpen = true;
+                newState.SPWebUrl = selected.SPWebUrl;
+                newState.ListID = selected.ListID;
+                newState.ListItemID = selected.ListItemID;
+                newState.ContentTypeId = selected.ContentTypeId;
                 //window.open(url);
                 break;
             case 'clientopen':
@@ -315,28 +308,11 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
         this.setState(newState);
     }
 
-    protected panelFrame_load(e: React.SyntheticEvent<HTMLIFrameElement>): void {
-        let frm = e.currentTarget;
-        console.log('Frame loaded at: ', frm.src);
-        this._dialogHelper.ensureDialogFriendlyPage(frm);
-    }
 
     protected handleFrameEvents(): void {
         //this._dialogHelper.activateCancelButtons();
     }
 
-    protected viewPanel_dismiss(): void {
-        let newState = {
-            ...this.state,
-            viewPanelOpen: false,
-            viewPanelUrl: ''
-        } as IResultInterfaceState;
-
-        this._frameState = FrameState.EmptySource;
-        console.log('Frame state reset');
-
-        this.setState(newState);
-    }
 
     private _applyLastSecondColumnConfig(colTypes: Model.IResultPropertyDef[]): void {
         var columns = [
@@ -387,13 +363,6 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
         } as Model.IResultProperty;
     }
 
-    private _listenForClosePanelEvent(): void {
-        window.addEventListener('mg-announce-close-panel', (e: any) => {
-            if(e.detail.closePanel) {
-                this.viewPanel_dismiss();
-            }
-        }, false);
-    }
 
     private _formatDate (isoDate: string): string {
         return (new Date(isoDate)).toLocaleDateString();

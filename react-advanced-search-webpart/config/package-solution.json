@@ -3,7 +3,7 @@
   "solution": {
     "name": "react-advanced-search-webpart-client-side-solution",
     "id": "5f1a41f5-b523-455f-be39-395a055a9230",
-    "version": "0.9.0.1",
+    "version": "0.9.0.2",
     "includeClientSideAssets": true,
     "features": [{
       "title": "react-advanced-search-webpart-asset-deployment",

@@ -124,28 +124,6 @@
 
 }
 
-.frmPropsAnchor {
-  position:relative;
-}
-
-.frmPropsLoading {
-  top:0;
-  right:0;
-  left:0;
-  bottom:0;
-  position: absolute;
-  background-color:#FFF;
-  display:flex;
-  flex-direction: column;
-  justify-content: space-around;
-}
-
 .hide {
   display: none !important;
-}
-
-.frmViewPanel {
-  width:100%;
-  height:calc(100vh - 70px);
-  border:1px solid coral;
 }
