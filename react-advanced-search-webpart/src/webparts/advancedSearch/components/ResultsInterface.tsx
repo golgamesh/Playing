@@ -17,7 +17,7 @@ import * as Model from '../model/AdvancedSearchModel';
 import Pagination from 'office-ui-fabric-react-pagination';
 import AdvancedSearchData, {
     IAdvancedSearchResult
-} from '../model/AdvandSearchData';
+} from '../model/AdvancedSearchData';
 import DebugPanel from './DebugPanel';
 import { WebPartContext } from '@microsoft/sp-webpart-base';
 import { SearchResults, SearchResult } from '@pnp/sp';
@@ -29,7 +29,7 @@ import { Spinner, SpinnerSize } from 'office-ui-fabric-react/lib/Spinner';
 import ItemPropertiesPanel, {
     PageType
 } from './ItemPropertiesPanel';
-import { PanelType } from 'office-ui-fabric-react/lib/Panel';
+import { Panel, PanelType } from 'office-ui-fabric-react/lib/Panel';
 
 export interface IResultsInterfaceProps {
     isDebug: boolean;
@@ -50,11 +50,13 @@ export interface IResultInterfaceState {
     totalPages: number;
     totalResults: number;
     columns: Model.IResultProperty[];
-    SPWebUrl: string;
-    ListID: string;
-    ListItemID: string;
-    ContentTypeId: string;
-    ItemPropPanelOpen: boolean;
+    spWebUrl: string;
+    listID: string;
+    listItemID: string;
+    contentTypeId: string;
+    itemPropPanelOpen: boolean;
+    documentReaderOpen: boolean;
+    documentReaderUrl: string;
 }
 
 const ColumnDefaults: any = {
@@ -107,11 +109,13 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
             totalPages:0,
             totalResults:0,
             columns: cols,
-            SPWebUrl: '',
-            ListID: '',
-            ListItemID: '',
-            ContentTypeId: '',
-            ItemPropPanelOpen: false
+            spWebUrl: '',
+            listID: '',
+            listItemID: '',
+            contentTypeId: '',
+            itemPropPanelOpen: false,
+            documentReaderOpen: false,
+            documentReaderUrl: ''
         };
 
         this._selection = new Selection({
@@ -226,28 +230,49 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
 
                 <ItemPropertiesPanel
                     PageType={PageType.EditForm}
-                    SPWebUrl={this.state.SPWebUrl}
-                    ListID={this.state.ListID}
-                    ListItemID={this.state.ListItemID}
-                    ContentTypeId={this.state.ContentTypeId}
+                    SPWebUrl={this.state.spWebUrl}
+                    ListID={this.state.listID}
+                    ListItemID={this.state.listItemID}
+                    ContentTypeId={this.state.contentTypeId}
                     SPWebUrlLocal={this.props.context.pageContext.web.absoluteUrl}                    
-                    isOpen={this.state.ItemPropPanelOpen}
+                    isOpen={this.state.itemPropPanelOpen}
                     onDismiss={() => this.itemPropertiesPanel_dismiss()}
                     type={PanelType.medium}
                     isLightDismiss={true}>
                 </ItemPropertiesPanel>
+
+                <Panel 
+                    type={PanelType.smallFluid}
+                    isOpen={this.state.documentReaderOpen}
+                    onDismiss={() => this.documentReaderPanel_dismiss()}>
+                    <div>
+                        <iframe
+                            className={styles.frmDocumentReader} 
+                            src={this.state.documentReaderUrl} 
+                            frameBorder={0}></iframe>
+                    </div>
+                </Panel>
             </div>
         );
+    }
+
+    protected documentReaderPanel_dismiss(): void {
+        let newState: IResultInterfaceState = {
+            ...this.state,
+            documentReaderOpen: false
+        };
+
+        this.setState(newState);
     }
 
     protected itemPropertiesPanel_dismiss(): void {
         let newState: IResultInterfaceState = {
             ...this.state,
-            ItemPropPanelOpen: false,
-            SPWebUrl: '',
-            ListID: '',
-            ListItemID: '',
-            ContentTypeId: ''
+            itemPropPanelOpen: false,
+            spWebUrl: '',
+            listID: '',
+            listItemID: '',
+            contentTypeId: ''
         };
 
         console.log('Frame state reset');
@@ -279,9 +304,11 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
         switch(action) {
             case 'view':
                 console.log(action, selected);
-                /* newState.viewPanelType = PanelType.smallFluid;
-                newState.viewPanelOpen = true;
-                newState.viewPanelUrl = selected.ServerRedirectedEmbedURL; */
+                newState.documentReaderOpen = true;
+                newState.documentReaderUrl = selected.ServerRedirectedEmbedURL;
+                break;
+            case 'go':
+                window.open(selected.OriginalPath);
                 break;
             case 'opencontainer':
                 window.open(selected.ParentLink);
@@ -289,11 +316,11 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
             case 'viewproperties':
                 //const url = `${selected.SPWebUrl}/_layouts/15/listform.aspx?PageType=${PageType.EditForm}&ListID=${selected.ListID}&ID=${selected.ListItemID}&ContentTypeId=${selected.ContentTypeId}&source=${encodeURIComponent(this._closePanelRedirectUrl)}`;
                 //console.log(url);
-                newState.ItemPropPanelOpen = true;
-                newState.SPWebUrl = selected.SPWebUrl;
-                newState.ListID = selected.ListID;
-                newState.ListItemID = selected.ListItemID;
-                newState.ContentTypeId = selected.ContentTypeId;
+                newState.itemPropPanelOpen = true;
+                newState.spWebUrl = selected.SPWebUrl;
+                newState.listID = selected.ListID;
+                newState.listItemID = selected.ListItemID;
+                newState.contentTypeId = selected.ContentTypeId;
                 //window.open(url);
                 break;
             case 'clientopen':
@@ -394,7 +421,16 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
 
         if(!result) { return items; }
 
-        if(result.IsDocument == "true" as any) {
+        if(this._isPage(result)) {
+            items.push({
+                key: 'go',
+                name: 'Go',
+                iconProps: {
+                    iconName: 'Generate'
+                },
+                onClick: (e, btn) => this.btnCommandbar_click(e, btn)
+            });
+        } else if(result.IsDocument == "true" as any) {
             items.push({
                 key: 'view',
                 name: 'View Document',
@@ -405,24 +441,27 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
             });
         }
 
-        items.push({
-            key: 'viewproperties',
-            name: 'View Properties',
-            iconProps: {
-                iconName: 'View'
-            },
-            onClick: (e, btn) => this.btnCommandbar_click(e, btn)
-        });
+        if(result.ListID && result.SPWebUrl && result.ListItemID) {
+            items.push({
+                key: 'viewproperties',
+                name: 'Properties',
+                iconProps: {
+                    iconName: 'CustomList'
+                },
+                onClick: (e, btn) => this.btnCommandbar_click(e, btn)
+            });
+        }
 
-
-        items.push({
-            key: 'opencontainer',
-            name: 'Open Container',
-            iconProps: {
-                iconName: 'FolderOpen'
-            },
-            onClick: (e, btn) => this.btnCommandbar_click(e, btn)
-        });
+        if(result.ParentLink) {
+            items.push({
+                key: 'opencontainer',
+                name: 'Open Container',
+                iconProps: {
+                    iconName: 'FolderOpen'
+                },
+                onClick: (e, btn) => this.btnCommandbar_click(e, btn)
+            });
+        }
         
         return items;
     }
@@ -432,7 +471,6 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
         
         if(!result) { return items; }
 
-        
         if(result.IsDocument == "true" as any) {
             
             items.push({
@@ -456,6 +494,25 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
 
         return items;
 
+    }
+
+    private _isWeb(result: IAdvancedSearchResult): boolean {
+        return  result.IsDocument == "false" as any && 
+                result.FileType === "aspx" &&
+                result.IsContainer == "true" as any &&
+                result.IsListItem === null;
+    }
+
+    private _isListOrLibrary(result: IAdvancedSearchResult): boolean {
+        return  result.IsDocument == "false" as any &&
+                result.FileType === "html" &&
+                result.IsContainer == "false" as any &&
+                result.IsListItem === null;
+    }
+
+    private _isPage(result: IAdvancedSearchResult): boolean {
+        return  result.FileExtension === "aspx" || 
+                result.FileType === "html";
     }
 
     private resultCountLabel(resultCount: number): ICommandBarItemProps {

@@ -7,6 +7,7 @@ import {
     IPanelProps
 } from 'office-ui-fabric-react/lib/Panel';
 import styles from './ItemPropertiesPanel.module.scss';
+import { on } from '../helpers/events';
 
 export interface IItemPropertiesPanelProps extends IPanelProps {
     SPWebUrlLocal: string;
@@ -91,6 +92,7 @@ export default class ItemPropertiesPanel extends React.Component<IItemProperties
         console.log('Frame loaded at: ', frm.src);
         if(this._ensureDialogFriendlyPage(frm)) {
             this._showLoadingPanel(false);
+            this._activateCancelButtons(frm);
         }
     }
 
@@ -134,14 +136,28 @@ export default class ItemPropertiesPanel extends React.Component<IItemProperties
     }
 
     private _ensureDialogFriendlyPage(frame: HTMLIFrameElement): boolean {
-        let loc = frame.getAttribute('src');
-        if(loc && this._isPageClassic(frame) && loc.toLowerCase().indexOf('&isdlg=1') === -1) {
-            frame.setAttribute('src', loc + '&isDlg=1');
-            return false;
+        let loc = frame.getAttribute('src') || '';
+        if(this._isPageClassic(frame)) {
+            if(loc.toLowerCase().indexOf('&isdlg=1') === -1) {
+                frame.setAttribute('src', loc + '&isDlg=1');
+                return false;
+            } else {
+                return true;
+            }
         } else {
             return true;
         }
     }
+
+    private _activateCancelButtons(frame: HTMLIFrameElement): void {
+        on(frame.contentDocument.body, 'click', 'input[type="button"][value="Close"],input[type="button"][value="Cancel"]', e => this.onClose_click(e));        
+    }
+    
+    protected onClose_click(e): void {
+        console.log('close');
+        this.props.onDismiss();
+    }
+
 
     private _isPageClassic(frame: HTMLIFrameElement): boolean {
         const frameDoc = frame.contentDocument;
