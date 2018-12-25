@@ -13,6 +13,7 @@ import * as Model from './AdvancedSearchModel';
 export interface IAdvancedSearchResult extends SearchResult {
     Title: string; 
     Filename: string;
+    TitleOrFilename?: string;
     IsListItem: string;
     SPWebUrl: string;
     FileType: string;

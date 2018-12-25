@@ -25,11 +25,11 @@ import { Icon } from 'office-ui-fabric-react/lib/Icon';
 import { getFileTypeIconProps, initializeFileTypeIcons } from '@uifabric/file-type-icons';
 import { uniq } from '@microsoft/sp-lodash-subset';
 import { ThemeSettingName } from '@uifabric/styling/lib';
-import { Spinner, SpinnerSize } from 'office-ui-fabric-react/lib/Spinner';
 import ItemPropertiesPanel, {
     PageType
 } from './ItemPropertiesPanel';
 import { Panel, PanelType } from 'office-ui-fabric-react/lib/Panel';
+import { stringIsNullOrEmpty } from '@pnp/common';
 
 export interface IResultsInterfaceProps {
     isDebug: boolean;
@@ -63,28 +63,8 @@ const ColumnDefaults: any = {
     
 };
 
-const defaultColumns: Model.IResultProperty[] = [{
-    key: 'column1',
-    name: 'File Type',
-    sortable: false,
-    type: Model.ResultPropertyValueType.String,
-    headerClassName: 'DetailsListExample-header--FileIcon',
-    className: 'DetailsListExample-cell--FileIcon',
-    iconClassName: 'DetailsListExample-Header-FileTypeIcon',
-    iconName: 'Page',
-    isIconOnly: true,
-    fieldName: 'FileType',
-    minWidth: 20,
-    //maxWidth: 16,
-    onColumnClick: this._onColumnClick,
-    onRender: (item: IAdvancedSearchResult) => {
-      return <Icon {...getFileTypeIconProps({extension: item.FileType, size: 20})} />;
-    }
-  }
-];
-
-export default class ResultsInterface extends React.Component<IResultsInterfaceProps> {
-    constructor(props: IResultsInterfaceProps) {
+export default class ResultsInterface extends React.Component<IResultsInterfaceProps, IResultInterfaceState> {
+    constructor(public props: IResultsInterfaceProps) {
         super(props);
         
         this.searchData = new AdvancedSearchData(props.context, props.config);
@@ -92,7 +72,7 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
         initializeFileTypeIcons();
         //this._closePanelRedirectUrl = `${this.props.context.pageContext.web.absoluteUrl}/siteassets/advanced-search-webpart-close-panel.aspx`;
         let cols = uniq<Model.IResultProperty>([
-            ...defaultColumns, 
+            ...this._defaultColumns, 
             ...props.config.columns
         ]);
 
@@ -128,7 +108,8 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
                     ...this.state,
                     items,
                     overflowItems,
-                    isOpen: false
+                    itemPropPanelOpen: false,
+                    documentReaderOpen: false,
                 });
             }
           });
@@ -139,6 +120,55 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
     public state: IResultInterfaceState;
     private _selection: Selection;
     //private _closePanelRedirectUrl: string;
+    private _defaultColumns: Model.IResultProperty[] = [{
+        key: 'FileType',
+        name: 'File Type',
+        sortable: false,
+        type: Model.ResultPropertyValueType.String,
+        headerClassName: 'DetailsListExample-header--FileIcon',
+        className: 'DetailsListExample-cell--FileIcon',
+        iconClassName: 'DetailsListExample-Header-FileTypeIcon',
+        iconName: 'Page',
+        isIconOnly: true,
+        fieldName: 'FileType',
+        minWidth: 20,
+        maxWidth: 20,
+        //onColumnClick: this._onColumnClick,
+        onRender: (item: IAdvancedSearchResult) => {
+            console.log('render');
+            let web = this.props.context.pageContext.web.absoluteUrl;
+
+            if(this._isListOrLibrary(item)) {
+                if(this._isList(item)) {
+                    return <div className={styles.mgCustomIcon}><img src={`${web}/_layouts/15/images/itgen.png?rev=45`} alt="SharePoint List" title="SharePoint List" /></div>;
+                } else {
+                    return <Icon iconName="DocLibrary" title="Document Library" className={styles.mgCustomIcon} />;
+                }
+            } else if (this._isWeb(item)) {
+                return <div className={styles.mgCustomIcon}><img src={`https://static2.sharepointonline.com/files/fabric/assets/brand-icons/product/png/sharepoint_16x1_5.png`} alt="SharePoint Site" title="SharePoint List or Library" /></div>;
+            } else if(this._isOneDrive(item)) {
+                return <div className={styles.mgCustomIcon}><img src={`https://static2.sharepointonline.com/files/fabric/assets/brand-icons/product/png/onedrive_16x1_5.png`} alt="OneDrive" title="SharePoint List or Library" /></div>;
+            } else if (this._isListItem(item)) {
+                return <Icon iconName="CustomList" title="List Item" className={styles.mgCustomIcon} />;
+                //CustomList
+            } else {
+                return <Icon {...getFileTypeIconProps({extension: item.FileType, size: 20})} />;             
+            }
+        }
+    },
+    {
+        key: 'TitleOrFilename',
+        name: 'Name',
+        sortable: true,
+        type: Model.ResultPropertyValueType.String,
+        fieldName: 'TitleOrFilename',
+        minWidth: 100,
+        onRender: (item: IAdvancedSearchResult) => {
+            return <div title={item.Title}>{item.TitleOrFilename}</div>
+        }
+        
+    }
+    ];
 
     public componentWillReceiveProps(nextProps: IResultsInterfaceProps): void {
 
@@ -147,7 +177,7 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
             let totalPages = 0;
             let currentPage = 0;
             let totalRows = 0;
-            let results: SearchResult[] = [];
+            let results: IAdvancedSearchResult[] = [];
             
             if( res && 
                 res.RawSearchResults && 
@@ -155,7 +185,11 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
                 res.TotalRows !== 0) {
                     totalRows = res.TotalRows; 
                     totalPages = Math.ceil(res.TotalRows / this.props.rowLimit);
-                    results = res.PrimarySearchResults;
+                    results = res.PrimarySearchResults as any;
+
+                    results.forEach(result => {
+                        this._rowIdentity(result);
+                    })
             }
 
             console.log('totalrows: ', totalRows);
@@ -229,7 +263,7 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
                 />
 
                 <ItemPropertiesPanel
-                    PageType={PageType.EditForm}
+                    PageType={PageType.ViewForm}
                     SPWebUrl={this.state.spWebUrl}
                     ListID={this.state.listID}
                     ListItemID={this.state.listItemID}
@@ -285,6 +319,11 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
         if(page < 1 || page > this.state.totalPages) { return; }
 
         this.searchData.getPage(page - 1).then((res: SearchResults) => {
+            let results: Array<IAdvancedSearchResult> = res.PrimarySearchResults as any;
+
+            results.forEach((result: IAdvancedSearchResult) => {
+                this._rowIdentity(result);
+            })
 
             this.setState({
                 ...this.state,
@@ -421,7 +460,7 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
 
         if(!result) { return items; }
 
-        if(this._isPage(result)) {
+        if(this._isPage(result) || this._isOneDrive(result)) {
             items.push({
                 key: 'go',
                 name: 'Go',
@@ -466,6 +505,16 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
         return items;
     }
 
+
+
+    private _rowIdentity(result: IAdvancedSearchResult): void {
+        if(result.IsDocument == "true" as any) {
+            result.TitleOrFilename = result.Filename || result.Title;
+        } else {
+            result.TitleOrFilename = result.Title;
+        }
+    }
+
     private commandbarOverflowButtons(result: IAdvancedSearchResult): ICommandBarItemProps[] {
         let items: ICommandBarItemProps[] = [];
         
@@ -503,16 +552,40 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
                 result.IsListItem === null;
     }
 
+    private _isList(result: IAdvancedSearchResult): boolean {
+        return  this._isListOrLibrary(result) &&
+                result.OriginalPath.match(/.+\/Lists\/[^/]+\/[^/]+.aspx$/i) !== null;
+    }
+
+    private _isLibrary(result: IAdvancedSearchResult): boolean {
+        return  this._isListOrLibrary(result) &&
+                result.OriginalPath.match(/.+\/Forms\/[^/]+.aspx$/i) !== null;
+    }
+
     private _isListOrLibrary(result: IAdvancedSearchResult): boolean {
         return  result.IsDocument == "false" as any &&
                 result.FileType === "html" &&
                 result.IsContainer == "false" as any &&
-                result.IsListItem === null;
+                result.IsListItem === null;                
+    }
+
+    private _isListItem(result: IAdvancedSearchResult): boolean {
+        return  result.IsDocument == "false" as any &&
+                result.FileType === null &&
+                result.IsContainer == "false" as any &&
+                result.IsListItem == "true";
     }
 
     private _isPage(result: IAdvancedSearchResult): boolean {
         return  result.FileExtension === "aspx" || 
                 result.FileType === "html";
+    }
+
+    private _isOneDrive(result: IAdvancedSearchResult): boolean {
+        return  result.IsDocument == "false" as any &&
+                result.FileType === null &&
+                result.IsContainer == "true" as any &&
+                result.IsListItem === null;
     }
 
     private resultCountLabel(resultCount: number): ICommandBarItemProps {
