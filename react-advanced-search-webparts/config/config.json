@@ -1,0 +1,27 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "advanced-search-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/advancedSearch/AdvancedSearchWebPart.js",
+          "manifest": "./src/webparts/advancedSearch/AdvancedSearchWebPart.manifest.json"
+        }
+      ]
+    },
+    "advanced-search-results-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/advancedSearchResults/AdvancedSearchResultsWebPart.js",
+          "manifest": "./src/webparts/advancedSearchResults/AdvancedSearchResultsWebPart.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "AdvancedSearchWebPartStrings": "lib/webparts/advancedSearch/loc/{locale}.js",
+    "AdvancedSearchResultsWebPartStrings": "lib/webparts/advancedSearchResults/loc/{locale}.js"
+  }
+}

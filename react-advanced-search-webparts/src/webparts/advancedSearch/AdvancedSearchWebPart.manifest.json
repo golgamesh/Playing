@@ -1,0 +1,28 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx/client-side-web-part-manifest.schema.json",
+  "id": "b953f780-cf8d-483a-94f9-8c4d67083dc4",
+  "alias": "AdvancedSearchWebPart",
+  "componentType": "WebPart",
+
+  // The "*" signifies that the version should be taken from the package.json
+  "version": "*",
+  "manifestVersion": 2,
+
+  // If true, the component can only be installed on sites where Custom Script is allowed.
+  // Components that allow authors to embed arbitrary script code should set this to true.
+  // https://support.office.com/en-us/article/Turn-scripting-capabilities-on-or-off-1f2c515f-5d7e-448a-9fd7-835da935584f
+  "requiresCustomScript": false,
+
+  "preconfiguredEntries": [{
+    "groupId": "5c03119e-3074-46fd-976b-c60198311f70", // Other
+    "group": { "default": "Other" },
+    "title": { "default": "AdvancedSearch" },
+    "description": { "default": "AdvancedSearch description" },
+    "officeFabricIconFontName": "Page",
+    "properties": {
+      "description": "Customizable webpart for performing metadata based search queries",
+      "searchConfig": "{\"properties\":[{\"name\":\"Title\",\"property\":\"Title\",\"operator\":\"like\",\"type\":\"String\"},{\"name\":\"Department\",\"property\":\"ows_department\",\"operator\":\"equals\",\"type\":\"String\",\"options\":{\"choices\":[\"IT\",\"Hr\",\"Marketing\",\"Film\",\"Operations\",\"Food\"]}},{\"name\":\"Modified\",\"property\":\"LastModifiedTime\",\"operator\":\"after\",\"type\":\"DateTime\"},{\"name\":\"IsDocument\",\"property\":\"IsDocument\",\"operator\":\"equals\",\"type\":\"Boolean\"},{\"name\":\"NavEnabled\",\"property\":\"NavEnabled\",\"operator\":\"equals\",\"type\":\"Int32\",\"options\":{\"choices\":[{\"text\":\"Yes\",\"key\":1},{\"text\":\"No\",\"key\":0}]}}]}",
+      "isDebug": true
+    }
+  }]
+}

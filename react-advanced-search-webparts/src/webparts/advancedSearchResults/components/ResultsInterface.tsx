@@ -1,5 +1,5 @@
 import * as React from 'react';
-import styles from './AdvancedSearch.module.scss';
+import styles from './ResultsInterface.module.scss';
 import {
     DetailsList,
     DetailsListLayoutMode,
@@ -13,11 +13,11 @@ import {
     ICommandBarProps,
     ICommandBarItemProps 
 } from 'office-ui-fabric-react/lib/CommandBar';
-import * as Model from '../model/AdvancedSearchModel';
+import * as Model from '../../../model/AdvancedSearchModel';
 import Pagination from 'office-ui-fabric-react-pagination';
 import AdvancedSearchData, {
     IAdvancedSearchResult
-} from '../model/AdvancedSearchData';
+} from '../../../model/AdvancedSearchData';
 import DebugPanel from './DebugPanel';
 import { WebPartContext } from '@microsoft/sp-webpart-base';
 import { SearchResults, SearchResult } from '@pnp/sp';
@@ -25,10 +25,10 @@ import { Icon } from 'office-ui-fabric-react/lib/Icon';
 import { getFileTypeIconProps, initializeFileTypeIcons } from '@uifabric/file-type-icons';
 import { uniq } from '@microsoft/sp-lodash-subset';
 import ItemPropertiesPanel, {
-    PageType
+    PageTypes
 } from './ItemPropertiesPanel';
 import { Panel, PanelType } from 'office-ui-fabric-react/lib/Panel';
-import OfficeURIHelper from '../helpers/OfficeURIHelper';
+import OfficeURIHelper from '../../../helpers/OfficeURIHelper';
 import { IContextualMenuItem } from 'office-ui-fabric-react/lib/ContextualMenu';
 
 export interface IResultsInterfaceProps {
@@ -163,7 +163,7 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
         fieldName: 'TitleOrFilename',
         minWidth: 100,
         onRender: (item: IAdvancedSearchResult) => {
-            return <div title={item.Title}>{item.TitleOrFilename}</div>
+            return <div title={item.Title}>{item.TitleOrFilename}</div>;
         }
     }];
 
@@ -186,14 +186,14 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
 
                     results.forEach(result => {
                         this._rowIdentity(result);
-                    })
+                    });
             }
 
             console.log('totalrows: ', totalRows);
             console.log('rowlimit: ', this.props.rowLimit);
             console.log('currpage: ', this.searchData.page);
             console.log('totpages: ', totalPages);
-            console.log('assets: ', this.props.context.manifest.loaderConfig.internalModuleBaseUrls);
+            //console.log('assets: ', this.props.context.manifest.loaderConfig.internalModuleBaseUrls);
 
             if(totalRows > 0) {
 
@@ -260,7 +260,7 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
                 />
 
                 <ItemPropertiesPanel
-                    PageType={PageType.ViewForm}
+                    PageType={PageTypes.ViewForm}
                     SPWebUrl={this.state.spWebUrl}
                     ListID={this.state.listID}
                     ListItemID={this.state.listItemID}
@@ -332,7 +332,7 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
         });
     }
 
-    protected btnCommandbar_click(e: React.MouseEvent<HTMLElement>, btn: ICommandBarItemProps): void {
+    protected btnCommandbar_click(e: React.MouseEvent<HTMLElement> | React.KeyboardEvent<HTMLElement>, btn: ICommandBarItemProps): void {
         let action: string = btn.key;
         let selected: IAdvancedSearchResult = this._getSelectionDetails();
         let newState = {
@@ -367,7 +367,7 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
                 window.location.href = url;
                 break;
             case 'download':
-                let dl = selected.OriginalPath + '?Web=0'
+                let dl = selected.OriginalPath + '?Web=0';
                 window.location.href = dl;
                 break;
             default:
@@ -622,7 +622,7 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
         return {
             key: 'matches',
             name: `Matches: ${resultCount}`,
-            className: `${styles["commandbar-label-item"]}`,
+            className: `${styles.commandbarLabelItem}`,
             disabled: true
         } as ICommandBarItemProps;
 

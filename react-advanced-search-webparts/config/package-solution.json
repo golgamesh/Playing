@@ -1,0 +1,12 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "react-advanced-search-webparts-client-side-solution",
+    "id": "8acdf4ef-bd53-46fc-a2e5-522d2030e0dc",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true
+  },
+  "paths": {
+    "zippedPackage": "solution/react-advanced-search-webparts.sppkg"
+  }
+}
