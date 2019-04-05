@@ -16,7 +16,6 @@ import { IAdvancedSearchProps } from './components/AdvancedSearch';
 import { ISearchInterfaceProps } from './components/SearchInterface';
 import { IDynamicDataPropertyDefinition, IDynamicDataCallables } from '@microsoft/sp-dynamic-data';
 
-
 export interface IAdvancedSearchWebPartProps {
   description: string;
   searchConfig: string;
@@ -89,6 +88,7 @@ export default class AdvancedSearchWebPart extends BaseClientSideWebPart<IAdvanc
     );
 
     ReactDom.render(element, this.domElement);
+
   }
 
   protected search(searchQuery:string): void {

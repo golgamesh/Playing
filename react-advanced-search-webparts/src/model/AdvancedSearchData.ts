@@ -36,7 +36,7 @@ export default class AdvancedSearchData {
         });
     }
 
-    public rowLimit: number = 10;
+    public rowLimit: number = 30;
     public page: number;
     public totalRows: number;
     public resultsConfig: Model.IResultsConfig;
@@ -83,8 +83,9 @@ export default class AdvancedSearchData {
             ...this.customSelectProperties 
         ]);
 
-        const queryOptions: SearchQuery  = {
+        const queryOptions: SearchQuery = {
             SelectProperties: props,
+            RowsPerPage: this.rowLimit,
             RowLimit: this.rowLimit
         };
 
@@ -92,7 +93,6 @@ export default class AdvancedSearchData {
 
         return sp.search(q).then((r: SearchResults) => {
 
-            
             this.currentResults = r;                                        // update the current results
             this.page = 1;                                                  // reset if needed
             
@@ -126,7 +126,4 @@ export default class AdvancedSearchData {
             return r;
         });
     }
-
-
-
 }

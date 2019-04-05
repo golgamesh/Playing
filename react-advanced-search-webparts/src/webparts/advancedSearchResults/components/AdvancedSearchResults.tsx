@@ -4,10 +4,11 @@ import { escape } from '@microsoft/sp-lodash-subset';
 import ResultsInterface, { IResultsInterfaceProps } from './ResultsInterface';
 import { WebPartContext } from '@microsoft/sp-webpart-base';
 import * as Model from '../../../model/AdvancedSearchModel';
-  
+import { Placeholder } from '@pnp/spfx-controls-react/lib/Placeholder';  
 
 export interface IAdvancedSearchResultsProps {
-  description: string;
+  onConfigure: () => void;
+  needsConfiguration: boolean;
   isDebug: boolean;
   config: Model.IResultsConfig;
   searchQuery: string;
@@ -39,15 +40,27 @@ export default class AdvancedSearchResults extends React.Component<IAdvancedSear
   }
 
   public render(): React.ReactElement<IAdvancedSearchResultsProps> {
+    let { needsConfiguration, onConfigure } = this.props;
     return (
       <div className={styles.advancedSearchResults}>
-        <ResultsInterface 
-          config={this.props.config} 
-          searchQuery={this.state.searchQuery} 
-          context={this.props.context}
-          isDebug={this.props.isDebug}
-          rowLimit={this.props.rowLimit}
-        />
+        
+        { needsConfiguration && 
+          <Placeholder
+            iconName='Edit'
+            iconText='Configure your web part'
+            description='Please configure the web part.'
+            buttonLabel='Configure'
+            onConfigure={onConfigure} />
+        }
+        { !needsConfiguration && 
+          <ResultsInterface 
+            config={this.props.config} 
+            searchQuery={this.state.searchQuery} 
+            context={this.props.context}
+            isDebug={this.props.isDebug}
+            rowLimit={this.props.rowLimit}
+          />
+        }
       </div>
     );
   }

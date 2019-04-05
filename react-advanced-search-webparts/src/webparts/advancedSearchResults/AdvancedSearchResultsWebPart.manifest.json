@@ -18,12 +18,12 @@
     "group": { "default": "Other" },
     "title": { "default": "AdvancedSearchResults" },
     "description": { "default": "AdvancedSearchResults description" },
-    "officeFabricIconFontName": "Page",
+    "officeFabricIconFontName": "QueryList",
     "properties": {
-      "description": "AdvancedSearchResults",
-      "rowLimit": 10,
-      "resultsConfig": "{\"columns\":[{\"name\":\"Title\",\"fieldName\":\"Title\",\"sortable\":false},{\"name\":\"Filename\",\"fieldName\":\"Filename\",\"sortable\":true},{\"name\":\"File Extension\",\"fieldName\":\"FileExtension\",\"sortable\":true},{\"name\":\"Is Document\",\"fieldName\":\"IsDocument\",\"sortable\":false},{\"name\":\"Modified\",\"fieldName\":\"LastModifiedTime\",\"sortable\":true},{\"name\":\"NavEnabled\",\"fieldName\":\"NavEnabled\",\"sortable\":false}]}",
-      "isDebug": true
+      "rowLimit": 100,
+      "isDebug": false,
+      "resultsConfig": "{\"columns\":[{\"name\":\"Title\",\"fieldName\":\"Title\",\"sortable\":false},{\"name\":\"Filename\",\"fieldName\":\"Filename\",\"sortable\":true},{\"name\":\"File Extension\",\"fieldName\":\"FileExtension\",\"sortable\":true},{\"name\":\"Is Document\",\"fieldName\":\"IsDocument\",\"sortable\":false},{\"name\":\"Modified\",\"fieldName\":\"LastModifiedTime\",\"sortable\":true},{\"name\":\"NavEnabled\",\"fieldName\":\"NavEnabled\",\"sortable\":false}]}", 
+      "searchQuery": ""
     }
   }]
 }

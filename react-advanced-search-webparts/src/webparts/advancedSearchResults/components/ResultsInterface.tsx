@@ -6,7 +6,8 @@ import {
     Selection,
     SelectionMode,
     IColumn,
-    IObjectWithKey
+    IObjectWithKey,
+    IDetailsRowProps
 } from 'office-ui-fabric-react/lib/DetailsList';
 import { 
     CommandBar, 
@@ -28,8 +29,11 @@ import ItemPropertiesPanel, {
     PageTypes
 } from './ItemPropertiesPanel';
 import { Panel, PanelType } from 'office-ui-fabric-react/lib/Panel';
+import { Spinner, SpinnerSize } from 'office-ui-fabric-react/lib/Spinner';
+import { Label } from 'office-ui-fabric-react/lib/Label';
 import OfficeURIHelper from '../../../helpers/OfficeURIHelper';
 import { IContextualMenuItem } from 'office-ui-fabric-react/lib/ContextualMenu';
+import stickybits from 'stickybits';
 
 export interface IResultsInterfaceProps {
     isDebug: boolean;
@@ -57,11 +61,15 @@ export interface IResultInterfaceState {
     itemPropPanelOpen: boolean;
     documentReaderOpen: boolean;
     documentReaderUrl: string;
+    showLoading: boolean;
 }
 
 const ColumnDefaults: any = {
     
 };
+
+const PAGING_SIZE = 10;
+const PAGING_DELAY = 2000;
 
 export default class ResultsInterface extends React.Component<IResultsInterfaceProps, IResultInterfaceState> {
     constructor(public props: IResultsInterfaceProps) {
@@ -95,7 +103,8 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
             contentTypeId: '',
             itemPropPanelOpen: false,
             documentReaderOpen: false,
-            documentReaderUrl: ''
+            documentReaderUrl: '',
+            showLoading: !props.searchQuery
         };
 
         this._selection = new Selection({
@@ -103,7 +112,6 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
                 let selected: IAdvancedSearchResult = this._getSelectionDetails();
                 let items = this.commandbarButtons(selected);
                 let overflowItems = this.commandbarOverflowButtons(selected);
-                console.log(selected);
                 this.setState({
                     ...this.state,
                     items,
@@ -112,13 +120,22 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
                     documentReaderOpen: false,
                 });
             }
-          });
+        });
+
+        this._scrollParent = this._findScrollContainer(this.props.context.domElement);
+        this._scrollParent.setAttribute('data-is-scrollable', 'true');
+
+        if(props.searchQuery) {
+            this.search(props);
+        }
 
     }
 
     public searchData: AdvancedSearchData;
     public state: IResultInterfaceState;
     private _selection: Selection;
+    private _scrollParent: HTMLElement;
+    private _isFetchingItems: Boolean = false;
     //private _closePanelRedirectUrl: string;
     private _defaultColumns: Model.IResultProperty[] = [{
         key: 'FileType',
@@ -135,7 +152,6 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
         maxWidth: 20,
         //onColumnClick: this._onColumnClick,
         onRender: (item: IAdvancedSearchResult) => {
-            console.log('render');
             let web = this.props.context.pageContext.web.absoluteUrl;
 
             if (this._isListOrLibrary(item)) {
@@ -168,56 +184,21 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
     }];
 
     public componentWillReceiveProps(nextProps: IResultsInterfaceProps): void {
+        this.search(nextProps);
+    }
 
-        this.searchData.search(nextProps.searchQuery).then((res: SearchResults) => {
-
-            let totalPages = 0;
-            let currentPage = 0;
-            let totalRows = 0;
-            let results: IAdvancedSearchResult[] = [];
-            
-            if( res && 
-                res.RawSearchResults && 
-                res.RawSearchResults.PrimaryQueryResult && 
-                res.TotalRows !== 0) {
-                    totalRows = res.TotalRows; 
-                    totalPages = Math.ceil(res.TotalRows / this.props.rowLimit);
-                    results = res.PrimarySearchResults as any;
-
-                    results.forEach(result => {
-                        this._rowIdentity(result);
-                    });
-            }
-
-            console.log('totalrows: ', totalRows);
-            console.log('rowlimit: ', this.props.rowLimit);
-            console.log('currpage: ', this.searchData.page);
-            console.log('totpages: ', totalPages);
-            //console.log('assets: ', this.props.context.manifest.loaderConfig.internalModuleBaseUrls);
-
-            if(totalRows > 0) {
-
-                //let colTypes: Model.IResultPropertyDef[] = res.RawSearchResults.Properties as any;
-                let colTypes: Model.IResultPropertyDef[] = res.RawSearchResults.PrimaryQueryResult.RelevantResults.Table.Rows[0].Cells as any;
-
-                this._applyLastSecondColumnConfig(colTypes);
-
-                currentPage = 1;
-
-            }
-
-            this.setState({
-                ...this.state,
-                config: nextProps.config,
-                searchQuery: nextProps.searchQuery,
-                results: results,
-                currentPage: currentPage,
-                totalPages: totalPages,
-                totalResults: totalRows,
-                faritems: [this.resultCountLabel(totalRows)]
-            } as IResultInterfaceState);
-
-        });
+    public componentDidUpdate(prevProps, prevState) : void {
+        
+      // commandBar
+      let cBar = this.props.context.domElement.querySelector(`.${styles.commandBar}`);
+      if(!cBar['sticky']) {
+          cBar['sticky'] = true;
+          stickybits(cBar, { 
+              scrollEl: this._scrollParent,
+              stickyBitStickyOffset: -10
+          }
+        );
+      }
     }
 
     public render(): React.ReactElement<IResultsInterfaceProps> {
@@ -227,32 +208,43 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
                     items={this.state.items}
                     overflowItems={this.state.overflowItems} 
                     farItems={this.state.faritems}
+                    className={styles.commandBar}
                 />
 
-                <DetailsList
-                    items={this.state.results}
-                    compact={false}
-                    columns={this.state.columns}
-                    selectionMode={SelectionMode.single}
-                    setKey="set"
-                    layoutMode={DetailsListLayoutMode.justified}
-                    isHeaderVisible={true}
-                    selection={this._selection}
-                    selectionPreservedOnEmptyClick={true}
-                    //onItemInvoked={this._onItemInvoked}
-                    enterModalSelectionOnTouch={true}
-                />
-
-                <div>
+                <div className={ this.state.results.length ? styles.hidden : '' }>
                     Your search returned zero matches.
                 </div>
+                <DetailsList
+                        items={this.state.results}
+                        compact={true}
+                        columns={this.state.columns}
+                        selectionMode={SelectionMode.single}
+                        setKey="set"
+                        layoutMode={DetailsListLayoutMode.justified}
+                        isHeaderVisible={true}
+                        selection={this._selection}
+                        selectionPreservedOnEmptyClick={true}
+                        //onItemInvoked={this._onItemInvoked}
+                        enterModalSelectionOnTouch={true}
+                        onRenderMissingItem={this._onRenderMissingItem}
+                    />
+                <div className={ this.state.results.length ? styles.anchor : `${styles.anchor} ${styles.hidden}` }>    
 
-                <Pagination
-                    currentPage={this.state.currentPage}
-                    totalPages={this.state.totalPages}
-                    boundaryPagesRange={0}
-                    onChange={(page) => this.pagination_click(page)}
-                />
+
+{/*                     <Pagination
+                        currentPage={this.state.currentPage}
+                        totalPages={this.state.totalPages}
+                        boundaryPagesRange={0}
+                        onChange={(page) => this.pagination_click(page)}
+                    /> */}
+
+                    <div className={this.state.showLoading ? `${styles.pnlLoading} ${styles.fadein}` : styles.pnlLoading } > {/* style={{ display: this.state.showLoading ? 'flex' : 'none' }} */}
+                        <div className={styles.loading}>
+                            <Label>Loading ...</Label>
+                            <Spinner size={SpinnerSize.large} />
+                        </div>
+                    </div>
+                </div>
 
                 <DebugPanel 
                     searchQuery={this.state.searchQuery} 
@@ -287,6 +279,71 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
         );
     }
 
+    protected search(props: IResultsInterfaceProps): Promise<any> {
+
+        return this.searchData.search(props.searchQuery).then((res: SearchResults) => {
+
+            let totalPages = 0;
+            let currentPage = 0;
+            let totalRows = 0;
+            let results: IAdvancedSearchResult[] = [];
+            
+            if( res && 
+                res.RawSearchResults && 
+                res.RawSearchResults.PrimaryQueryResult && 
+                res.TotalRows !== 0) {
+                    totalRows = res.TotalRows; 
+                    totalPages = Math.ceil(res.TotalRows / this.props.rowLimit);
+                    results = [ ...res.PrimarySearchResults as any];
+
+                    results.forEach(result => {
+                        this._rowIdentity(result);
+                    });
+                    results.push(null);
+            }
+
+            console.log('totalrows: ', totalRows);
+            console.log('rowlimit: ', this.props.rowLimit);
+            console.log('currpage: ', this.searchData.page);
+            console.log('totpages: ', totalPages);
+            //console.log('assets: ', this.props.context.manifest.loaderConfig.internalModuleBaseUrls);
+
+            if(totalRows > 0) {
+
+                //let colTypes: Model.IResultPropertyDef[] = res.RawSearchResults.Properties as any;
+                let colTypes: Model.IResultPropertyDef[] = res.RawSearchResults.PrimaryQueryResult.RelevantResults.Table.Rows[0].Cells as any;
+
+                this._applyLastSecondColumnConfig(colTypes);
+
+                currentPage = 1;
+
+            }
+
+/*             for(var i = 0; i < 10; i ++ ) {
+                results = [
+                    ...results,
+                    ...results
+                ];
+            } */
+
+            console.log('result count: ', results.length);
+
+            return this.setState({
+                ...this.state,
+                config: props.config,
+                searchQuery: props.searchQuery,
+                results: results,
+                currentPage: currentPage,
+                totalPages: totalPages,
+                totalResults: totalRows,
+                showLoading: false,
+                faritems: [this.resultCountLabel(totalRows)]
+            } as IResultInterfaceState);
+
+        });
+
+    }
+
     protected documentReaderPanel_dismiss(): void {
         let newState: IResultInterfaceState = {
             ...this.state,
@@ -294,6 +351,11 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
         };
 
         this.setState(newState);
+    }
+
+    protected detailsList_RenderMissingItems(index?: number, rowProps?: IDetailsRowProps): React.ReactNode {
+        console.log('missing items', index);
+        return null;
     }
 
     protected itemPropertiesPanel_dismiss(): void {
@@ -310,14 +372,23 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
 
         this.setState(newState);
     }
-
+/* 
     protected pagination_click(page: number): void {
 
         console.log('page clicked', page);
+        let indices = this._selection.getSelectedIndices();
+
+        if(indices.length) {
+            let idx = indices[0];
+            this._selection.setIndexSelected(idx, false, false);
+        }
 
         if(page < 1 || page > this.state.totalPages) { return; }
 
+        console.time('page');
+        this.showLoading(true);
         this.searchData.getPage(page).then((res: SearchResults) => {
+
             let results: Array<IAdvancedSearchResult> = res.PrimarySearchResults as any;
 
             results.forEach((result: IAdvancedSearchResult) => {
@@ -327,10 +398,15 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
             this.setState({
                 ...this.state,
                 results: res.PrimarySearchResults,
-                currentPage: this.searchData.page
+                currentPage: this.searchData.page,
+                showLoading: false,
+                items: [],
+                overflowItems: []
+            }, () => {
+                console.timeEnd('page');
             });
         });
-    }
+    } */
 
     protected btnCommandbar_click(e: React.MouseEvent<HTMLElement> | React.KeyboardEvent<HTMLElement>, btn: ICommandBarItemProps): void {
         let action: string = btn.key;
@@ -431,6 +507,17 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
             ...typeDefaults,
             ...colConfig
         } as Model.IResultProperty;
+    }
+
+    protected showLoading(val: boolean): void {
+        if(val === this.state.showLoading) {
+            return;
+        }
+
+        this.setState({
+            ...this.state,
+            showLoading: val
+        });
     }
 
 
@@ -627,5 +714,57 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
         } as ICommandBarItemProps;
 
     }
+
+    private _findScrollContainer (element: HTMLElement): HTMLElement {
+        if (!element) {
+          return undefined;
+        }
+      
+        let parent = element.parentElement;
+        while (parent) {
+          const { overflow } = window.getComputedStyle(parent);
+          if (overflow.indexOf('auto') !== -1 || overflow.indexOf('scroll') !== -1) {
+            return parent;
+          }
+          parent = parent.parentElement;
+        }
+      
+        return document.documentElement;
+      }
+
+
+      private _onDataMiss(index: number): void {
+        if(this.searchData.totalRows <= this.state.results.length) {
+            return;
+        }
+    
+        if (!this._isFetchingItems) {
+          this._isFetchingItems = true;
+    
+            let resultsCopy = [...this.state.results];
+            
+            this.searchData.getPage(this.searchData.page + 1).then((results: SearchResults) => {
+                if(!results || !results.PrimarySearchResults) {
+                    return;
+                }
+                resultsCopy.pop();
+                resultsCopy = resultsCopy.concat(results.PrimarySearchResults);
+                resultsCopy.push(null);
+                this.setState({
+                    ...this.state,
+                  results: resultsCopy
+                } as IResultInterfaceState, () => {
+                    this._isFetchingItems = false;
+                });
+            });
+    
+        }
+      }
+    
+      private _onRenderMissingItem = (index: number): null => {
+        this._onDataMiss(index);
+        return null;
+      }
+
 
 }

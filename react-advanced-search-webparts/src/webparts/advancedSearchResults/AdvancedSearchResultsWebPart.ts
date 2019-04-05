@@ -4,10 +4,12 @@ import { Version } from '@microsoft/sp-core-library';
 import {
   BaseClientSideWebPart,
   IPropertyPaneConfiguration,
+  IPropertyPaneConditionalGroup,
   PropertyPaneTextField,
   PropertyPaneToggle,
   PropertyPaneDynamicField,
-  IWebPartPropertiesMetadata
+  IWebPartPropertiesMetadata,
+  DynamicDataSharedDepth
 } from '@microsoft/sp-webpart-base';
 import * as Model from '../../model/AdvancedSearchModel';
 import * as strings from 'AdvancedSearchResultsWebPartStrings';
@@ -15,6 +17,7 @@ import AdvancedSearchResults from './components/AdvancedSearchResults';
 import { IAdvancedSearchResultsProps } from './components/AdvancedSearchResults';
 import Validation from '../../helpers/Validation';
 import { DynamicProperty } from '@microsoft/sp-component-base';
+import { IDynamicDataSource } from '@microsoft/sp-dynamic-data';
 
 export interface IAdvancedSearchResultsWebPartProps {
   description: string;
@@ -30,16 +33,16 @@ export default class AdvancedSearchResultsWebPart extends BaseClientSideWebPart<
 
   public render(): void {
 
+    this.resultsConfig = this._parseConfig(this.properties.resultsConfig);
+    const searchQuerySource: IDynamicDataSource | undefined = this.properties.searchQuery.tryGetSource();
     const searchQuery: string | undefined = this.properties.searchQuery.tryGetValue();
-
-/*     const needsConfiguration: boolean = !this.properties.bingMapsApiKey || (!address && !this.properties.address.tryGetSource()) || 
-    (!city && !this.properties..tryGetSource());
- */
-    this.resultsConfig = <Model.IResultsConfig>JSON.parse(this.properties.resultsConfig);
+    const needsConfiguration: boolean = (!searchQuerySource && !searchQuery) || !this.resultsConfig;
+    
     const element: React.ReactElement<IAdvancedSearchResultsProps > = React.createElement(
       AdvancedSearchResults,
       {
-        description: this.properties.description,
+        needsConfiguration: needsConfiguration,
+        onConfigure: () => this._onConfigure(),
         isDebug: this.properties.isDebug,
         rowLimit: this.properties.rowLimit,
         config: this.resultsConfig,
@@ -51,8 +54,23 @@ export default class AdvancedSearchResultsWebPart extends BaseClientSideWebPart<
     ReactDom.render(element, this.domElement);
   }
 
+ /**
+  * Event handler for clicking the Configure button on the Placeholder
+  */
+  private _onConfigure = (): void => {
+    this.context.propertyPane.open();
+  }
+
   protected onDispose(): void {
     ReactDom.unmountComponentAtNode(this.domElement);
+  }
+
+  private _parseConfig(json: string): Model.IResultsConfig {
+    try {
+      return JSON.parse(json);
+    } catch(ex) {
+      return null;
+    }
   }
 
   protected get propertiesMetadata(): IWebPartPropertiesMetadata {
@@ -62,7 +80,7 @@ export default class AdvancedSearchResultsWebPart extends BaseClientSideWebPart<
       'searchQuery': {
         dynamicPropertyType: 'string'
       }
-    };
+    } as any as IWebPartPropertiesMetadata;
   }
 
   protected get dataVersion(): Version {
@@ -78,11 +96,32 @@ export default class AdvancedSearchResultsWebPart extends BaseClientSideWebPart<
           },
           groups: [
             {
+              primaryGroup: {
+                groupName: 'fsdajk',
+                groupFields: [
+                  PropertyPaneTextField('searchQuery', {
+                    label: strings.SearchQueryFieldLabel
+                  })
+                ]
+              },
+              secondaryGroup: {
+                groupName: 'fsdajk',
+                groupFields: [
+                  PropertyPaneDynamicField('searchQuery', {
+                    label: strings.SearchQueryFieldLabel
+                  })
+                ],                
+                sharedConfiguration: {
+                  // because address and city come from the same data source
+                  // the connection can share the selected dynamic property
+                  depth: DynamicDataSharedDepth.Property
+                }
+              },
+              showSecondaryGroup: !!this.properties.searchQuery.tryGetSource()
+            } as IPropertyPaneConditionalGroup,
+            {
               groupName: strings.BasicGroupName,
               groupFields: [
-                PropertyPaneDynamicField('searchQuery', {
-                  label: strings.SearchQueryFieldLabel
-                }),
                 PropertyPaneTextField('resultsConfig', {
                   label: strings.ResultsConfigFieldLabel,
                   multiline: true,
