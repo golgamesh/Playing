@@ -3,3 +3,9 @@
 .advancedSearchResults {
   display: block;
 }
+
+:global {
+  #workbenchPageContent {
+    max-width: none;
+  }
+}

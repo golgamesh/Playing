@@ -8,9 +8,14 @@ import {
   PropertyPaneTextField,
   PropertyPaneToggle,
   PropertyPaneDynamicField,
+  PropertyPaneButton,
   IWebPartPropertiesMetadata,
   DynamicDataSharedDepth
 } from '@microsoft/sp-webpart-base';
+import {
+  PropertyFieldCollectionData,
+  CustomCollectionFieldType
+} from '@pnp/spfx-property-controls/lib/PropertyFieldCollectionData';
 import * as Model from '../../model/AdvancedSearchModel';
 import * as strings from 'AdvancedSearchResultsWebPartStrings';
 import AdvancedSearchResults from './components/AdvancedSearchResults';
@@ -18,22 +23,40 @@ import { IAdvancedSearchResultsProps } from './components/AdvancedSearchResults'
 import Validation from '../../helpers/Validation';
 import { DynamicProperty } from '@microsoft/sp-component-base';
 import { IDynamicDataSource } from '@microsoft/sp-dynamic-data';
+import WebPartPropertiesHelper from '../../helpers/WebPartPropertiesHelper';
+import SearchSchemaHelper from '../../helpers/SearchSchemaHelper';
 
 export interface IAdvancedSearchResultsWebPartProps {
   description: string;
   isDebug: boolean;
   rowLimit: number;
   resultsConfig: string;
+  columns: Array<Model.IResultProperty>;
   searchQuery: DynamicProperty<string>;
 }
 
 export default class AdvancedSearchResultsWebPart extends BaseClientSideWebPart<IAdvancedSearchResultsWebPartProps> {
 
   public resultsConfig: Model.IResultsConfig;
+  public searchSchemaHelper: SearchSchemaHelper;
+
+  public onInit(): Promise<void> {
+    return super.onInit().then(_ => {
+
+      this.searchSchemaHelper = new SearchSchemaHelper(
+        document.location.origin,
+        this.context.pageContext.web.serverRelativeUrl, 
+        this.context.spHttpClient);
+
+    });
+  }
 
   public render(): void {
 
+    console.log(JSON.stringify(this.properties.columns));
+
     this.resultsConfig = this._parseConfig(this.properties.resultsConfig);
+    //this.resultsConfig = this.properties.resultsConfig;
     const searchQuerySource: IDynamicDataSource | undefined = this.properties.searchQuery.tryGetSource();
     const searchQuery: string | undefined = this.properties.searchQuery.tryGetValue();
     const needsConfiguration: boolean = (!searchQuerySource && !searchQuery) || !this.resultsConfig;
@@ -45,7 +68,8 @@ export default class AdvancedSearchResultsWebPart extends BaseClientSideWebPart<
         onConfigure: () => this._onConfigure(),
         isDebug: this.properties.isDebug,
         rowLimit: this.properties.rowLimit,
-        config: this.resultsConfig,
+        columns: this.properties.columns,
+        //config: this.resultsConfig,
         searchQuery: searchQuery,
         context: this.context
       }
@@ -65,6 +89,11 @@ export default class AdvancedSearchResultsWebPart extends BaseClientSideWebPart<
     ReactDom.unmountComponentAtNode(this.domElement);
   }
 
+  protected onPropertiesExport_click(): void {
+    let p = new WebPartPropertiesHelper();
+    p.export(this.properties, 'hello');
+  }
+
   private _parseConfig(json: string): Model.IResultsConfig {
     try {
       return JSON.parse(json);
@@ -81,6 +110,16 @@ export default class AdvancedSearchResultsWebPart extends BaseClientSideWebPart<
         dynamicPropertyType: 'string'
       }
     } as any as IWebPartPropertiesMetadata;
+  }
+
+  protected managedPropertyValidation(value: any, index: number, crntItem: any): Promise<string> {
+    return this.searchSchemaHelper.managedPropertyExists(value).then((exists: boolean) => {
+      return exists ? '' : `That managed property does not exists`;
+    });
+  }
+
+  protected get disableReactivePropertyChanges() {
+    return true;
   }
 
   protected get dataVersion(): Version {
@@ -122,18 +161,50 @@ export default class AdvancedSearchResultsWebPart extends BaseClientSideWebPart<
             {
               groupName: strings.BasicGroupName,
               groupFields: [
-                PropertyPaneTextField('resultsConfig', {
+/*                 PropertyPaneTextField('resultsConfig', {
                   label: strings.ResultsConfigFieldLabel,
                   multiline: true,
                   description: strings.ResultsConfigFieldDesc,
                   validateOnFocusOut: true,
                   onGetErrorMessage: Validation.validateResultsConfig.bind(this)
+                }), */
+                PropertyPaneButton('export', {
+                  text: 'Export Configuration',
+                  onClick: () => this.onPropertiesExport_click()
                 }),
                 PropertyPaneTextField('rowLimit', {
                   label: strings.RowLimitFieldLabel
                 }),
                 PropertyPaneToggle('isDebug', {
                   label: strings.IsDebugFieldLabel
+                }),
+                PropertyFieldCollectionData('columns', {
+                    key: 'resultsConfig',
+                    label: 'Choose Result Columns',
+                    panelHeader: 'Result Columns',
+                    manageBtnLabel: 'Choose Result Columns',
+                    value: this.properties.columns,
+                    fields: [{
+                        id: 'name',
+                        title: 'Column Display Name',
+                        required: true,
+                        type: CustomCollectionFieldType.string,
+                      },
+                      {
+                        id: 'fieldName',
+                        title: 'Managed Property',
+                        required: true,
+                        type: CustomCollectionFieldType.string,
+                        deferredValidationTime: 1000,
+                        onGetErrorMessage: (value: any, index: number, crntItem: any) => this.managedPropertyValidation(value, index, crntItem)
+                      },
+                      {
+                        id: 'sortable',
+                        title: 'sortable',
+                        required: false,
+                        type: CustomCollectionFieldType.boolean
+                      }
+                    ]
                 })
               ]
             }

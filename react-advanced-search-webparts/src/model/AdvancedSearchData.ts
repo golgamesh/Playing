@@ -9,7 +9,6 @@ import { uniq } from '@microsoft/sp-lodash-subset';
 import { BaseComponentContext } from '@microsoft/sp-component-base';
 import * as Model from './AdvancedSearchModel';
 
-
 export interface IAdvancedSearchResult extends SearchResult {
     Title: string; 
     Filename: string;
@@ -28,9 +27,7 @@ export interface IAdvancedSearchResult extends SearchResult {
 }
 
 export default class AdvancedSearchData {
-    constructor(context: BaseComponentContext, resultsConfig: Model.IResultsConfig) {
-        this.context = context;
-        this.resultsConfig = resultsConfig;
+    constructor(public context: BaseComponentContext, public columns: Array<Model.IResultProperty>) {
         sp.setup({
             spfxContext: context
         });
@@ -39,14 +36,13 @@ export default class AdvancedSearchData {
     public rowLimit: number = 30;
     public page: number;
     public totalRows: number;
-    public resultsConfig: Model.IResultsConfig;
-    public context: BaseComponentContext;
+    //public resultsConfig: Model.IResultsConfig;
     public currentResults: SearchResults;
 
     public get customSelectProperties(): Array<string> {
         let props: Array<string> = [];
         
-        this.resultsConfig.columns.forEach((prop: Model.IResultProperty) => {
+        this.columns.forEach((prop: Model.IResultProperty) => {
             props.push(prop.fieldName);
         });
 

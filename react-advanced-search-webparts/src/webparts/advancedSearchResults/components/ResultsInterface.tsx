@@ -15,7 +15,6 @@ import {
     ICommandBarItemProps 
 } from 'office-ui-fabric-react/lib/CommandBar';
 import * as Model from '../../../model/AdvancedSearchModel';
-import Pagination from 'office-ui-fabric-react-pagination';
 import AdvancedSearchData, {
     IAdvancedSearchResult
 } from '../../../model/AdvancedSearchData';
@@ -37,22 +36,23 @@ import stickybits from 'stickybits';
 
 export interface IResultsInterfaceProps {
     isDebug: boolean;
-    config: Model.IResultsConfig;
+    //config: Model.IResultsConfig;
+    columns: Array<Model.IResultProperty>;
     searchQuery: string;
     context: WebPartContext;
     rowLimit: number;
 }
 
 export interface IResultInterfaceState {
-    config: Model.IResultsConfig;
+    //config: Model.IResultsConfig;
     items: ICommandBarItemProps[];
     overflowItems: ICommandBarItemProps[];
     faritems: ICommandBarItemProps[];
     searchQuery: string;
     results: SearchResult[];
-    currentPage: number;
-    totalPages: number;
-    totalResults: number;
+    //currentPage: number;
+    //totalPages: number;
+    //totalResults: number;
     columns: Model.IResultProperty[];
     spWebUrl: string;
     listID: string;
@@ -68,34 +68,32 @@ const ColumnDefaults: any = {
     
 };
 
-const PAGING_SIZE = 10;
-const PAGING_DELAY = 2000;
-
 export default class ResultsInterface extends React.Component<IResultsInterfaceProps, IResultInterfaceState> {
     constructor(public props: IResultsInterfaceProps) {
         super(props);
         
-        this.searchData = new AdvancedSearchData(props.context, props.config);
+        this.searchData = new AdvancedSearchData(props.context, props.columns);
         this.searchData.rowLimit = props.rowLimit;
         initializeFileTypeIcons();
         //this._closePanelRedirectUrl = `${this.props.context.pageContext.web.absoluteUrl}/siteassets/advanced-search-webpart-close-panel.aspx`;
         let cols = uniq<Model.IResultProperty>([
             ...this._defaultColumns, 
-            ...props.config.columns
+            //...props.config.columns
+            ...props.columns
         ]);
 
         console.log(cols);
 
         this.state = { 
-            config: props.config,
+            //config: props.config,
             items:[],
             overflowItems:[],
             faritems:[],
             searchQuery: props.searchQuery,
             results: [],
-            currentPage:0,
-            totalPages:0,
-            totalResults:0,
+            //currentPage:0,
+            //totalPages:0,
+            //totalResults:0,
             columns: cols,
             spWebUrl: '',
             listID: '',
@@ -228,17 +226,8 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
                         enterModalSelectionOnTouch={true}
                         onRenderMissingItem={this._onRenderMissingItem}
                     />
-                <div className={ this.state.results.length ? styles.anchor : `${styles.anchor} ${styles.hidden}` }>    
-
-
-{/*                     <Pagination
-                        currentPage={this.state.currentPage}
-                        totalPages={this.state.totalPages}
-                        boundaryPagesRange={0}
-                        onChange={(page) => this.pagination_click(page)}
-                    /> */}
-
-                    <div className={this.state.showLoading ? `${styles.pnlLoading} ${styles.fadein}` : styles.pnlLoading } > {/* style={{ display: this.state.showLoading ? 'flex' : 'none' }} */}
+                <div className={ this.state.results.length ? styles.anchor : `${styles.anchor} ${styles.hidden}` }>
+                    <div className={this.state.showLoading ? `${styles.pnlLoading} ${styles.fadein}` : styles.pnlLoading } style={{ display: this.state.showLoading ? 'flex' : 'none' }} > {/* */}
                         <div className={styles.loading}>
                             <Label>Loading ...</Label>
                             <Spinner size={SpinnerSize.large} />
@@ -287,6 +276,7 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
             let currentPage = 0;
             let totalRows = 0;
             let results: IAdvancedSearchResult[] = [];
+            let columns: Array<Model.IResultProperty>;
             
             if( res && 
                 res.RawSearchResults && 
@@ -300,44 +290,31 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
                         this._rowIdentity(result);
                     });
                     results.push(null);
-            }
 
-            console.log('totalrows: ', totalRows);
-            console.log('rowlimit: ', this.props.rowLimit);
-            console.log('currpage: ', this.searchData.page);
-            console.log('totpages: ', totalPages);
-            //console.log('assets: ', this.props.context.manifest.loaderConfig.internalModuleBaseUrls);
+                    let colTypes: Model.IResultPropertyDef[] = res.RawSearchResults.PrimaryQueryResult.RelevantResults.Table.Rows[0].Cells as any;
 
-            if(totalRows > 0) {
+                    columns = this._buildColumnConfig(colTypes);
 
-                //let colTypes: Model.IResultPropertyDef[] = res.RawSearchResults.Properties as any;
-                let colTypes: Model.IResultPropertyDef[] = res.RawSearchResults.PrimaryQueryResult.RelevantResults.Table.Rows[0].Cells as any;
-
-                this._applyLastSecondColumnConfig(colTypes);
-
-                currentPage = 1;
+                    currentPage = 1;
 
             }
 
-/*             for(var i = 0; i < 10; i ++ ) {
-                results = [
-                    ...results,
-                    ...results
-                ];
-            } */
-
+            //console.log('totalrows: ', totalRows);
+            //console.log('rowlimit: ', this.props.rowLimit);
+            //console.log('currpage: ', this.searchData.page);
+            //console.log('totpages: ', totalPages);
             console.log('result count: ', results.length);
 
             return this.setState({
                 ...this.state,
-                config: props.config,
                 searchQuery: props.searchQuery,
                 results: results,
-                currentPage: currentPage,
-                totalPages: totalPages,
-                totalResults: totalRows,
+                //currentPage: currentPage,
+                //totalPages: totalPages,
+                //totalResults: totalRows,
                 showLoading: false,
-                faritems: [this.resultCountLabel(totalRows)]
+                faritems: [this.resultCountLabel(totalRows)],
+                columns: columns
             } as IResultInterfaceState);
 
         });
@@ -372,41 +349,6 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
 
         this.setState(newState);
     }
-/* 
-    protected pagination_click(page: number): void {
-
-        console.log('page clicked', page);
-        let indices = this._selection.getSelectedIndices();
-
-        if(indices.length) {
-            let idx = indices[0];
-            this._selection.setIndexSelected(idx, false, false);
-        }
-
-        if(page < 1 || page > this.state.totalPages) { return; }
-
-        console.time('page');
-        this.showLoading(true);
-        this.searchData.getPage(page).then((res: SearchResults) => {
-
-            let results: Array<IAdvancedSearchResult> = res.PrimarySearchResults as any;
-
-            results.forEach((result: IAdvancedSearchResult) => {
-                this._rowIdentity(result);
-            });
-
-            this.setState({
-                ...this.state,
-                results: res.PrimarySearchResults,
-                currentPage: this.searchData.page,
-                showLoading: false,
-                items: [],
-                overflowItems: []
-            }, () => {
-                console.timeEnd('page');
-            });
-        });
-    } */
 
     protected btnCommandbar_click(e: React.MouseEvent<HTMLElement> | React.KeyboardEvent<HTMLElement>, btn: ICommandBarItemProps): void {
         let action: string = btn.key;
@@ -460,7 +402,7 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
     }
 
 
-    private _applyLastSecondColumnConfig(colTypes: Model.IResultPropertyDef[]): void {
+    private _buildColumnConfig(colTypes: Model.IResultPropertyDef[]): Array<Model.IResultProperty> {
         var columns = [
             ...this.state.columns
         ];
@@ -476,10 +418,8 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
             }
         });
 
-        this.setState({
-            ...this.state,
-            columns: columns
-        });
+        return columns;
+
     }
 
     private _applyResultPropertyDefaults(colConfig: Model.IResultProperty): Model.IResultProperty {
@@ -509,7 +449,7 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
         } as Model.IResultProperty;
     }
 
-    protected showLoading(val: boolean): void {
+/*     protected showLoading(val: boolean): void {
         if(val === this.state.showLoading) {
             return;
         }
@@ -518,7 +458,7 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
             ...this.state,
             showLoading: val
         });
-    }
+    } */
 
 
     private _formatDate (isoDate: string): string {
@@ -731,24 +671,31 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
       
         return document.documentElement;
       }
-
-
-      private _onDataMiss(index: number): void {
+    
+      private _onRenderMissingItem = (index: number): null => {
+        
         if(this.searchData.totalRows <= this.state.results.length) {
-            return;
+            return null;
         }
     
         if (!this._isFetchingItems) {
           this._isFetchingItems = true;
-    
+
             let resultsCopy = [...this.state.results];
             
-            this.searchData.getPage(this.searchData.page + 1).then((results: SearchResults) => {
-                if(!results || !results.PrimarySearchResults) {
+            this.searchData.getPage(this.searchData.page + 1).then((res: SearchResults) => {
+                if(!res || !res.PrimarySearchResults) {
                     return;
                 }
+
+                let results: IAdvancedSearchResult[] = res.PrimarySearchResults as any;
+                
+                results.forEach(result => {
+                    this._rowIdentity(result);
+                });
+
                 resultsCopy.pop();
-                resultsCopy = resultsCopy.concat(results.PrimarySearchResults);
+                resultsCopy = resultsCopy.concat(res.PrimarySearchResults);
                 resultsCopy.push(null);
                 this.setState({
                     ...this.state,
@@ -757,14 +704,8 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
                     this._isFetchingItems = false;
                 });
             });
-    
         }
-      }
-    
-      private _onRenderMissingItem = (index: number): null => {
-        this._onDataMiss(index);
         return null;
       }
-
 
 }
