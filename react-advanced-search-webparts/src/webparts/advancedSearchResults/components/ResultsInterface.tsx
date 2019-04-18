@@ -176,6 +176,7 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
         type: Model.ResultPropertyValueType.String,
         fieldName: 'TitleOrFilename',
         minWidth: 100,
+        onColumnClick: (e, column) => this.column_click(e, column),
         onRender: (item: IAdvancedSearchResult) => {
             return <div title={item.Title}>{item.TitleOrFilename}</div>;
         }
@@ -348,6 +349,10 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
         console.log('Frame state reset');
 
         this.setState(newState);
+    }
+
+    protected column_click(ev: React.MouseEvent<HTMLElement>, column: IColumn): void {
+        console.log('click', ev, column);
     }
 
     protected btnCommandbar_click(e: React.MouseEvent<HTMLElement> | React.KeyboardEvent<HTMLElement>, btn: ICommandBarItemProps): void {

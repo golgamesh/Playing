@@ -25,6 +25,7 @@ import { DynamicProperty } from '@microsoft/sp-component-base';
 import { IDynamicDataSource } from '@microsoft/sp-dynamic-data';
 import WebPartPropertiesHelper from '../../helpers/WebPartPropertiesHelper';
 import SearchSchemaHelper from '../../helpers/SearchSchemaHelper';
+import ManagedPropertyPicker from '../../components/ManagedPropertyPicker';
 
 export interface IAdvancedSearchResultsWebPartProps {
   description: string;
@@ -59,7 +60,7 @@ export default class AdvancedSearchResultsWebPart extends BaseClientSideWebPart<
     //this.resultsConfig = this.properties.resultsConfig;
     const searchQuerySource: IDynamicDataSource | undefined = this.properties.searchQuery.tryGetSource();
     const searchQuery: string | undefined = this.properties.searchQuery.tryGetValue();
-    const needsConfiguration: boolean = (!searchQuerySource && !searchQuery) || !this.resultsConfig;
+    const needsConfiguration: boolean = (!searchQuerySource && !searchQuery) || !this.properties.columns;
     
     const element: React.ReactElement<IAdvancedSearchResultsProps > = React.createElement(
       AdvancedSearchResults,
@@ -197,6 +198,25 @@ export default class AdvancedSearchResultsWebPart extends BaseClientSideWebPart<
                         type: CustomCollectionFieldType.string,
                         deferredValidationTime: 1000,
                         onGetErrorMessage: (value: any, index: number, crntItem: any) => this.managedPropertyValidation(value, index, crntItem)
+                      },
+                      {
+                        id: 'test',
+                        title: 'Test',
+                        type: CustomCollectionFieldType.custom,
+                        onCustomRender: (field, value, onUpdate, item, rowUniqueId) => {
+                           return(
+                              React.createElement(ManagedPropertyPicker, {
+                                label:"ComboBox with toggleable freeform/auto-complete",
+                                key: 'cbox' + field.id,
+                                allowFreeform: true,
+                                autoComplete: 'on',
+                                options: [],
+                                context: this.context
+                             })
+                           );
+                        }
+
+                        //(field: ICustomCollectionField, value: any, onUpdate: (fieldId: string, value: any) => void, item: any, rowUniqueId: string) => JSX.Element;
                       },
                       {
                         id: 'sortable',

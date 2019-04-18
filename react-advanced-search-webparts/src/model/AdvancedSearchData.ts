@@ -42,9 +42,11 @@ export default class AdvancedSearchData {
     public get customSelectProperties(): Array<string> {
         let props: Array<string> = [];
         
-        this.columns.forEach((prop: Model.IResultProperty) => {
-            props.push(prop.fieldName);
-        });
+        if(this.columns) {
+            this.columns.forEach((prop: Model.IResultProperty) => {
+                props.push(prop.fieldName);
+            });
+        }
 
         return props;
     }
