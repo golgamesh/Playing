@@ -101,14 +101,14 @@ export default class SearchSchemaHelper {
                     return resp.json();
                 }
             ).then((results: any) => {
-                console.log(results);
+                //console.log(results);
                 if(!results.PrimaryQueryResult.RefinementResults || 
                    !results.PrimaryQueryResult.RefinementResults.Refiners || 
                    !results.PrimaryQueryResult.RefinementResults.Refiners.length) {
                     return [];
                 } else {
                     let entries = results.PrimaryQueryResult.RefinementResults.Refiners[0].Entries;
-                    console.log('props: ', entries);
+                    //console.log('props: ', entries);
                     return entries;
                 }
             });

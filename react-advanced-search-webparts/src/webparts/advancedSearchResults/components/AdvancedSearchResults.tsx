@@ -6,6 +6,7 @@ import { WebPartContext } from '@microsoft/sp-webpart-base';
 import * as Model from '../../../model/AdvancedSearchModel';
 import { Placeholder } from '@pnp/spfx-controls-react/lib/Placeholder';  
 
+
 export interface IAdvancedSearchResultsProps {
   onConfigure: () => void;
   needsConfiguration: boolean;

@@ -26,6 +26,8 @@ import { IDynamicDataSource } from '@microsoft/sp-dynamic-data';
 import WebPartPropertiesHelper from '../../helpers/WebPartPropertiesHelper';
 import SearchSchemaHelper from '../../helpers/SearchSchemaHelper';
 import ManagedPropertyPicker from '../../components/ManagedPropertyPicker';
+import { IComboBox, IComboBoxOption } from 'office-ui-fabric-react/lib';
+import Autocomplete from 'React-Autocomplete';
 
 export interface IAdvancedSearchResultsWebPartProps {
   description: string;
@@ -181,6 +183,7 @@ export default class AdvancedSearchResultsWebPart extends BaseClientSideWebPart<
                 }),
                 PropertyFieldCollectionData('columns', {
                     key: 'resultsConfig',
+                    enableSorting: true,
                     label: 'Choose Result Columns',
                     panelHeader: 'Result Columns',
                     manageBtnLabel: 'Choose Result Columns',
@@ -195,29 +198,43 @@ export default class AdvancedSearchResultsWebPart extends BaseClientSideWebPart<
                         id: 'fieldName',
                         title: 'Managed Property',
                         required: true,
+                        type: CustomCollectionFieldType.custom,
+                        onCustomRender: (field, value, onUpdate, item, rowUniqueId) => {
+                          return(React.createElement(Autocomplete, {
+                            onChange: null
+                          }));
+                        }
+                      }
+                      /* {
+                        id: 'fieldName',
+                        title: 'Managed Property',
+                        required: true,
                         type: CustomCollectionFieldType.string,
                         deferredValidationTime: 1000,
                         onGetErrorMessage: (value: any, index: number, crntItem: any) => this.managedPropertyValidation(value, index, crntItem)
-                      },
-                      {
-                        id: 'test',
-                        title: 'Test',
+                      }, */
+                      /* {
+                        id: 'fieldName',
+                        title: 'Managed Property',
                         type: CustomCollectionFieldType.custom,
                         onCustomRender: (field, value, onUpdate, item, rowUniqueId) => {
                            return(
                               React.createElement(ManagedPropertyPicker, {
-                                label:"ComboBox with toggleable freeform/auto-complete",
                                 key: 'cbox' + field.id,
-                                allowFreeform: true,
-                                autoComplete: 'on',
-                                options: [],
-                                context: this.context
+                                context: this.context,
+                                value: value,
+                                onChanged: (options: IComboBoxOption, index: number, optionvalue: string, e: React.FormEvent<IComboBox>): void => { 
+                                  onUpdate(field.id, (<HTMLInputElement>e.target).value);
+                                },
+                                options:[{ text: 'free formula', key: '1'}, 
+                                         { text: 'free style', key:'2' }, 
+                                         { text: 'freeze', key: '3'}]
                              })
                            );
                         }
 
                         //(field: ICustomCollectionField, value: any, onUpdate: (fieldId: string, value: any) => void, item: any, rowUniqueId: string) => JSX.Element;
-                      },
+                      }, */
                       {
                         id: 'sortable',
                         title: 'sortable',
@@ -225,7 +242,8 @@ export default class AdvancedSearchResultsWebPart extends BaseClientSideWebPart<
                         type: CustomCollectionFieldType.boolean
                       }
                     ]
-                })
+                  }
+                )
               ]
             }
           ]

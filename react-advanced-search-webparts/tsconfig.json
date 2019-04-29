@@ -10,6 +10,7 @@
     "experimentalDecorators": true,
     "skipLibCheck": true,
     "outDir": "lib",
+    "allowUnreachableCode": true,
     "typeRoots": [
       "./node_modules/@types",
       "./node_modules/@microsoft"
