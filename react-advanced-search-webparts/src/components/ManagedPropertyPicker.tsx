@@ -1,20 +1,20 @@
 import * as React from 'react';
-import { ComboBox, Fabric, IComboBoxProps, IComboBoxOption, mergeStyles, SelectableOptionMenuItemType, Toggle, IComboBox, KeyCodes } from 'office-ui-fabric-react/lib/index';
-import SearchSchemaHelper from '../helpers/SearchSchemaHelper';
+import * as AutoComplete from 'React-AutoComplete';
 import { WebPartContext } from '@microsoft/sp-webpart-base';
+import SearchSchemaHelper from '../helpers/SearchSchemaHelper';
 
-export interface IManagedPropertyPickerProps extends IComboBoxProps {
+export interface IManagedPropertyPickerProps extends AutoComplete.Props {
     context: WebPartContext;
+    value: string;
+    onChanged: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-
 export interface IManagedPropertyPickerState {
-    options: Array<IComboBoxOption>;
+    items: Array<string>;
 }
 
 export default class ManagedPropertyPicker extends React.Component<IManagedPropertyPickerProps, IManagedPropertyPickerState> {
-
-    constructor(props: IManagedPropertyPickerProps) {
+    constructor(props) {
         super(props);
 
         this.schema = new SearchSchemaHelper(
@@ -23,96 +23,54 @@ export default class ManagedPropertyPicker extends React.Component<IManagedPrope
             this.props.context.spHttpClient);
 
         this.state = {
-            options: this.props.options
+            items: []
         };
-    }
-    
-    private _mppComboBox: IComboBox;
 
-    public state: IManagedPropertyPickerState;
+    }
 
     public schema: SearchSchemaHelper;
-
-    private _pending: Promise<any>;
+    public state: IManagedPropertyPickerState;
 
     /**
      * React component's render method
      */
     public render(): React.ReactElement<IManagedPropertyPickerProps> {
         return(
-            <ComboBox {...this.props }
-                //onKeyDown={this.combobox_keyup}
-                //onSelect={this.combobox_select}
-                //onChangeCapture={this.combobox_changeCapture}
-                //options={this.state.options}                
-                //useComboBoxAsMenuWidth={true}
-                //allowFreeform={true}
-                //autoComplete={'off'}
-                //componentRef={(combobox) => { this._mppComboBox = combobox; } }
+            <AutoComplete 
+                { ...this.props }
+                getItemValue={(item) => item}
+                items={this.state.items}
+                onChange={this.onChange}
+                renderItem={(item, isHighlighted) =>
+                    <div style={{ background: isHighlighted ? 'lightgray' : 'white' }}>
+                      {item}
+                    </div>
+                  }
             />
         );
     }
 
-    protected combobox_changeCapture = (e: React.ChangeEvent<IComboBox>):void => {
-        console.log('ChangeCapture', e);
-    }
-
-    protected combobox_select = (e: React.SyntheticEvent<IComboBox>): void => {
-        console.log('select', e);
-    }
-
-    protected combobox_keyup = (e: React.KeyboardEvent<IComboBox>): void => {
-
-        let key: KeyCodes = e.keyCode;
-
-        switch(key) {
-            case KeyCodes.enter:
-            case KeyCodes.tab:
-            case KeyCodes.down:
-            case KeyCodes.up:
-            case KeyCodes.left:
-            case KeyCodes.right:
-            case KeyCodes.escape:
-                //console.log('Leaving with: ', key);
-                return;
-            default: 
-                return;
-        }
-
-        let val = (e.target as HTMLInputElement).value;
-        //console.log(val);
-
-        if(this._pending) {
-            Promise.reject(this._pending);
-        }
-
-        this.fetchMatchingManagedProperties(val).then((options: Array<IComboBoxOption>) => {
+    protected onChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+        console.log('onChange');
+        let key = e.target.value;
+        this.fetchMatchingManagedProperties(key).then(items => {
             this.setState({
                 ...this.state,
-                options: options
-            }/* , () => { 
-                this._mppComboBox.focus(true); 
-            } */);
+                items: items
+            }, () => {
+            });
+            if(typeof this.props.onChanged == 'function') {
+                this.props.onChanged.call(null, e);
+            }
         });
     }
 
-    private fetchMatchingManagedProperties(key: string): Promise<Array<IComboBoxOption>> {
+    private fetchMatchingManagedProperties(key: string): Promise<Array<any>> {
         return this.schema.fetchManagedPropertyMatches(key).then(managedProps => {
             let options = managedProps.map(mp => {
-                return {
-                    text: mp.RefinementName,
-                    key: mp.RefinementToken
-                } as IComboBoxOption;
+                return mp.RefinementName;
             });
             return options;
         });
     }
-
-    private _delay(ms: number, args: any) {{
-            return new Promise((resolve) => { 
-                setTimeout(resolve.bind(null, args), ms);
-            });
-        }
-    }
-
 }
