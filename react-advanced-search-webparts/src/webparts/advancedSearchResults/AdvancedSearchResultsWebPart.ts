@@ -206,6 +206,9 @@ export default class AdvancedSearchResultsWebPart extends BaseClientSideWebPart<
                               value: value || "",
                               onChanged: (e: React.ChangeEvent<HTMLInputElement>) => {
                                 onUpdate(field.id, (<HTMLInputElement>e.target).value);
+                              },
+                              onSelect: (val: string) => {
+                                onUpdate(field.id, val);
                               }
                             })
                           );

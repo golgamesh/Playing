@@ -41,6 +41,7 @@ export default class ManagedPropertyPicker extends React.Component<IManagedPrope
                 getItemValue={(item) => item}
                 items={this.state.items}
                 onChange={this.onChange}
+                selectOnBlur={true}
                 renderItem={(item, isHighlighted) =>
                     <div style={{ background: isHighlighted ? 'lightgray' : 'white' }}>
                       {item}
@@ -50,6 +51,14 @@ export default class ManagedPropertyPicker extends React.Component<IManagedPrope
         );
     }
 
+    protected onSelect = (val: string): void => {
+        
+        if(typeof this.props.onChanged == 'function') {
+            this.props.onChanged.call(null, val);
+        }
+
+    }
+
     protected onChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
         console.log('onChange');
         let key = e.target.value;
@@ -57,12 +66,11 @@ export default class ManagedPropertyPicker extends React.Component<IManagedPrope
             this.setState({
                 ...this.state,
                 items: items
-            }, () => {
             });
-            if(typeof this.props.onChanged == 'function') {
-                this.props.onChanged.call(null, e);
-            }
         });
+        if(typeof this.props.onChanged == 'function') {
+            this.props.onChanged.call(null, e);
+        }
     }
 
     private fetchMatchingManagedProperties(key: string): Promise<Array<any>> {
