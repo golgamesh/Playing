@@ -30,6 +30,9 @@ export default class ManagedPropertyPicker extends React.Component<IManagedPrope
 
     public schema: SearchSchemaHelper;
     public state: IManagedPropertyPickerState;
+    private _timeoutId: number;
+    private readonly _minSearchLength: number = 3;
+    private readonly _searchDelay: number = 1000;
 
     /**
      * React component's render method
@@ -46,7 +49,22 @@ export default class ManagedPropertyPicker extends React.Component<IManagedPrope
                     <div style={{ background: isHighlighted ? 'lightgray' : 'white' }}>
                       {item}
                     </div>
-                  }
+                }
+                wrapperStyle={{
+                    //position: 'relative'
+                }}
+                menuStyle ={{
+                    borderRadius: '3px',
+                    boxShadow: '0 2px 12px rgba(0, 0, 0, 0.1)',
+                    background: 'rgba(255, 255, 255, 0.9)',
+                    padding: '2px 0',
+                    fontSize: '90%',
+                    position: 'fixed',
+                    marginLeft: '-50px',
+                    overflow: 'auto',
+                    maxHeight: '50%',
+                    top: '20'
+                }}
             />
         );
     }
@@ -60,20 +78,40 @@ export default class ManagedPropertyPicker extends React.Component<IManagedPrope
     }
 
     protected onChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-        console.log('onChange');
         let key = e.target.value;
-        this.fetchMatchingManagedProperties(key).then(items => {
-            this.setState({
-                ...this.state,
-                items: items
-            });
-        });
+
         if(typeof this.props.onChanged == 'function') {
             this.props.onChanged.call(null, e);
         }
+        this._queueSearch(key);
+    }
+
+    private _queueSearch(key): void {
+
+        if(this._timeoutId) {
+            clearTimeout(this._timeoutId);
+            this._timeoutId = 0;
+        }
+
+        if(key.length < this._minSearchLength) {
+            return;
+        }
+
+        this._timeoutId = setTimeout(
+            () => { 
+                this.fetchMatchingManagedProperties(key).then(items => {
+                    this.setState({
+                        ...this.state,
+                        items: items
+                    });
+                });
+            }, 
+        this._searchDelay);
+
     }
 
     private fetchMatchingManagedProperties(key: string): Promise<Array<any>> {
+        console.log('search: ', key);
         return this.schema.fetchManagedPropertyMatches(key).then(managedProps => {
             let options = managedProps.map(mp => {
                 return mp.RefinementName;
