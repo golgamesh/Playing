@@ -28,6 +28,7 @@ import SearchSchemaHelper from '../../helpers/SearchSchemaHelper';
 import ManagedPropertyPicker from '../../components/ManagedPropertyPicker';
 import { IComboBox, IComboBoxOption } from 'office-ui-fabric-react/lib';
 
+//MG
 
 export interface IAdvancedSearchResultsWebPartProps {
   description: string;
