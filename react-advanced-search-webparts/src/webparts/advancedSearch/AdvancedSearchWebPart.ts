@@ -17,9 +17,10 @@ import { ISearchInterfaceProps } from './components/SearchInterface';
 import { IDynamicDataPropertyDefinition, IDynamicDataCallables } from '@microsoft/sp-dynamic-data';
 
 export interface IAdvancedSearchWebPartProps {
-  description: string;
   searchConfig: string;
   addCriteria: string;
+  includeKeywordSearch: boolean;
+  startMinimized: boolean;
   rowLimit: number;
   isDebug: boolean;
 }
@@ -83,7 +84,10 @@ export default class AdvancedSearchWebPart extends BaseClientSideWebPart<IAdvanc
         config: this.searchConfig,
         isDebug: this.properties.isDebug,
         context: this.context,
-        searchHandler: (searchQuery) => this.search(searchQuery)
+        startMinimized: this.properties.startMinimized,
+        searchHandler: (searchQuery) => this.search(searchQuery),
+        includeKeywordSearch: this.properties.includeKeywordSearch,
+        parentElement: this.domElement
       }
     );
 
@@ -121,9 +125,12 @@ export default class AdvancedSearchWebPart extends BaseClientSideWebPart<IAdvanc
             {
               groupName: strings.BasicGroupName,
               groupFields: [
-                PropertyPaneTextField('description', {
-                  label: strings.DescriptionFieldLabel,
-                  multiline: true
+                PropertyPaneToggle('includeKeywordSearch', {
+                  label: strings.IncludeKeywordSearchLabel
+                }),
+                PropertyPaneToggle('startMinimized', {
+                  label: strings.StartMinimizedLabel,
+                  disabled: !this.properties.includeKeywordSearch
                 }),
                 PropertyPaneTextField('searchConfig', {
                   label: strings.SearchConfigFieldLabel,

@@ -14,6 +14,9 @@ export interface IAdvancedSearchProps {
   isDebug: boolean;
   context: WebPartContext;
   searchHandler: Function;
+  includeKeywordSearch: boolean;
+  parentElement: HTMLElement;
+  startMinimized: boolean;
 }
 
 export interface IAdvancedSearchState {
@@ -48,6 +51,9 @@ export default class AdvancedSearch extends React.Component<IAdvancedSearchProps
         <SearchInterface 
           config={this.props.config} 
           searchHandler={(searchModel) => this.search(searchModel)} 
+          includeKeywordSearch={this.props.includeKeywordSearch}
+          parentElement={this.props.parentElement}
+          startMinimized={this.props.startMinimized}
         />
       </div>
     );

@@ -1,5 +1,5 @@
-import { DefaultButton } from 'office-ui-fabric-react/lib/Button';
-import { TextField } from 'office-ui-fabric-react/lib/TextField';
+import { DefaultButton, PrimaryButton } from 'office-ui-fabric-react/lib/Button';
+import { TextField, ITextFieldProps } from 'office-ui-fabric-react/lib/TextField';
 import { 
     Dropdown,
     IDropdown,
@@ -20,15 +20,26 @@ import styles from './AdvancedSearch.module.scss';
 import SearchQueryBuilder from '../../../helpers/SearchQueryBuilder';
 import { divProperties } from '@uifabric/utilities/lib';
 import DropdownResettable, { IDropdownResettableOption } from '../../../components/DropdownResettable';
+import { SearchBox, Icon, IconType } from 'office-ui-fabric-react/lib';
+import { IRenderFunction } from '@uifabric/utilities';
+
+const AdvancedMinimized: string = `${styles.pnlAdvanced} ${styles.pnlAdvancedMinimized}`;
+const AdvancedExpanded: string = styles.pnlAdvanced;
 
 export interface ISearchInterfaceProps {
     config: Model.IAdvancedSearchConfig;
     searchHandler: Function;
+    includeKeywordSearch: boolean;
+    parentElement: HTMLElement;
+    startMinimized: boolean;
 }
 
 export interface ISearchInterfaceState {
     config: Model.IAdvancedSearchConfig;
     resettableKey: string | number;
+    classNameAdvanced: string;
+    showAdvanced: boolean;
+    keywordSearchValue?: string;
 }
 
 export default class SearchInterface extends React.Component<ISearchInterfaceProps, ISearchInterfaceState> {
@@ -36,21 +47,27 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
     constructor(props: ISearchInterfaceProps) {
         super(props);
         console.log('Interfaceprops: ', props);
-        let initialState: Model.IAdvancedSearchConfig = {
+        let config: Model.IAdvancedSearchConfig = {
             ...props.config
         };
-        this._conformPropertyChoices(initialState);
+        this._conformPropertyChoices(config);
         this.state = {
-            config: {
-                ...initialState
-            },
-            resettableKey: 'test-1'
-        };
+            config,
+            resettableKey: 'test-1',
+            classNameAdvanced: props.startMinimized && props.includeKeywordSearch ? AdvancedMinimized : AdvancedExpanded,
+            showAdvanced: !(props.startMinimized && props.includeKeywordSearch)
+        } as ISearchInterfaceState;
 
     }
 
     public state: ISearchInterfaceState;
     private readonly columns: number = 2;
+    private readonly fieldHeight: number = 61;
+    private readonly buttonRowHeight: number = 62;
+
+    public componentWillMount(): void {
+
+    }
 
     public componentWillReceiveProps(nextProps: ISearchInterfaceProps): void {
         const config = {
@@ -61,8 +78,10 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
         
         this.setState({
           ...this.state,
-          config: config
-        });
+          config,
+          classNameAdvanced: nextProps.startMinimized && nextProps.includeKeywordSearch ? AdvancedMinimized : AdvancedExpanded,
+          showAdvanced: !(nextProps.startMinimized && nextProps.includeKeywordSearch)
+        } as ISearchInterfaceState);
     }
     
     public render(): React.ReactElement<ISearchInterfaceProps> {
@@ -162,27 +181,83 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
         
         return (
             <div className={styles.searchInterface}>
-                <div className="ms-Grid" key="0">
-                    {rows}
+                <div>
+                    {this.keywordSearch()}
                 </div>
-                <div className={styles.buttonRow}>
-                    <DefaultButton
-                        primary={true}
-                        data-automation-id="test"
-                        text="Search"
-                        onClick={e => this.btnSearch_click(e)}
-                    />
-                    <DefaultButton
-                        primary={true}
-                        data-automation-id="test"
-                        text="Reset"
-                        onClick={e => this.btnReset_click(e)}
-                    />
+                <div 
+                    className={this.state.classNameAdvanced}
+                    style={{
+                        maxHeight: this.state.config.properties.length * this.fieldHeight + this.buttonRowHeight
+                    }}
+                >
+                    <div className="ms-Grid" key="0">
+                        {rows}
+                    </div>
+                    <div className={styles.buttonRow}>
+                        <DefaultButton
+                            primary={true}
+                            data-automation-id="test"
+                            text="Search"
+                            onClick={this.btnSearch_click}
+                        />
+                        <DefaultButton
+                            primary={true}
+                            data-automation-id="test"
+                            text="Reset"
+                            onClick={this.btnReset_click}
+                        />
+                    </div>
                 </div>
-
             </div>
         );
 
+    }
+
+    protected keywordSearch(): React.ReactElement<HTMLDivElement> {
+        if(this.props.includeKeywordSearch) {
+            return (
+                <div className={styles.keywordSearch}>
+                    <TextField
+                        placeholder="Search"
+                        value={this.state.keywordSearchValue}
+                        autoFocus={true}
+                        onRenderPrefix={(props: ITextFieldProps): JSX.Element => {
+                            return (
+                                <DefaultButton
+                                    iconProps={{
+                                        iconName: 'Search'
+                                    }}
+                                    onClick={this.btnSearch_click}
+                                    className="btnKeywordSearch"
+                                />
+                            );
+                        }}
+                        suffix={this.props.startMinimized ? "Advanced" : ""}
+                        onRenderSuffix={(props: ITextFieldProps): JSX.Element => {
+                            const { suffix } = props;
+                            if(this.props.startMinimized) {
+                                return (
+                                    <DefaultButton 
+                                        text={suffix}
+                                        onClick={this.btnAdvanced_click}
+                                        className="btnAdvanced"
+                                        checked={this.state.showAdvanced}
+                                        //toggled={true}
+                                        /* iconProps={{
+                                            iconName: "DoubleChevronDown8"
+                                        }} */
+                                    />
+                                );
+                            } else {
+                                return null;
+                            }
+                        }}
+                    />
+                </div>
+            );
+        } else {
+            return null;
+        }
     }
 
     protected resettableChanged(selected: IDropdownOption): void {
@@ -198,18 +273,32 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
         console.log('form change');
     }
 
-    protected btnSearch_click(e): void {
+    protected btnAdvanced_click = (e: React.MouseEvent<any>): void => {
+        console.log('click');
+        let { showAdvanced } = this.state;
+
+        showAdvanced = !showAdvanced;
+        
+        this.setState({
+            ...this.state,
+            showAdvanced,
+            classNameAdvanced: showAdvanced ? AdvancedExpanded : AdvancedMinimized
+        });
+
+    }
+
+    protected btnSearch_click = (e: React.MouseEvent<any>): void => {
         this.props.searchHandler(this.state.config);
     }
 
-    protected btnReset_click(e): void {
+    protected btnReset_click = (e: React.MouseEvent<any>): void => {
         console.log('reset');
 
-        let newOptions = {
+        let config = {
             ...this.state.config
         } as Model.IAdvancedSearchConfig;
 
-        newOptions.properties.forEach((field: Model.ISearchProperty) => {
+        config.properties.forEach((field: Model.ISearchProperty) => {
             field.value = '';
 
             if(field.type == Model.PropertyValueType.DateTime) {
@@ -222,7 +311,8 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
 
         this.setState({
             ...this.state,
-            config: newOptions
+            config,
+            keywordSearchValue: ""
         } as ISearchInterfaceState);
     }
 
