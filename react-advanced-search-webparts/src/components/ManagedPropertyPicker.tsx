@@ -60,10 +60,11 @@ export default class ManagedPropertyPicker extends React.Component<IManagedPrope
                     padding: '2px 0',
                     fontSize: '90%',
                     position: 'fixed',
-                    marginLeft: '-50px',
+                    //marginLeft: '-50px',
                     overflow: 'auto',
                     maxHeight: '50%',
-                    top: '20'
+                    top: '18',
+                    left: '0px !important'
                 }}
             />
         );

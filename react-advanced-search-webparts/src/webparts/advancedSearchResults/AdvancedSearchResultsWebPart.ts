@@ -12,7 +12,6 @@ import {
   IWebPartPropertiesMetadata,
   DynamicDataSharedDepth,
   PropertyPaneDropdown,
-  PropertyPaneDropdownOptionType,
   IPropertyPaneDropdownOption
 } from '@microsoft/sp-webpart-base';
 import {
@@ -29,8 +28,7 @@ import { IDynamicDataSource } from '@microsoft/sp-dynamic-data';
 import WebPartPropertiesHelper from '../../helpers/WebPartPropertiesHelper';
 import SearchSchemaHelper from '../../helpers/SearchSchemaHelper';
 import ManagedPropertyPicker from '../../components/ManagedPropertyPicker';
-import { IComboBox, IComboBoxOption } from 'office-ui-fabric-react/lib';
-import { Sort, SortDirection } from '@pnp/sp';
+import { SortDirection } from '@pnp/sp';
 
 const defaultSortProperties: Array<string> = [
   'Rank'
@@ -114,7 +112,7 @@ export default class AdvancedSearchResultsWebPart extends BaseClientSideWebPart<
     ];
     if(this.properties.columns) {
       let custProps = this.properties.columns.filter(prop => {
-        return prop.sortable = true;
+        return prop.sortable === true;
       }).map(prop => prop.name);
       props = [
         ...defaultSortProperties,
@@ -147,8 +145,7 @@ export default class AdvancedSearchResultsWebPart extends BaseClientSideWebPart<
     } as any as IWebPartPropertiesMetadata;
   }
 
-  protected onPropertyPaneConfigurationStart(): void { 
-    console.log('PropertyPaneStart');
+  protected onPropertyPaneConfigurationStart(): void {
     this.updateSortableProperties();
     this.context.propertyPane.refresh();
   }
@@ -156,10 +153,10 @@ export default class AdvancedSearchResultsWebPart extends BaseClientSideWebPart<
   protected onPropertyPaneFieldChanged(propertyPath: string, oldValue: any, newValue: any): void {
     super.onPropertyPaneFieldChanged(propertyPath, oldValue, newValue);
 
+    console.log(propertyPath, newValue);
+
     this.updateSortableProperties();
     this.context.propertyPane.refresh();
-
-    console.log('PropertyPaneChanged');
   }
   
   protected managedPropertyValidation(value: any, index: number, crntItem: any): Promise<string> {
