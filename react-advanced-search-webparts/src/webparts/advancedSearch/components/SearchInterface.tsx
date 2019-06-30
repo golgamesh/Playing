@@ -32,14 +32,15 @@ export interface ISearchInterfaceProps {
     includeKeywordSearch: boolean;
     parentElement: HTMLElement;
     startMinimized: boolean;
+    additionalCriteria: string;
 }
 
 export interface ISearchInterfaceState {
+    keywordSearch: string;
     config: Model.IAdvancedSearchConfig;
     resettableKey: string | number;
     classNameAdvanced: string;
     showAdvanced: boolean;
-    keywordSearchValue?: string;
 }
 
 export default class SearchInterface extends React.Component<ISearchInterfaceProps, ISearchInterfaceState> {
@@ -219,7 +220,7 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
                 <div className={styles.keywordSearch}>
                     <TextField
                         placeholder="Search"
-                        value={this.state.keywordSearchValue}
+                        value={this.state.keywordSearch}
                         autoFocus={true}
                         onRenderPrefix={(props: ITextFieldProps): JSX.Element => {
                             return (
@@ -292,7 +293,8 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
     }
 
     protected btnReset_click = (e: React.MouseEvent<any>): void => {
-        console.log('reset');
+
+        let keywordSearch = "";
 
         let config = {
             ...this.state.config
@@ -312,7 +314,7 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
         this.setState({
             ...this.state,
             config,
-            keywordSearchValue: ""
+            keywordSearch
         } as ISearchInterfaceState);
     }
 

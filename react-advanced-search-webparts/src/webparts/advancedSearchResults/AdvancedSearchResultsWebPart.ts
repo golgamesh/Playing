@@ -10,7 +10,10 @@ import {
   PropertyPaneDynamicField,
   PropertyPaneButton,
   IWebPartPropertiesMetadata,
-  DynamicDataSharedDepth
+  DynamicDataSharedDepth,
+  PropertyPaneDropdown,
+  PropertyPaneDropdownOptionType,
+  IPropertyPaneDropdownOption
 } from '@microsoft/sp-webpart-base';
 import {
   PropertyFieldCollectionData,
@@ -27,8 +30,11 @@ import WebPartPropertiesHelper from '../../helpers/WebPartPropertiesHelper';
 import SearchSchemaHelper from '../../helpers/SearchSchemaHelper';
 import ManagedPropertyPicker from '../../components/ManagedPropertyPicker';
 import { IComboBox, IComboBoxOption } from 'office-ui-fabric-react/lib';
+import { Sort, SortDirection } from '@pnp/sp';
 
-//MG
+const defaultSortProperties: Array<string> = [
+  'Rank'
+];
 
 export interface IAdvancedSearchResultsWebPartProps {
   description: string;
@@ -37,6 +43,8 @@ export interface IAdvancedSearchResultsWebPartProps {
   resultsConfig: string;
   columns: Array<Model.IResultProperty>;
   searchQuery: DynamicProperty<string>;
+  sortProperty: string;
+  sortDirection: SortDirection;
 }
 
 export default class AdvancedSearchResultsWebPart extends BaseClientSideWebPart<IAdvancedSearchResultsWebPartProps> {
@@ -54,6 +62,8 @@ export default class AdvancedSearchResultsWebPart extends BaseClientSideWebPart<
 
     });
   }
+
+  private _sortableProperties: Array<IPropertyPaneDropdownOption> = [];
 
   public render(): void {
 
@@ -98,6 +108,27 @@ export default class AdvancedSearchResultsWebPart extends BaseClientSideWebPart<
     p.export(this.properties, 'hello');
   }
 
+  protected updateSortableProperties(): void {
+    let props = [  
+      ...defaultSortProperties
+    ];
+    if(this.properties.columns) {
+      let custProps = this.properties.columns.filter(prop => {
+        return prop.sortable = true;
+      }).map(prop => prop.name);
+      props = [
+        ...defaultSortProperties,
+        ...custProps
+      ].sort();
+    }
+    this._sortableProperties = props.map(prop => {
+      return <IPropertyPaneDropdownOption> {
+        text: prop,
+        key: prop
+      };
+    });
+  }
+
   private _parseConfig(json: string): Model.IResultsConfig {
     try {
       return JSON.parse(json);
@@ -116,6 +147,21 @@ export default class AdvancedSearchResultsWebPart extends BaseClientSideWebPart<
     } as any as IWebPartPropertiesMetadata;
   }
 
+  protected onPropertyPaneConfigurationStart(): void { 
+    console.log('PropertyPaneStart');
+    this.updateSortableProperties();
+    this.context.propertyPane.refresh();
+  }
+
+  protected onPropertyPaneFieldChanged(propertyPath: string, oldValue: any, newValue: any): void {
+    super.onPropertyPaneFieldChanged(propertyPath, oldValue, newValue);
+
+    this.updateSortableProperties();
+    this.context.propertyPane.refresh();
+
+    console.log('PropertyPaneChanged');
+  }
+  
   protected managedPropertyValidation(value: any, index: number, crntItem: any): Promise<string> {
     return this.searchSchemaHelper.managedPropertyExists(value).then((exists: boolean) => {
       return exists ? '' : `That managed property does not exists`;
@@ -181,6 +227,20 @@ export default class AdvancedSearchResultsWebPart extends BaseClientSideWebPart<
                 }),
                 PropertyPaneToggle('isDebug', {
                   label: strings.IsDebugFieldLabel
+                }),
+                PropertyPaneDropdown('sortProperty', {
+                  options: this._sortableProperties,
+                  label: 'Sort Property',
+                }),
+                PropertyPaneDropdown('sortDirection', {
+                  options: [{
+                    text: 'Ascending',
+                    key: SortDirection.Ascending
+                  },{
+                    text: 'Descending',
+                    key: SortDirection.Descending
+                  }],
+                  label: 'Sort Direction'
                 }),
                 PropertyFieldCollectionData('columns', {
                     key: 'resultsConfig',

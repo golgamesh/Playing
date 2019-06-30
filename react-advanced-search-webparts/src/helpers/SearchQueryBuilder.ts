@@ -88,10 +88,20 @@ export default class SearchQueryBuilder {
         return searchString;
     }
 
-    public static BuildSearchQueryString_Keyword(searchModel: Model.IAdvancedSearchConfig): string {
+    public static BuildSearchQueryString_Keyword(keywordSearch: string, searchModel: Model.IAdvancedSearchConfig, additionalCriteria: string): string {
         var searchString = '';
         var strAndOperator = ' AND ';
         var properties = searchModel.properties;
+        var criteria: Array<string> = [];
+
+        if(keywordSearch) {
+            criteria.push(keywordSearch);
+        }
+
+        if(additionalCriteria) {
+            criteria.push(additionalCriteria);
+        }
+
         for (var i = 0; i < properties.length; i++) {
             var field: Model.ISearchProperty = properties[i];
             var prop: string = field.property;
@@ -111,11 +121,13 @@ export default class SearchQueryBuilder {
             
             switch (oper.toLowerCase()) {
                 case Model.SearchOperator.Equals:
-                    searchString += prop + ':"' + value + '"';
+                    criteria.push(prop + ':"' + value + '"');
+                    //searchString += prop + ':"' + value + '"';
                     //author: "John Smith"
                     break;
                 case Model.SearchOperator.Like:
-                    searchString += prop + ':"*' + value + '*"';
+                    criteria.push(prop + ':"*' + value + '*"');
+                    //searchString += prop + ':"*' + value + '*"';
                     //author: "*Smith*"
                     break;
                 case Model.SearchOperator.Between:
@@ -123,25 +135,30 @@ export default class SearchQueryBuilder {
                     //add a tday to endDate to include selected date in results 
                     let startDate = (value as string).split(';')[0];
                     let endDate = this._addDays(new Date((value as string).split(';')[1]), 1).toISOString();
-                    searchString += prop + ':' + startDate + '..' + endDate;
+                    criteria.push(prop + ':' + startDate + '..' + endDate);
+                    //searchString += prop + ':' + startDate + '..' + endDate;
                     break;
                 case Model.SearchOperator.Before:
                     //LastModifiedTime<=2018-06-30T04:00:00.000Z
                     //add day to include selected date in results
-                    searchString += prop + '<=' + this._addDays(new Date(value as string), 1).toISOString();
+                    criteria.push(prop + '<=' + this._addDays(new Date(value as string), 1).toISOString());
+                    //searchString += prop + '<=' + this._addDays(new Date(value as string), 1).toISOString();
                     break;
                 case Model.SearchOperator.After:
                     //LastModifiedTime>=2018-06-30T04:00:00.000Z
                     searchString += prop + '>=' + value;
+                    criteria.push(prop + '>=' + value);
                     break;
 
             }
 
-            searchString += strAndOperator;
+            //searchString += strAndOperator;
 
         }
 
-        searchString = searchString.substring(0, searchString.length - strAndOperator.length);
+        //searchString = searchString.substring(0, searchString.length - strAndOperator.length);
+        
+        searchString = criteria.join(strAndOperator);
 
         return searchString;
     }

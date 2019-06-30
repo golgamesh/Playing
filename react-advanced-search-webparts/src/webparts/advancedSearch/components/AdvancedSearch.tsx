@@ -17,6 +17,7 @@ export interface IAdvancedSearchProps {
   includeKeywordSearch: boolean;
   parentElement: HTMLElement;
   startMinimized: boolean;
+  additionalCriteria: string;
 }
 
 export interface IAdvancedSearchState {
@@ -49,20 +50,21 @@ export default class AdvancedSearch extends React.Component<IAdvancedSearchProps
     return (
       <div className={ styles.advancedSearch }>
         <SearchInterface 
-          config={this.props.config} 
-          searchHandler={(searchModel) => this.search(searchModel)} 
+          config={this.props.config}
+          searchHandler={(keywordSearch, searchModel, additionalCriteria) => this.search(keywordSearch, searchModel, additionalCriteria)} 
           includeKeywordSearch={this.props.includeKeywordSearch}
           parentElement={this.props.parentElement}
           startMinimized={this.props.startMinimized}
+          additionalCriteria={this.props.additionalCriteria}
         />
       </div>
     );
   }
 
 
-  protected search(searchModel: Model.IAdvancedSearchConfig): void {
+  protected search(keywordSearch: string, searchModel: Model.IAdvancedSearchConfig, additionalCriteria: string): void {
   
-    let query: string = SearchQueryBuilder.BuildSearchQueryString_Keyword(searchModel);
+    let query: string = SearchQueryBuilder.BuildSearchQueryString_Keyword(keywordSearch, searchModel, additionalCriteria);
 
     this.props.searchHandler(query);
 

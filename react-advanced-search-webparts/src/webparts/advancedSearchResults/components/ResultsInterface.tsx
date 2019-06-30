@@ -20,7 +20,12 @@ import AdvancedSearchData, {
 } from '../../../model/AdvancedSearchData';
 import DebugPanel from './DebugPanel';
 import { WebPartContext } from '@microsoft/sp-webpart-base';
-import { SearchResults, SearchResult } from '@pnp/sp';
+import { 
+    SearchResults, 
+    SearchResult,
+    Sort,
+    SortDirection
+} from '@pnp/sp';
 import { Icon } from 'office-ui-fabric-react/lib/Icon';
 import { getFileTypeIconProps, initializeFileTypeIcons } from '@uifabric/file-type-icons';
 import { uniq } from '@microsoft/sp-lodash-subset';
@@ -41,6 +46,7 @@ export interface IResultsInterfaceProps {
     searchQuery: string;
     context: WebPartContext;
     rowLimit: number;
+    sort?: Sort;
 }
 
 export interface IResultInterfaceState {
@@ -62,6 +68,7 @@ export interface IResultInterfaceState {
     documentReaderOpen: boolean;
     documentReaderUrl: string;
     showLoading: boolean;
+    sort?: Sort;
 }
 
 const ColumnDefaults: any = {
@@ -102,7 +109,8 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
             itemPropPanelOpen: false,
             documentReaderOpen: false,
             documentReaderUrl: '',
-            showLoading: !props.searchQuery
+            showLoading: !props.searchQuery,
+            sort: props.sort
         };
 
         this._selection = new Selection({

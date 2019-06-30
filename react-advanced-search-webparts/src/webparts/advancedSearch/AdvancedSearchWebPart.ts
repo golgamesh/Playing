@@ -87,7 +87,8 @@ export default class AdvancedSearchWebPart extends BaseClientSideWebPart<IAdvanc
         startMinimized: this.properties.startMinimized,
         searchHandler: (searchQuery) => this.search(searchQuery),
         includeKeywordSearch: this.properties.includeKeywordSearch,
-        parentElement: this.domElement
+        parentElement: this.domElement,
+        additionalCriteria: this.properties.addCriteria
       }
     );
 
