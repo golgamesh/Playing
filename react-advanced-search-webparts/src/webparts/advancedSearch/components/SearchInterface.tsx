@@ -28,7 +28,7 @@ const AdvancedExpanded: string = styles.pnlAdvanced;
 
 export interface ISearchInterfaceProps {
     config: Model.IAdvancedSearchConfig;
-    searchHandler: Function;
+    searchHandler: (keywordSearch: string, searchModel: Model.IAdvancedSearchConfig, additionalCriteria: string) => void;
     includeKeywordSearch: boolean;
     parentElement: HTMLElement;
     startMinimized: boolean;
@@ -53,6 +53,7 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
         };
         this._conformPropertyChoices(config);
         this.state = {
+            keywordSearch: '',
             config,
             resettableKey: 'test-1',
             classNameAdvanced: props.startMinimized && props.includeKeywordSearch ? AdvancedMinimized : AdvancedExpanded,
@@ -221,6 +222,7 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
                     <TextField
                         placeholder="Search"
                         value={this.state.keywordSearch}
+                        onChanged={this.keywordSearch_changed}
                         autoFocus={true}
                         onRenderPrefix={(props: ITextFieldProps): JSX.Element => {
                             return (
@@ -261,6 +263,14 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
         }
     }
 
+    protected keywordSearch_changed = (keywordSearch: string): void => {
+        console.log('keywordSearch: ', keywordSearch);
+         this.setState({
+            ...this.state,
+            keywordSearch
+         } as ISearchInterfaceState);
+    }
+
     protected resettableChanged(selected: IDropdownOption): void {
         console.log('resettable changed');
 
@@ -289,7 +299,7 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
     }
 
     protected btnSearch_click = (e: React.MouseEvent<any>): void => {
-        this.props.searchHandler(this.state.config);
+        this.props.searchHandler(this.state.keywordSearch, this.state.config, this.props.additionalCriteria);
     }
 
     protected btnReset_click = (e: React.MouseEvent<any>): void => {

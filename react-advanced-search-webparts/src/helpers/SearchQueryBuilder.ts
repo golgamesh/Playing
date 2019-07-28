@@ -160,6 +160,8 @@ export default class SearchQueryBuilder {
         
         searchString = criteria.join(strAndOperator);
 
+        console.log(searchString);
+
         return searchString;
     }
 
