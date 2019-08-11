@@ -88,10 +88,10 @@ export default class SearchQueryBuilder {
         return searchString;
     }
 
-    public static BuildSearchQueryString_Keyword(keywordSearch: string, searchModel: Model.IAdvancedSearchConfig, additionalCriteria: string): string {
+    public static BuildSearchQueryString_Keyword(keywordSearch: string, searchModel: Array<Model.ISearchProperty>, additionalCriteria: string): string {
         var searchString = '';
         var strAndOperator = ' AND ';
-        var properties = searchModel.properties;
+        var properties = searchModel;
         var criteria: Array<string> = [];
 
         if(keywordSearch) {

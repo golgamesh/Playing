@@ -9,14 +9,18 @@ export interface ISearchProperty {
     operator: SearchOperator;
     type: PropertyValueType;
     control?: SearchControlType;
-    options?: ISearchPropertyOptions;
+    //options?: ISearchPropertyOptions;
     value?: string | number | undefined | IDateRangeValue;
     propIndex?: number;
+    choices?: String;
+    propertyChoices?: Array<ISearchPropertyChoice>;
+    choicesSelectedKey?: number | string;
+    data?: any;
 }
 
 export interface ISearchPropertyOptions {
     //selectedItem?: ISelectOption;
-    choicesSelectedKey: number | string;
+    choicesSelectedKey?: number | string;
     choices?: Array<String | Number | ISearchPropertyChoice>;
     data?: any;
 }

@@ -21,7 +21,7 @@
     "officeFabricIconFontName": "DocumentSearch",
     "properties": {
       "description": "Customizable webpart for performing metadata based search queries",
-      "searchConfig": "{\"properties\":[{\"name\":\"Title\",\"property\":\"Title\",\"operator\":\"like\",\"type\":\"String\"},{\"name\":\"Department\",\"property\":\"ows_department\",\"operator\":\"equals\",\"type\":\"String\",\"options\":{\"choices\":[\"IT\",\"Hr\",\"Marketing\",\"Film\",\"Operations\",\"Food\"]}},{\"name\":\"Modified\",\"property\":\"LastModifiedTime\",\"operator\":\"after\",\"type\":\"DateTime\"},{\"name\":\"IsDocument\",\"property\":\"IsDocument\",\"operator\":\"equals\",\"type\":\"Boolean\"},{\"name\":\"NavEnabled\",\"property\":\"NavEnabled\",\"operator\":\"equals\",\"type\":\"Int32\",\"options\":{\"choices\":[{\"text\":\"Yes\",\"key\":1},{\"text\":\"No\",\"key\":0}]}}]}",
+      //"searchConfig": "{\"properties\":[{\"name\":\"Title\",\"property\":\"Title\",\"operator\":\"like\",\"type\":\"String\"},{\"name\":\"Department\",\"property\":\"ows_department\",\"operator\":\"equals\",\"type\":\"String\",\"options\":{\"choices\":[\"IT\",\"Hr\",\"Marketing\",\"Film\",\"Operations\",\"Food\"]}},{\"name\":\"Modified\",\"property\":\"LastModifiedTime\",\"operator\":\"after\",\"type\":\"DateTime\"},{\"name\":\"IsDocument\",\"property\":\"IsDocument\",\"operator\":\"equals\",\"type\":\"Boolean\"},{\"name\":\"NavEnabled\",\"property\":\"NavEnabled\",\"operator\":\"equals\",\"type\":\"Int32\",\"options\":{\"choices\":[{\"text\":\"Yes\",\"key\":1},{\"text\":\"No\",\"key\":0}]}}]}",
       "includeKeywordSearch": true,
       "startMinimized": false,
       "isDebug": true

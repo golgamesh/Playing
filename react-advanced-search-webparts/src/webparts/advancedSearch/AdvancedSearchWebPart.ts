@@ -31,8 +31,8 @@ import ManagedPropertyPicker from '../../components/ManagedPropertyPicker';
 import { TextField, ITextFieldProps } from 'office-ui-fabric-react/lib/TextField';
 
 export interface IAdvancedSearchWebPartProps {
-  searchConfig: string;
-  searchConfig2: any[];
+  //searchConfig: string;
+  searchConfig: Array<Model.ISearchProperty>;
   addCriteria: string;
   includeKeywordSearch: boolean;
   startMinimized: boolean;
@@ -50,7 +50,9 @@ export default class AdvancedSearchWebPart extends BaseClientSideWebPart<IAdvanc
       // register this web part as dynamic data source
       this.context.dynamicDataSourceManager.initializeSource(this);
 
-      console.log(JSON.stringify(this.properties.searchConfig2));
+      this.properties.searchConfig = this.properties.searchConfig || [];
+      console.log(JSON.stringify(this.properties.searchConfig));
+      this._indexProperties();
     });
   }
 
@@ -92,13 +94,13 @@ export default class AdvancedSearchWebPart extends BaseClientSideWebPart<IAdvanc
    */
   public render(): void {
 
-    this.searchConfig = <Model.IAdvancedSearchConfig>JSON.parse(this.properties.searchConfig);
+    //this.searchConfig = <Model.IAdvancedSearchConfig>JSON.parse(this.properties.searchConfig);
     this._indexProperties();
     //console.log(this.context.manifest.loaderConfig.internalModuleBaseUrls);
     const element: React.ReactElement<IAdvancedSearchProps> = React.createElement(
       AdvancedSearch,
       <IAdvancedSearchProps> {
-        config: this.searchConfig,
+        config: this.properties.searchConfig,
         isDebug: this.properties.isDebug,
         context: this.context,
         startMinimized: this.properties.startMinimized,
@@ -123,9 +125,11 @@ export default class AdvancedSearchWebPart extends BaseClientSideWebPart<IAdvanc
   }
 
   private _indexProperties() {
-    this.searchConfig.properties.forEach((field: Model.ISearchProperty, idx: number) => {
-      field.propIndex = idx;
-    });
+    if(this.properties.searchConfig) {
+      this.properties.searchConfig.forEach((field: Model.ISearchProperty, idx: number) => {
+        field.propIndex = idx;
+      });
+    }
   }
 
   protected onPropertyPaneConfigurationStart(): void {
@@ -137,6 +141,8 @@ export default class AdvancedSearchWebPart extends BaseClientSideWebPart<IAdvanc
 
     console.log('Property Pane Change. Path: ', propertyPath);
     console.log(newValue);
+
+    this._indexProperties();
   }
 
   protected onDataType_change = (option: IDropdownOption, index?: number): void => {
@@ -169,20 +175,20 @@ export default class AdvancedSearchWebPart extends BaseClientSideWebPart<IAdvanc
                   label: strings.StartMinimizedLabel,
                   disabled: !this.properties.includeKeywordSearch
                 }),
-                PropertyPaneTextField('searchConfig', {
+/*                 PropertyPaneTextField('searchConfig', {
                   label: strings.SearchConfigFieldLabel,
                   multiline: true,
                   description: strings.SearchConfigFieldDesc,
                   validateOnFocusOut: true,
                   onGetErrorMessage: Validation.validateSearchConfig.bind(this)
-                }),
-                PropertyFieldCollectionData('searchConfig2', <IPropertyFieldCollectionDataProps>{
+                }), */
+                PropertyFieldCollectionData('searchConfig', <IPropertyFieldCollectionDataProps>{
                     key: 'searchConfig',
                     enableSorting: true,
                     label: 'Choose Result Columns',
                     panelHeader: 'Result Columns',
                     manageBtnLabel: 'Choose Result Columns',
-                    value: this.properties.searchConfig2,
+                    value: this.properties.searchConfig,
                     fields: [{
                       id: 'name',
                       title: 'Column Display Name',
@@ -291,11 +297,10 @@ export default class AdvancedSearchWebPart extends BaseClientSideWebPart<IAdvanc
                       }
                     },
                     {
-                      id: 'options',
+                      id: 'choices',
                       title: 'Choices',
                       type: CustomCollectionFieldType.custom,
                       onCustomRender: (field, val, onUpdate, item, itemId) => {
-                        console.log('val', val);
                         let disabled: boolean = false;
                         let type = item['type']; 
                         if(type === 'DateTime' || type === 'Boolean') {

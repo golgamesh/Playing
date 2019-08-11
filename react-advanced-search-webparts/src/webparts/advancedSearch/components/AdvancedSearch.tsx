@@ -10,7 +10,7 @@ import SearchQueryBuilder from '../../../helpers/SearchQueryBuilder';
 import { WebPartContext } from '@microsoft/sp-webpart-base';
 
 export interface IAdvancedSearchProps {
-  config: Model.IAdvancedSearchConfig;
+  config: Array<Model.ISearchProperty>;
   isDebug: boolean;
   context: WebPartContext;
   searchHandler: Function;
@@ -22,7 +22,7 @@ export interface IAdvancedSearchProps {
 
 export interface IAdvancedSearchState {
   searchQuery: string;
-  config: Model.IAdvancedSearchConfig;
+  config: Array<Model.ISearchProperty>;
 }
 
 export default class AdvancedSearch extends React.Component<IAdvancedSearchProps, IAdvancedSearchState> {
@@ -62,7 +62,7 @@ export default class AdvancedSearch extends React.Component<IAdvancedSearchProps
   }
 
 
-  protected search(keywordSearch: string, searchModel: Model.IAdvancedSearchConfig, additionalCriteria: string): void {
+  protected search(keywordSearch: string, searchModel: Array<Model.ISearchProperty>, additionalCriteria: string): void {
   
     let query: string = SearchQueryBuilder.BuildSearchQueryString_Keyword(keywordSearch, searchModel, additionalCriteria);
 
