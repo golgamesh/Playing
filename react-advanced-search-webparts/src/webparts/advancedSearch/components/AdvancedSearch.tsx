@@ -29,8 +29,6 @@ export default class AdvancedSearch extends React.Component<IAdvancedSearchProps
 
   constructor(props) {
     super(props);
-    console.log('Advancesearchprops: ', props);
-    //this.searchData = new AdvancedSearchData(props.context, props.resultsConfig);
     this.state = {
       searchQuery: '',
       config: this.props.config

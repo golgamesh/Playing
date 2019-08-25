@@ -22,7 +22,6 @@ import * as Model from '../../model/AdvancedSearchModel';
 import * as strings from 'AdvancedSearchResultsWebPartStrings';
 import AdvancedSearchResults from './components/AdvancedSearchResults';
 import { IAdvancedSearchResultsProps } from './components/AdvancedSearchResults';
-import Validation from '../../helpers/Validation';
 import { DynamicProperty } from '@microsoft/sp-component-base';
 import { IDynamicDataSource } from '@microsoft/sp-dynamic-data';
 import WebPartPropertiesHelper from '../../helpers/WebPartPropertiesHelper';
@@ -58,6 +57,8 @@ export default class AdvancedSearchResultsWebPart extends BaseClientSideWebPart<
         this.context.pageContext.web.serverRelativeUrl, 
         this.context.spHttpClient);
 
+        console.log(JSON.stringify(this.properties.columns));
+
     });
   }
 
@@ -68,7 +69,6 @@ export default class AdvancedSearchResultsWebPart extends BaseClientSideWebPart<
     console.log(JSON.stringify(this.properties.columns));
 
     this.resultsConfig = this._parseConfig(this.properties.resultsConfig);
-    //this.resultsConfig = this.properties.resultsConfig;
     const searchQuerySource: IDynamicDataSource | undefined = this.properties.searchQuery.tryGetSource();
     const searchQuery: string | undefined = this.properties.searchQuery.tryGetValue();
     const needsConfiguration: boolean = (!searchQuerySource && !searchQuery) || !this.properties.columns;
@@ -81,7 +81,6 @@ export default class AdvancedSearchResultsWebPart extends BaseClientSideWebPart<
         isDebug: this.properties.isDebug,
         rowLimit: this.properties.rowLimit,
         columns: this.properties.columns,
-        //config: this.resultsConfig,
         searchQuery: searchQuery,
         context: this.context
       }
@@ -208,13 +207,6 @@ export default class AdvancedSearchResultsWebPart extends BaseClientSideWebPart<
             {
               groupName: strings.BasicGroupName,
               groupFields: [
-/*                 PropertyPaneTextField('resultsConfig', {
-                  label: strings.ResultsConfigFieldLabel,
-                  multiline: true,
-                  description: strings.ResultsConfigFieldDesc,
-                  validateOnFocusOut: true,
-                  onGetErrorMessage: Validation.validateResultsConfig.bind(this)
-                }), */
                 PropertyPaneButton('export', {
                   text: 'Export Configuration',
                   onClick: () => this.onPropertiesExport_click()

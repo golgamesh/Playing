@@ -42,8 +42,10 @@ export enum SearchOperator {
     Between = "between",
     Before = "before",
     After = "after",
-    Like = "like",
-    Freetext = "freetext"
+    Contains = "contains",
+    Freetext = "freetext",
+    DateRange = "dateRange",
+    NumberRange = "numberRange"
 }
 
 export enum SearchControlType {

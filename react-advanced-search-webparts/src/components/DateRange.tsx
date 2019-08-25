@@ -1,11 +1,12 @@
 import * as React from 'react';
 import { DatePicker, DayOfWeek, IDatePickerStrings } from 'office-ui-fabric-react/lib/DatePicker';
-import { 
+import {
     Dropdown, 
     IDropdown, 
     DropdownMenuItemType, 
     IDropdownOption 
 } from 'office-ui-fabric-react/lib/Dropdown';
+import { Label } from 'office-ui-fabric-react/lib/Label';
 import styles from './DateRange.module.scss';
 
 /**
@@ -56,8 +57,10 @@ export default class DateRange extends React.Component<IDateRangeProps, {}> {
             props.value = DateRange.emptyValue;                             // Default to empty date range value
         }
 
+        let dateEndClass = props.value.operator === DateRangeOperator.Between ? '' : styles.dateEndHidden;
+
         this.state = {                                                      // Initialize State Object
-            classNameDateEnd: styles.dateEndHidden,                         // Set CSS class for revealing 2nd date control
+            classNameDateEnd: dateEndClass,                                 // Set CSS class for revealing 2nd date control
             value: props.value                                              // Set initial date range value
         } as IDateRangeState;
         
@@ -130,34 +133,32 @@ export default class DateRange extends React.Component<IDateRangeProps, {}> {
 
         return (
             <div className={styles.dateRange}>
-                <Dropdown
-                    label={this.props.label}
-                    options={this._options} 
-                    className={styles.dateOperator}
-                    onChanged={(e) => this._onOperator_changed(e)}
-                    selectedKey={this.state.value.operator}
-                />
-
-                <DatePicker 
-                    label={this.props.label}
-                    placeholder={this.props.label} 
-                    value={this.state.value.date}
-                    onSelectDate={date => this._onSelectDate(date)} 
-                    formatDate={this._onFormatDate}
-                    strings={this.dateRangeStrings}
-                />
-
-                <DatePicker 
-                    label={this.props.label}
-                    placeholder={this.props.label}
-                    value={this.state.value.dateEnd}
-                    onSelectDate={date => this._onSelectDate_end(date)} 
-                    formatDate={this._onFormatDate}
-                    className={this.state.classNameDateEnd}
-                    minDate={this.props.value.date}
-                    strings={this.dateRangeStrings}
-                    isRequired={this.props.value.date !== null && this.props.value.operator === DateRangeOperator.Between}
-                />
+                <Label>{this.props.label}</Label>
+                <div className={styles.pickerRow}>
+                    <Dropdown
+                        options={this._options} 
+                        className={styles.dateOperator}
+                        onChanged={(e) => this._onOperator_changed(e)}
+                        selectedKey={this.state.value.operator}
+                    />
+                    <DatePicker 
+                        placeholder={this.props.label} 
+                        value={this.state.value.date}
+                        onSelectDate={date => this._onSelectDate(date)} 
+                        formatDate={this._onFormatDate}
+                        strings={this.dateRangeStrings}
+                    />
+                    <DatePicker 
+                        placeholder={this.props.label}
+                        value={this.state.value.dateEnd}
+                        onSelectDate={date => this._onSelectDate_end(date)} 
+                        formatDate={this._onFormatDate}
+                        className={this.state.classNameDateEnd}
+                        minDate={this.props.value.date}
+                        strings={this.dateRangeStrings}
+                        isRequired={this.props.value.date !== null && this.props.value.operator === DateRangeOperator.Between}
+                    />
+                </div>
             </div>
         );
     }
@@ -168,16 +169,13 @@ export default class DateRange extends React.Component<IDateRangeProps, {}> {
      */
     public componentWillReceiveProps(nextProps: IDateRangeProps): void {
 
-        let val = nextProps.value;
-        if(!val) {                                                          // If a new date range value is not provided
-            nextProps.value = DateRange.emptyValue;                         // Default to empty date range value
-        }
+        let val = nextProps.value || DateRange.emptyValue;
 
         this.setState({                                                     // Update state with new properites
             ...this.state,
             value: val
         } as IDateRangeState,
-        () => this._onOperator_changed(nextProps.value.operator));          // Call operator change handler in case new operator was provided
+        () => this._onOperator_changed(val.operator));          // Call operator change handler in case new operator was provided
     }
 
     /**
@@ -268,7 +266,7 @@ export default class DateRange extends React.Component<IDateRangeProps, {}> {
                 data: {
                     value: DateRangeOperator[op]
                 },
-                selected: (DateRangeOperator[op] == 
+                selected: (DateRangeOperator[op] ===
                         this.props.value.operator) ? true : undefined       // Mark the correct one as selected
             } as IDropdownOption);
         }

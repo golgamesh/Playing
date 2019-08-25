@@ -1,7 +1,10 @@
 .dateRange {
-    display:flex;
-    flex-direction: row;
-    position: relative;
+
+    .pickerRow {
+      display:flex;
+      flex-direction: row;
+      position: relative;
+    }
 
     .dateOperator {
       min-width: 110px;

@@ -61,7 +61,7 @@ export default class SearchQueryBuilder {
                         //IsDocument=true
                     }
                     break;
-                case Model.SearchOperator.Like:
+                case Model.SearchOperator.Contains:
                     searchString += prop + " LIKE '%" + field.value + "%'";
                     //author LIKE '%Smith%'
                     break;
@@ -125,7 +125,7 @@ export default class SearchQueryBuilder {
                     //searchString += prop + ':"' + value + '"';
                     //author: "John Smith"
                     break;
-                case Model.SearchOperator.Like:
+                case Model.SearchOperator.Contains:
                     criteria.push(prop + ':"*' + value + '*"');
                     //searchString += prop + ':"*' + value + '*"';
                     //author: "*Smith*"

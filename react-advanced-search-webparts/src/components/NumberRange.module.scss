@@ -1,0 +1,19 @@
+.numberRange {
+    display: block;
+
+    .pickerRow {
+        display: flex;
+    }
+
+    .numberOperator {
+        min-width: 110px;
+    }
+
+    .numberEnd {
+        display: block;
+    }
+
+    .numberEndHidden {
+        display: none;
+    }
+}

@@ -15,13 +15,12 @@ import DateRange, {
     IDateRangeValue, 
     DateRangeOperator 
 } from '../../../components/DateRange';
+import NumberRange, {
+    INumberRangeProps
+} from '../../../components/NumberRange';
 import * as Model from '../../../model/AdvancedSearchModel';
 import styles from './AdvancedSearch.module.scss';
-import SearchQueryBuilder from '../../../helpers/SearchQueryBuilder';
-import { divProperties } from '@uifabric/utilities/lib';
 import DropdownResettable, { IDropdownResettableOption } from '../../../components/DropdownResettable';
-import { SearchBox, Icon, IconType } from 'office-ui-fabric-react/lib';
-import { IRenderFunction } from '@uifabric/utilities';
 
 const AdvancedMinimized: string = `${styles.pnlAdvanced} ${styles.pnlAdvancedMinimized}`;
 const AdvancedExpanded: string = styles.pnlAdvanced;
@@ -98,38 +97,47 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
                 case Model.PropertyValueType.Guid:
                 case Model.PropertyValueType.Double:
                 case Model.PropertyValueType.String:
-                    if(this._hasChoices(field)) {
-                        
-                    controls.push(<DropdownResettable
-                            placeHolder={field.name}
+                    if(field.operator === Model.SearchOperator.NumberRange) {
+
+                        controls.push(<NumberRange 
                             label={field.name}
-                            options={field.propertyChoices as IDropdownResettableOption[]}
-                            selectedKey={field.choicesSelectedKey as any}
-                            //onChange={e => this.ctrl_change(e, field)}
-                            onChanged={e => this.ctrl_changed(e, field)}
-                            data-index={i}
-                            key={key++} 
                         />);
 
-                    }
-                    else {
+                    } else {
+                        
+                        if(this._hasChoices(field)) {
+                            
+                        controls.push(<DropdownResettable
+                                placeHolder={field.operator}
+                                label={field.name}
+                                options={field.propertyChoices as IDropdownResettableOption[]}
+                                selectedKey={field.choicesSelectedKey as any}
+                                //onChange={e => this.ctrl_change(e, field)}
+                                onChanged={e => this.ctrl_changed(e, field)}
+                                data-index={i}
+                                key={key++} 
+                            />);
 
-                        controls.push(<TextField
-                            spellCheck={false}
-                            placeholder={field.name}
-                            label={field.name} 
-                            onChanged={(e) => this.ctrl_changed(e, field)}
-                            data-index={i}
-                            value={field.value ? field.value.toString() : ''}
-                            key={key++} 
-                        />);
+                        }
+                        else {
 
+                            controls.push(<TextField
+                                spellCheck={false}
+                                placeholder={field.operator}
+                                label={field.name} 
+                                onChanged={(e) => this.ctrl_changed(e, field)}
+                                data-index={i}
+                                value={field.value ? field.value.toString() : ''}
+                                key={key++} 
+                            />);
+
+                        }
                     }
                     break;
                 case Model.PropertyValueType.Boolean:
 
                     controls.push(<DropdownResettable 
-                            placeHolder={field.name}
+                            placeHolder={field.operator}
                             label={field.name} 
                             //onChange={e => this.ctrl_change(e, field)}
                             onChanged={e => this.ctrl_changed(e, field)}
@@ -241,10 +249,6 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
                                         onClick={this.btnAdvanced_click}
                                         className="btnAdvanced"
                                         checked={this.state.showAdvanced}
-                                        //toggled={true}
-                                        /* iconProps={{
-                                            iconName: "DoubleChevronDown8"
-                                        }} */
                                     />
                                 );
                             } else {
@@ -384,6 +388,7 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
     }
 
     private _conformPropertyChoices(config: Array<Model.ISearchProperty>): void {
+        const delim = "|";
 
         config.forEach(field => {
             if(field.type == Model.PropertyValueType.Boolean) {
@@ -400,8 +405,14 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
                 field.propertyChoices = [];
 
                 field.choices.split("\n").forEach((text, idx) => {
-                    let key = `${field.property}-${idx}`;
                     let value = text;
+                    let key = `${field.property}-${idx}`;
+
+                    if(text.indexOf(delim) !== -1) {
+                        let arr = text.split(delim);
+                        text = arr[0];
+                        value = arr[1];
+                    }
                     
                     field.propertyChoices.push({
                         key,

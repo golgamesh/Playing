@@ -11,7 +11,6 @@ export interface IAdvancedSearchResultsProps {
   onConfigure: () => void;
   needsConfiguration: boolean;
   isDebug: boolean;
-  //config: Model.IResultsConfig;
   columns: Array<Model.IResultProperty>;
   searchQuery: string;
   context: WebPartContext;
@@ -56,7 +55,6 @@ export default class AdvancedSearchResults extends React.Component<IAdvancedSear
         }
         { !needsConfiguration && 
           <ResultsInterface 
-            //config={this.props.config} 
             columns={ this.props.columns }
             searchQuery={this.state.searchQuery} 
             context={this.props.context}

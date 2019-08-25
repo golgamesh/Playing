@@ -462,18 +462,6 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
         } as Model.IResultProperty;
     }
 
-/*     protected showLoading(val: boolean): void {
-        if(val === this.state.showLoading) {
-            return;
-        }
-
-        this.setState({
-            ...this.state,
-            showLoading: val
-        });
-    } */
-
-
     private _formatDate (isoDate: string): string {
         return (new Date(isoDate)).toLocaleDateString();
     }

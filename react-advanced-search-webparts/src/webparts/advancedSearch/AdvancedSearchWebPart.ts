@@ -20,18 +20,15 @@ import {
   CustomCollectionFieldType,
   IPropertyFieldCollectionDataProps
 } from '@pnp/spfx-property-controls/lib/PropertyFieldCollectionData';
-import Validation from '../../helpers/Validation';
 import * as Model from '../../model/AdvancedSearchModel';
 import * as strings from 'AdvancedSearchWebPartStrings';
 import AdvancedSearch from './components/AdvancedSearch';
 import { IAdvancedSearchProps } from './components/AdvancedSearch';
-import { ISearchInterfaceProps } from './components/SearchInterface';
 import { IDynamicDataPropertyDefinition, IDynamicDataCallables } from '@microsoft/sp-dynamic-data';
 import ManagedPropertyPicker from '../../components/ManagedPropertyPicker';
 import { TextField, ITextFieldProps } from 'office-ui-fabric-react/lib/TextField';
 
 export interface IAdvancedSearchWebPartProps {
-  //searchConfig: string;
   searchConfig: Array<Model.ISearchProperty>;
   addCriteria: string;
   includeKeywordSearch: boolean;
@@ -94,9 +91,7 @@ export default class AdvancedSearchWebPart extends BaseClientSideWebPart<IAdvanc
    */
   public render(): void {
 
-    //this.searchConfig = <Model.IAdvancedSearchConfig>JSON.parse(this.properties.searchConfig);
     this._indexProperties();
-    //console.log(this.context.manifest.loaderConfig.internalModuleBaseUrls);
     const element: React.ReactElement<IAdvancedSearchProps> = React.createElement(
       AdvancedSearch,
       <IAdvancedSearchProps> {
@@ -175,13 +170,6 @@ export default class AdvancedSearchWebPart extends BaseClientSideWebPart<IAdvanc
                   label: strings.StartMinimizedLabel,
                   disabled: !this.properties.includeKeywordSearch
                 }),
-/*                 PropertyPaneTextField('searchConfig', {
-                  label: strings.SearchConfigFieldLabel,
-                  multiline: true,
-                  description: strings.SearchConfigFieldDesc,
-                  validateOnFocusOut: true,
-                  onGetErrorMessage: Validation.validateSearchConfig.bind(this)
-                }), */
                 PropertyFieldCollectionData('searchConfig', <IPropertyFieldCollectionDataProps>{
                     key: 'searchConfig',
                     enableSorting: true,
@@ -272,6 +260,18 @@ export default class AdvancedSearchWebPart extends BaseClientSideWebPart<IAdvanc
                               }
                             ];
                             break;
+                          case 'Double':
+                          case 'Int32':
+                          case 'Int64':
+                            options = [{
+                              key: 'numberRange',
+                              text: 'Number Range'
+                            },
+                            {
+                              key: 'equals',
+                              text: 'Equals'
+                            }] 
+                            break;
                           default: 
                             options = [{
                                 key: 'equals',
@@ -303,7 +303,9 @@ export default class AdvancedSearchWebPart extends BaseClientSideWebPart<IAdvanc
                       onCustomRender: (field, val, onUpdate, item, itemId) => {
                         let disabled: boolean = false;
                         let type = item['type']; 
-                        if(type === 'DateTime' || type === 'Boolean') {
+                        let operator = item['operator'];
+                        console.log('operator: ', operator);
+                        if(type === 'DateTime' || type === 'Boolean' || operator === Model.SearchOperator.NumberRange) {
                           disabled = true;
                         }
                         return (
