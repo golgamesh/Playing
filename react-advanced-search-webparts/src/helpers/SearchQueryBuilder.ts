@@ -1,5 +1,6 @@
 import * as Model from '../model/AdvancedSearchModel';
 import { IDateRangeValue, DateRangeOperator } from '../components/DateRange';
+import { INumberRangeValue, NumberRangeOperator } from '../components/NumberRange';
 
 export default class SearchQueryBuilder {
     constructor () {
@@ -105,23 +106,35 @@ export default class SearchQueryBuilder {
         for (var i = 0; i < properties.length; i++) {
             var field: Model.ISearchProperty = properties[i];
             var prop: string = field.property;
-            var oper: Model.SearchOperator = field.operator;
-            var value: string | number | IDateRangeValue = field.value;
-            var rangeVal: IDateRangeValue = <IDateRangeValue>field.value;
+            var value: string | number | IDateRangeValue | INumberRangeValue = field.value;
 
-            if (!value) {
-                // skip if value is empty
+            if(!value) {
                 continue;
-            } else if(rangeVal.operator) {
-                if(!rangeVal.date || (rangeVal.operator == DateRangeOperator.Between && !rangeVal.dateEnd)){
-                    // skip if date range value is invalid
+            }
+
+            var oper: Model.SearchOperator = field.value['operator'] || field.operator;
+            var dateVal: IDateRangeValue = <IDateRangeValue> field.value;
+            var numbVal: INumberRangeValue = <any> field.value;
+            
+            if(field.type === Model.PropertyValueType.DateTime) {
+                if(!dateVal.date || (dateVal.operator === DateRangeOperator.Between && !dateVal.dateEnd)){
+                    // skip if range value is invalid
+                    continue;
+                }
+            } else if(field.type === Model.PropertyValueType.Numeric) {
+                if(!numbVal.number || (numbVal.operator === NumberRangeOperator.Between && !numbVal.numberEnd)) {
+                    // skip if range value is invalid
                     continue;
                 }
             }
             
-            switch (oper.toLowerCase()) {
+            switch (oper) {
                 case Model.SearchOperator.Equals:
-                    criteria.push(prop + ':"' + value + '"');
+                    if(field.type === Model.PropertyValueType.Numeric) {
+                        criteria.push(prop + '=' + value);
+                    } else {
+                        criteria.push(prop + ':"' + value + '"');
+                    }
                     //searchString += prop + ':"' + value + '"';
                     //author: "John Smith"
                     break;
@@ -131,12 +144,20 @@ export default class SearchQueryBuilder {
                     //author: "*Smith*"
                     break;
                 case Model.SearchOperator.Between:
-                    //LastModifiedTime:2017-06-30T04:00:00.000Z..2018-06-30T04:00:00.000Z
-                    //add a tday to endDate to include selected date in results 
-                    let startDate = (value as string).split(';')[0];
-                    let endDate = this._addDays(new Date((value as string).split(';')[1]), 1).toISOString();
-                    criteria.push(prop + ':' + startDate + '..' + endDate);
-                    //searchString += prop + ':' + startDate + '..' + endDate;
+                    if(field.type === Model.PropertyValueType.DateTime) {
+                        //LastModifiedTime:2017-06-30T04:00:00.000Z..2018-06-30T04:00:00.000Z
+                        //add a tday to endDate to include selected date in results 
+                        //let startDate = (value as string).split(';')[0];
+                        //let endDate = this._addDays(new Date((value as string).split(';')[1]), 1).toISOString();
+                        criteria.push(prop + ':' + dateVal.date.toISOString() + '..' + dateVal.dateEnd.toISOString());
+                        //searchString += prop + ':' + startDate + '..' + endDate;
+                    } else {
+                        criteria.push(prop + '>=' + numbVal.number);
+                        criteria.push(prop + '<=' + numbVal.numberEnd);
+                    }
+                    break;
+                case Model.SearchOperator.LessThanEqual:
+                    criteria.push(prop + '<=' + value);
                     break;
                 case Model.SearchOperator.Before:
                     //LastModifiedTime<=2018-06-30T04:00:00.000Z
@@ -144,19 +165,25 @@ export default class SearchQueryBuilder {
                     criteria.push(prop + '<=' + this._addDays(new Date(value as string), 1).toISOString());
                     //searchString += prop + '<=' + this._addDays(new Date(value as string), 1).toISOString();
                     break;
+                case Model.SearchOperator.GreaterThanEqual:
                 case Model.SearchOperator.After:
                     //LastModifiedTime>=2018-06-30T04:00:00.000Z
-                    searchString += prop + '>=' + value;
+                    //searchString += prop + '>=' + value;
                     criteria.push(prop + '>=' + value);
+                    break;
+                case Model.SearchOperator.GreatherThan:
+                    criteria.push(prop + '>' + value);
+                    break;
+                case Model.SearchOperator.LessThan:
+                    criteria.push(prop + '<' + value);
+                    break;
+                default:
+                    console.log('Unexpected Operator: ', oper);
                     break;
 
             }
 
-            //searchString += strAndOperator;
-
         }
-
-        //searchString = searchString.substring(0, searchString.length - strAndOperator.length);
         
         searchString = criteria.join(strAndOperator);
 

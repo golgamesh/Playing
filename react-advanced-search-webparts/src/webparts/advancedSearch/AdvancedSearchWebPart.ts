@@ -209,24 +209,24 @@ export default class AdvancedSearchWebPart extends BaseClientSideWebPart<IAdvanc
                       type: CustomCollectionFieldType.dropdown,
                       options: [
                         {
-                          key: 'Boolean',
+                          key: Model.PropertyValueType.Boolean,
                           text: 'Boolean',
-                          value: 'Boolean'
+                          value: Model.PropertyValueType.Boolean
                         },
                         {
-                          key: 'DateTime',
+                          key: Model.PropertyValueType.DateTime,
                           text: 'Date Time',
-                          value: 'DateTime'
+                          value: Model.PropertyValueType.DateTime
                         },
                         {
-                          key: 'Int32',
+                          key: Model.PropertyValueType.Numeric,
                           text: 'Numeric',
-                          value: 'Int32'
+                          value: Model.PropertyValueType.Numeric
                         },
                         {
-                          key: 'String',
+                          key: Model.PropertyValueType.String,
                           text: 'Text',
-                          value: 'String'
+                          value: Model.PropertyValueType.String
                         }
                       ]
                     },
@@ -238,9 +238,9 @@ export default class AdvancedSearchWebPart extends BaseClientSideWebPart<IAdvanc
                       onCustomRender: (field, value, onUpdate, item, itemId) => {
                         let options: Array<IDropdownOption>;
                         switch(item['type']) {
-                          case 'DateTime':
+                          case Model.PropertyValueType.DateTime:
                               options = [{
-                                  key: 'DateRange',
+                                  key: Model.SearchOperator.DateRange,
                                   text: 'Date Range',
                                   selected: true
                                 }
@@ -249,32 +249,33 @@ export default class AdvancedSearchWebPart extends BaseClientSideWebPart<IAdvanc
                                 onUpdate(field.id, 'DateRange');
                               }
                             break;
-                          case 'String':
+                          case Model.PropertyValueType.String:
                             options = [{
-                                key: 'equals',
+                                key: Model.SearchOperator.Equals,
                                 text: 'Equals'
                               },
                               {
-                                key: 'like',
-                                text: 'Like'
+                                key: Model.SearchOperator.Contains,
+                                text: 'Contains'
                               }
                             ];
                             break;
-                          case 'Double':
-                          case 'Int32':
-                          case 'Int64':
+                          case Model.PropertyValueType.Double:
+                          case Model.PropertyValueType.Int32:
+                          case Model.PropertyValueType.Int64:
+                          case Model.PropertyValueType.Numeric:
                             options = [{
-                              key: 'numberRange',
+                              key: Model.SearchOperator.NumberRange,
                               text: 'Number Range'
                             },
                             {
-                              key: 'equals',
+                              key: Model.SearchOperator.Equals,
                               text: 'Equals'
-                            }] 
+                            }];
                             break;
                           default: 
                             options = [{
-                                key: 'equals',
+                                key: Model.SearchOperator.Equals,
                                 text: 'Equals',
                                 selected: true
                               }

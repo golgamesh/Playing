@@ -8,6 +8,7 @@ import {
 } from 'office-ui-fabric-react/lib/Dropdown';
 import { Label } from 'office-ui-fabric-react/lib/Label';
 import styles from './DateRange.module.scss';
+import * as strings from 'AdvancedSearchWebPartStrings';
 
 /**
  * This Component's Properties
@@ -27,15 +28,81 @@ export interface IDateRangeState {
     value: IDateRangeValue;
 }
 
+export interface IDateRangeOperatorDetails {
+    operator: DateRangeOperator;
+    name: string;
+    placeholder1: string;
+    placeholder2?: string;
+}
+
+export interface IDateRangeOperatorMeta {
+    After: IDateRangeOperatorDetails;
+    Before: IDateRangeOperatorDetails;
+    Between: IDateRangeOperatorDetails;
+    Equals: IDateRangeOperatorDetails;
+}
+
 /**
  * All Possible Selectable Date Range operators
  */
 export enum DateRangeOperator {
-    After = "after",
-    Before = "before",
-    Between = "between",
-    On = "equals"
+    After = "After",
+    Before = "Before",
+    Between = "Between",
+    On = "Equals"
 }
+
+export class DateRangeOperatorMeta2 {
+
+    public static Equals: IDateRangeOperatorDetails = {
+        operator: DateRangeOperator.After,
+        name: strings.OnName,
+        placeholder1: strings.OnPlaceholder1
+    };
+
+    public static After: IDateRangeOperatorDetails = {
+        operator: DateRangeOperator.After,
+        name: strings.AfterName,
+        placeholder1: strings.AfterPlaceholder1
+    };
+
+    public static Before: IDateRangeOperatorDetails = {
+        operator: DateRangeOperator.Before,
+        name: strings.BeforeName,
+        placeholder1: strings.BeforePlaceholder1
+    };
+
+    public static Between: IDateRangeOperatorDetails = {
+        operator: DateRangeOperator.Between,
+        name: strings.BetweenName,
+        placeholder1: strings.BetweenDatePlaceholder1,
+        placeholder2: strings.BetweenDatePlaceholder2
+    };
+}
+
+export const DateRangeOperatorMeta: IDateRangeOperatorMeta = {
+    After: {
+        operator: DateRangeOperator.After,
+        name: strings.AfterName,
+        placeholder1: strings.AfterPlaceholder1
+    },
+    Before: {
+        operator: DateRangeOperator.Before,
+        name: strings.BeforeName,
+        placeholder1: strings.BeforePlaceholder1
+    },
+    Equals: {
+        operator: DateRangeOperator.After,
+        name: strings.OnName,
+        placeholder1: strings.OnPlaceholder1
+    },
+    Between: {
+        operator: DateRangeOperator.Between,
+        name: strings.BetweenName,
+        placeholder1: strings.BetweenDatePlaceholder1,
+        placeholder2: strings.BetweenDatePlaceholder2
+    }
+};
 
 /**
  * Composite value of date range properties
@@ -73,7 +140,7 @@ export default class DateRange extends React.Component<IDateRangeProps, {}> {
      */
     public static get emptyValue(): IDateRangeValue {
         return {
-            operator: DateRangeOperator.After,
+            operator: DateRangeOperator.On,
             date: null
         };
     }
@@ -142,14 +209,14 @@ export default class DateRange extends React.Component<IDateRangeProps, {}> {
                         selectedKey={this.state.value.operator}
                     />
                     <DatePicker 
-                        placeholder={this.props.label} 
+                        placeholder={this.state.value.operator ? DateRangeOperatorMeta[this.state.value.operator].placeholder1 : ''} 
                         value={this.state.value.date}
                         onSelectDate={date => this._onSelectDate(date)} 
                         formatDate={this._onFormatDate}
                         strings={this.dateRangeStrings}
                     />
                     <DatePicker 
-                        placeholder={this.props.label}
+                        placeholder={this.state.value.operator ? DateRangeOperatorMeta[this.state.value.operator].placeholder2 : ''}
                         value={this.state.value.dateEnd}
                         onSelectDate={date => this._onSelectDate_end(date)} 
                         formatDate={this._onFormatDate}
@@ -259,15 +326,15 @@ export default class DateRange extends React.Component<IDateRangeProps, {}> {
      * Generator options for the date range operator dropdown menu
      */
     protected _populateOptions(): void {
-        for (let op in DateRangeOperator) {                                 // Loop through DateRangeOperator values
+        for (let opName in DateRangeOperator) {                                 // Loop through DateRangeOperator values
+            let op = DateRangeOperator[opName];
             this._options.push({                                            // Create a new option for each operator
-                text: op,
-                key: DateRangeOperator[op],
+                text: DateRangeOperatorMeta[op].name,
+                key: op,
                 data: {
-                    value: DateRangeOperator[op]
+                    value: op
                 },
-                selected: (DateRangeOperator[op] ===
-                        this.props.value.operator) ? true : undefined       // Mark the correct one as selected
+                selected: (op === this.props.value.operator) ? true : undefined       // Mark the correct one as selected
             } as IDropdownOption);
         }
     }

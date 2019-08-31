@@ -23,58 +23,124 @@ export interface INumberRangeState {
 
 
 export interface INumberRangeOperatorDetails {
+    operator: NumberRangeOperator;
     name: string;
     symbol: string;
     placeholder1: string;
     placeholder2?: string;
 }
 
+export enum NumberRangeOperator {
+    Equals = "Equals",
+    GreaterThan = "GreaterThan",
+    GreaterThanEqual = "GreaterThanEqual",
+    LessThan = "LessThan",
+    LessThanEqual = "LessThanEqual",
+    Between = "Between"
+} 
+
+
+export interface INumberRangeOperatorMeta {
+    Equals: INumberRangeOperatorDetails;
+    GreaterThan: INumberRangeOperatorDetails;
+    GreaterThanEqual: INumberRangeOperatorDetails;
+    LessThan: INumberRangeOperatorDetails;
+    LessThanEqual: INumberRangeOperatorDetails;
+    Between: INumberRangeOperatorDetails;
+}
+
 /**
  * All Possible Selectable Number Range operators
  */
-export class NumberRangeOperator {
+export class NumberRangeOperatorMeta2 {
 
     public static Equals: INumberRangeOperatorDetails = {
+        operator: NumberRangeOperator.Equals,
         name: strings.EqualsName,
         symbol: strings.EqualsName,
         placeholder1: strings.EqualsPlaceholder1
     };
     
     public static GreaterThan: INumberRangeOperatorDetails = {
+        operator: NumberRangeOperator.GreaterThan,
         name: strings.GreaterThanName,
         symbol: '>',
         placeholder1: strings.GreaterThanEqualsPlaceholder1
     };
 
     public static GreaterThanEqual: INumberRangeOperatorDetails = {
+        operator: NumberRangeOperator.GreaterThanEqual,
         name: strings.GreaterThanEqualsName,
         symbol: '>=',
         placeholder1: strings.GreaterThanEqualsPlaceholder1
     };
 
     public static LessThan: INumberRangeOperatorDetails = {
+        operator: NumberRangeOperator.LessThan,
         name: strings.LessThanName,
         symbol: '<',
         placeholder1: strings.LessThanPlaceholder1
     };
 
     public static LessThanEqual: INumberRangeOperatorDetails = {
+        operator: NumberRangeOperator.LessThanEqual,
         name: strings.LessThanEqualsName,
         symbol: '<=',
         placeholder1: strings.LessThanEqualsPlaceholder1
     };
 
     public static Between: INumberRangeOperatorDetails = {
+        operator: NumberRangeOperator.Between,
         name: strings.BetweenName,
         symbol: strings.BetweenSymbol,
-        placeholder1: strings.BetweenPlaceholder1,
-        placeholder2: strings.BetweenPlaceholder2
+        placeholder1: strings.BetweenNumericPlaceholder1,
+        placeholder2: strings.BetweenNumericPlaceholder2
     };
 
 }
 
+export const NumberRangeOperatorMeta: INumberRangeOperatorMeta = {
+    Equals: {
+        operator: NumberRangeOperator.Equals,
+        name: strings.EqualsName,
+        symbol: strings.EqualsName,
+        placeholder1: strings.EqualsPlaceholder1
+    },
+    GreaterThan: {
+        operator: NumberRangeOperator.GreaterThan,
+        name: strings.GreaterThanName,
+        symbol: '>',
+        placeholder1: strings.GreaterThanEqualsPlaceholder1
+    },
+    GreaterThanEqual: {
+        operator: NumberRangeOperator.GreaterThanEqual,
+        name: strings.GreaterThanEqualsName,
+        symbol: '>=',
+        placeholder1: strings.GreaterThanEqualsPlaceholder1
+    },
+    LessThan: {
+        operator: NumberRangeOperator.LessThan,
+        name: strings.LessThanName,
+        symbol: '<',
+        placeholder1: strings.LessThanPlaceholder1
+    },
+    LessThanEqual: {
+        operator: NumberRangeOperator.LessThanEqual,
+        name: strings.LessThanEqualsName,
+        symbol: '<=',
+        placeholder1: strings.LessThanEqualsPlaceholder1
+    },
+    Between: {
+        operator: NumberRangeOperator.Between,
+        name: strings.BetweenName,
+        symbol: strings.BetweenSymbol,
+        placeholder1: strings.BetweenNumericPlaceholder1,
+        placeholder2: strings.BetweenNumericPlaceholder2
+    }
+};
+
 export interface INumberRangeValue {
-    operator: INumberRangeOperatorDetails;
+    operator: NumberRangeOperator;
     number: number;
     numberEnd?: number;
 }
@@ -87,7 +153,7 @@ export default class NumberRange extends React.Component<INumberRangeProps, INum
             props.value = NumberRange.emptyValue;                             // Default to empty date range value
         }
 
-        let numberEndClass = props.value.operator.name === NumberRangeOperator.Between.name ? '' : styles.numberEndHidden;
+        let numberEndClass = props.value.operator === NumberRangeOperator.Between ? '' : styles.numberEndHidden;
 
         this.state = {
             classNameNumberEnd: numberEndClass,
@@ -101,7 +167,8 @@ export default class NumberRange extends React.Component<INumberRangeProps, INum
     public static get emptyValue(): INumberRangeValue {
         return {
             operator: NumberRangeOperator.Equals,
-            number: null
+            number: null,
+            numberEnd: null
         };
     }
 
@@ -117,20 +184,20 @@ export default class NumberRange extends React.Component<INumberRangeProps, INum
                         options={this._options} 
                         className={styles.numberOperator}
                         onChanged={(e) => this.onOperator_changed(e)}
-                        selectedKey={this.state.value.operator.name}
+                        selectedKey={this.state.value.operator}
                     />
 
                     <TextField
                         value={this.state.value.number as any}
                         onChanged={this.onNumber1_changed}
-                        placeholder={this.state.value.operator.placeholder1}
+                        placeholder={NumberRangeOperatorMeta[this.state.value.operator].placeholder1}
                         type={"number"}
                     />
 
                     <TextField
                         value={this.state.value.numberEnd as any}
                         onChanged={this.onNumber2_changed} 
-                        placeholder={this.state.value.operator.placeholder2}
+                        placeholder={NumberRangeOperatorMeta[this.state.value.operator].placeholder2}
                         className={this.state.classNameNumberEnd}
                         type={"number"}
                     />
@@ -150,7 +217,11 @@ export default class NumberRange extends React.Component<INumberRangeProps, INum
 
         this.setState({                                                     // Update state with new properites
             ...this.state,
-            value: val
+            value: {
+                operator: val.operator,
+                number: val.number !== null ? val.number : '',              // TextFields disregards null values as a change event
+                numberEnd: val.numberEnd !== null ? val.numberEnd : ''      // So empty strings are provided to  reset the field to empty
+            }
         } as INumberRangeState,
         () => this.onOperator_changed(val.operator));          // Call operator change handler in case new operator was provided
     }
@@ -164,7 +235,6 @@ export default class NumberRange extends React.Component<INumberRangeProps, INum
                 ...this.state.value,
                 number: newValue ? parseInt(newValue) : null
             } as INumberRangeValue
-
         },
         () => this._changed());
     }
@@ -177,25 +247,24 @@ export default class NumberRange extends React.Component<INumberRangeProps, INum
                 ...this.state.value,
                 numberEnd: newValue ? parseInt(newValue) : null
             } as INumberRangeValue
-
         },
         () => this._changed());
 
     }
 
-    protected onOperator_changed (optionOrValue: INumberRangeOperatorDetails): void;
+    protected onOperator_changed (optionOrValue: NumberRangeOperator): void;
     protected onOperator_changed (optionOrValue: IDropdownOption): void;
     protected onOperator_changed (optionOrValue: IDropdownOption | NumberRangeOperator): void {
 
-        let operator: INumberRangeOperatorDetails;
+        let operator: NumberRangeOperator;
 
         if((optionOrValue as IDropdownOption).data) {
             operator = (optionOrValue as IDropdownOption).data.value;
         } else {
-            operator = (optionOrValue as INumberRangeOperatorDetails);
+            operator = optionOrValue as NumberRangeOperator;
         }
 
-        let classNameNumberEnd = operator.name === NumberRangeOperator.Between.name ? '' : styles.numberEndHidden;
+        let classNameNumberEnd = operator === NumberRangeOperator.Between ? '' : styles.numberEndHidden;
         this.setState({
             ...this.state,
             classNameNumberEnd,
@@ -212,15 +281,15 @@ export default class NumberRange extends React.Component<INumberRangeProps, INum
      * Generator options for the number range operator dropdown menu
      */
     protected _populateOptions(): void {
-        for (let op in NumberRangeOperator) {                               // Loop through DateRangeOperator values
+        for (let opName in NumberRangeOperator) {                               // Loop through DateRangeOperator values
+            let op = NumberRangeOperator[opName];
             this._options.push({                                            // Create a new option for each operator
-                text: NumberRangeOperator[op]['symbol'],
-                key: NumberRangeOperator[op]['name'],
+                text: NumberRangeOperatorMeta[op].symbol,
+                key: op,
                 data: {
-                    value: NumberRangeOperator[op]
+                    value: op
                 },
-                selected: (NumberRangeOperator[op].Name ===
-                        this.props.value.operator.name) ? true : undefined       // Mark the correct one as selected
+                selected: (op === this.props.value.operator) ? true : undefined       // Mark the correct one as selected
             } as IDropdownOption);
         }
     }

@@ -15,8 +15,10 @@ define([], function() {
     "LessThanPlaceholder1": "Upper Bounds",
     "BetweenName": "Between",
     "BetweenSymbol": "Between",
-    "BetweenPlaceholder1": "Lower Bounds",
-    "BetweenPlaceholder2": "Upper Bounds",
+    "BetweenNumericPlaceholder1": "Lower Bounds",
+    "BetweenNumericPlaceholder2": "Upper Bounds",
+    "BetweenDatePlaceholder1": "Beginning",
+    "BetweenDatePlaceholder2": "Ending",
     "ContainsName": "Contains",
     "GreaterThanEqualsName": "Greater Than Equals or Equals",
     "GreaterThanEqualsPlaceholder1": "Lower Bounds",
@@ -24,6 +26,12 @@ define([], function() {
     "LessThanEqualsPlaceholder1": "Upper Bounds",
     "EqualsName": "Equals",
     "EqualsSymbol": "Equals",
-    "EqualsPlaceholder1": "Equals"
+    "EqualsPlaceholder1": "Number",
+    "AfterName": "After",
+    "AfterPlaceholder1": "Beginning",
+    "BeforeName": "Before",
+    "BeforePlaceholder1": "Ending",
+    "OnName": "On",
+    "OnPlaceholder1": "Date"
   }
 });

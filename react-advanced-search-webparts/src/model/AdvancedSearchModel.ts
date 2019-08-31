@@ -2,6 +2,7 @@
 import { IColumn } from 'office-ui-fabric-react/lib/DetailsList';
 import { IDateRangeValue } from '../components/DateRange';
 import { IDropdownOption } from 'office-ui-fabric-react/lib/Dropdown';
+import { INumberRangeValue } from '../components/NumberRange';
 
 export interface ISearchProperty {
     name: string;
@@ -10,7 +11,7 @@ export interface ISearchProperty {
     type: PropertyValueType;
     control?: SearchControlType;
     //options?: ISearchPropertyOptions;
-    value?: string | number | undefined | IDateRangeValue;
+    value?: string | number | undefined | IDateRangeValue | INumberRangeValue;
     propIndex?: number;
     choices?: String;
     propertyChoices?: Array<ISearchPropertyChoice>;
@@ -38,14 +39,18 @@ export interface IResultPropertyDef {
 }
 
 export enum SearchOperator {
-    Equals = "equals",
-    Between = "between",
-    Before = "before",
-    After = "after",
-    Contains = "contains",
-    Freetext = "freetext",
-    DateRange = "dateRange",
-    NumberRange = "numberRange"
+    Equals = "Equals",
+    Between = "Between",
+    Before = "Before",
+    After = "After",
+    Contains = "Contains",
+    Freetext = "Freetext",
+    DateRange = "Date Range",
+    NumberRange = "Number Range",
+    GreaterThanEqual = "GreaterThanEqual",
+    GreatherThan = "GreaterThan",
+    LessThanEqual = "LessThanEqual",
+    LessThan = "LessThan"
 }
 
 export enum SearchControlType {
@@ -87,6 +92,7 @@ export enum PropertyValueType {
     Guid = "Guid",
     Int32 = "Int32",
     Int64 = "Int64",
+    Numeric = "Numeric",
     String = "String",
     Null = "Null"
 }

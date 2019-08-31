@@ -16,7 +16,7 @@ import DateRange, {
     DateRangeOperator 
 } from '../../../components/DateRange';
 import NumberRange, {
-    INumberRangeProps
+    INumberRangeProps, INumberRangeValue
 } from '../../../components/NumberRange';
 import * as Model from '../../../model/AdvancedSearchModel';
 import styles from './AdvancedSearch.module.scss';
@@ -96,11 +96,15 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
                 case Model.PropertyValueType.Int64:
                 case Model.PropertyValueType.Guid:
                 case Model.PropertyValueType.Double:
+                case Model.PropertyValueType.Numeric:
                 case Model.PropertyValueType.String:
                     if(field.operator === Model.SearchOperator.NumberRange) {
 
                         controls.push(<NumberRange 
                             label={field.name}
+                            onChanged={e => this.ctrl_changed(e, field)}
+                            data-index={i}
+                            key={key++}
                         />);
 
                     } else {
@@ -127,6 +131,7 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
                                 label={field.name} 
                                 onChanged={(e) => this.ctrl_changed(e, field)}
                                 data-index={i}
+                                type={"numeric"}
                                 value={field.value ? field.value.toString() : ''}
                                 key={key++} 
                             />);
@@ -309,13 +314,18 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
         let config = [ ...this.state.config ] as Array<Model.ISearchProperty>;
 
         config.forEach((field: Model.ISearchProperty) => {
-            field.value = '';
 
             if(field.type == Model.PropertyValueType.DateTime) {
-                field.data.value = DateRange.emptyValue;
+                field.data.value = null;
+            } else if(field.type === Model.PropertyValueType.Numeric) {
+                field.value = null;
             } else if(this._hasChoices(field) || field.type === Model.PropertyValueType.Boolean) {
+
                 field.choicesSelectedKey = null;
                 field.value = null;
+
+            } else {
+                field.value = '';
             }
         });
 
@@ -340,8 +350,8 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
         newProp.value = val.value !== undefined ? val.value : val;
 
         if(field.type === Model.PropertyValueType.DateTime) {
-
             let drVal = val as IDateRangeValue;
+/* 
             newProp.data.value = drVal;
             newProp.operator = drVal.operator as any;
 
@@ -351,8 +361,17 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
 
             if(drVal.operator === DateRangeOperator.Between && drVal.dateEnd) {
                 newProp.value += ';' + drVal.dateEnd;
-            }
+            } */
 
+            //newProp.operator = drVal.operator.internal as any;
+            newProp.value = drVal;
+
+        }
+
+        if(field.type === Model.PropertyValueType.Numeric) {
+            let numVal = val as INumberRangeValue;
+            //newProp.operator = numVal.operator.internal as any;
+            newProp.value = numVal;
         }
 
     }

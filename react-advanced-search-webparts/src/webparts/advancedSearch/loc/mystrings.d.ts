@@ -13,8 +13,10 @@ declare interface IAdvancedSearchWebPartStrings {
   LessThanName: string;
   LessThanPlaceholder1: string;
   BetweenName: string;
-  BetweenPlaceholder1: string;
-  BetweenPlaceholder2: string;
+  BetweenNumericPlaceholder1: string;
+  BetweenNumericPlaceholder2: string;
+  BetweenDatePlaceholder1: string;
+  BetweenDatePlaceholder2: string;
   BetweenSymbol: string;
   ContainsName: string;
   GreaterThanEqualsName: string;
@@ -24,6 +26,12 @@ declare interface IAdvancedSearchWebPartStrings {
   EqualsName: string;
   EqualsSymbol: string;
   EqualsPlaceholder1: string;
+  AfterName: string;
+  AfterPlaceholder1: string;
+  BeforeName: string;
+  BeforePlaceholder1: string;
+  OnName: string;
+  OnPlaceholder1: string;
 }
 
 declare module 'AdvancedSearchWebPartStrings' {

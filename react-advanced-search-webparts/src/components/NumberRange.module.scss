@@ -1,8 +1,8 @@
 .numberRange {
-    display: block;
 
     .pickerRow {
         display: flex;
+        flex-direction: row;
     }
 
     .numberOperator {
@@ -16,4 +16,24 @@
     .numberEndHidden {
         display: none;
     }
+
+    :global .ms-TextField {
+        flex-grow: 1;
+    }
+
+    input[type=number] {
+        -moz-appearance:textfield; /* Firefox */
+
+        &::-webkit-inner-spin-button,
+        &::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0;
+        }
+
+        &:hover,
+        &:focus {
+            -moz-appearance: number-input;
+        } 
+    }
+
 }
