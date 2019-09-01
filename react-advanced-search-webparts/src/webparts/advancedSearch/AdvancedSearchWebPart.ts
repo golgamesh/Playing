@@ -224,6 +224,11 @@ export default class AdvancedSearchWebPart extends BaseClientSideWebPart<IAdvanc
                           value: Model.PropertyValueType.Numeric
                         },
                         {
+                          key: Model.PropertyValueType.Person,
+                          text: 'Person',
+                          value: Model.PropertyValueType.Person
+                        },
+                        {
                           key: Model.PropertyValueType.String,
                           text: 'Text',
                           value: Model.PropertyValueType.String

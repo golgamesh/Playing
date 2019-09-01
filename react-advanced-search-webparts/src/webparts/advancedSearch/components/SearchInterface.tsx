@@ -18,9 +18,11 @@ import DateRange, {
 import NumberRange, {
     INumberRangeProps, INumberRangeValue
 } from '../../../components/NumberRange';
+import PeoplePicker from '../../../components/PeoplePicker';
 import * as Model from '../../../model/AdvancedSearchModel';
 import styles from './AdvancedSearch.module.scss';
 import DropdownResettable, { IDropdownResettableOption } from '../../../components/DropdownResettable';
+import { IPersonaProps } from 'office-ui-fabric-react/lib/Persona';
 
 const AdvancedMinimized: string = `${styles.pnlAdvanced} ${styles.pnlAdvancedMinimized}`;
 const AdvancedExpanded: string = styles.pnlAdvanced;
@@ -138,6 +140,14 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
 
                         }
                     }
+                    break;
+                case Model.PropertyValueType.Person:
+                    controls.push(<PeoplePicker
+                            onResolveSuggestions={null}
+                            label={field.name}
+                            data-index={i}
+                            key={key++} 
+                        />);
                     break;
                 case Model.PropertyValueType.Boolean:
 

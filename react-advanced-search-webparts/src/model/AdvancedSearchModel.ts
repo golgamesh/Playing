@@ -1,15 +1,15 @@
 
 import { IColumn } from 'office-ui-fabric-react/lib/DetailsList';
-import { IDateRangeValue } from '../components/DateRange';
+import { IDateRangeValue, DateRangeOperator } from '../components/DateRange';
 import { IDropdownOption } from 'office-ui-fabric-react/lib/Dropdown';
-import { INumberRangeValue } from '../components/NumberRange';
+import { INumberRangeValue, NumberRangeOperator } from '../components/NumberRange';
 
 export interface ISearchProperty {
     name: string;
     property: string;
     operator: SearchOperator;
     type: PropertyValueType;
-    control?: SearchControlType;
+    //control?: SearchControlType;
     //options?: ISearchPropertyOptions;
     value?: string | number | undefined | IDateRangeValue | INumberRangeValue;
     propIndex?: number;
@@ -53,11 +53,11 @@ export enum SearchOperator {
     LessThan = "LessThan"
 }
 
-export enum SearchControlType {
+/* export enum SearchControlType {
     TextField = "TextField",
     SelectField = "SelectField",
     DateRangeField = "DateRange"
-}
+} */
 
 export interface IAdvancedSearchConfig {
     properties: Array<ISearchProperty>;
@@ -94,5 +94,6 @@ export enum PropertyValueType {
     Int64 = "Int64",
     Numeric = "Numeric",
     String = "String",
-    Null = "Null"
+    Null = "Null",
+    Person = "Person"
 }
