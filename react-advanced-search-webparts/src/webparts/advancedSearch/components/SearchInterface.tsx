@@ -144,6 +144,7 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
                 case Model.PropertyValueType.Person:
                     controls.push(<PeoplePicker
                             onResolveSuggestions={null}
+                            onChanged={e => this.ctrl_changed(e, field)}
                             label={field.name}
                             data-index={i}
                             key={key++} 
@@ -357,7 +358,7 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
         
         let newOptions = { ...this.state.config } as Array<Model.ISearchProperty>;
         let newProp = newOptions[field.propIndex];
-        newProp.value = val.value !== undefined ? val.value : val;
+        newProp.value = (!!val && val.value !== undefined) ? val.value : val;
 
         if(field.type === Model.PropertyValueType.DateTime) {
             let drVal = val as IDateRangeValue;

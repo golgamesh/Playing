@@ -16,6 +16,7 @@ export interface PeoplePickerProps extends IPeoplePickerProps {
     label?: string;
     placeholder?: string;
     ManagedProperty?: string;
+    onChanged?: Function;  
 }
 
 export interface PeoplePickerState {
@@ -47,10 +48,19 @@ export default class PeoplePicker extends React.Component<PeoplePickerProps, Peo
                 <Label>{this.props.label}</Label>
                 <NormalPeoplePicker
                     onResolveSuggestions={this.onPersonPicker_ResolveSuggestions}
+                    onChange={this.onPersonPicker_change}
                     itemLimit={1}
                 />
             </div>
         );
+    }
+
+    protected onPersonPicker_change = (items?: IPersonaProps[]): void => {
+
+        if(typeof this.props.onChanged === 'function') {
+            this.props.onChanged(items.length ? items[0].primaryText : null);
+        }
+
     }
 
     
@@ -85,15 +95,16 @@ export default class PeoplePicker extends React.Component<PeoplePickerProps, Peo
         ];
         let SourceId = 'b09a7990-05ea-4af9-81ef-edfab16c4e31';
         let RowLimit = this.RowLimit;
+        let EnablePhonetic = true;
         const queryOptions: SearchQuery = {
             SelectProperties,
             RowLimit,
-            SourceId
+            SourceId,
+            EnablePhonetic
         };
         
         const q = SearchQueryBuilder(searchTerms, queryOptions);
 
-        
         return sp.search(q).then((r: SearchResults) => {
             return r.PrimarySearchResults.map((row: PeopleSearchResult) => {
                 return {
@@ -111,11 +122,13 @@ export default class PeoplePicker extends React.Component<PeoplePickerProps, Peo
         ];
         let RowLimit = this.RowLimit;
         let TrimDuplicates = true;
+        let EnablePhonetic = false;
 
         const queryOptions: SearchQuery = {
             SelectProperties,
             RowLimit,
-            TrimDuplicates
+            TrimDuplicates,
+            EnablePhonetic
         };
         
         const q = SearchQueryBuilder(searchTerms, queryOptions);
@@ -154,17 +167,23 @@ export default class PeoplePicker extends React.Component<PeoplePickerProps, Peo
         let lowerTerm = searchTerm.toLowerCase();
 
         multis.forEach(p => {
-            let names = p.primaryText.split(';');
-            for(let i = 0; i < names.length; i++) {
-                let n = names[i];
-                if(n.toLowerCase().indexOf(lowerTerm) !== -1) {
-                    p.primaryText = n;
+            let lowerString = p.primaryText.toLowerCase();
+            if(lowerString.indexOf(lowerTerm) === -1) {
+               p.primaryText = '';
+               return;
+            }
+            let lowerNames = lowerString.split(';');
+            let properNames = p.primaryText.split(';');
+            for(let i = 0; i < lowerNames.length; i++) {
+                let n = lowerNames[i];
+                if(n.indexOf(lowerTerm) !== -1) {
+                    p.primaryText = properNames[i];
                     break;
                 }
             }
         });
 
-        return persons;
+        return persons.filter(p => p.primaryText !== '');
     }
     
 }

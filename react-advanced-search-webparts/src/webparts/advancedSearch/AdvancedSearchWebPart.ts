@@ -285,8 +285,8 @@ export default class AdvancedSearchWebPart extends BaseClientSideWebPart<IAdvanc
                                 selected: true
                               }
                             ];
-                            if(value !== 'equals') {
-                              onUpdate(field.id, 'equals');
+                            if(value !== Model.SearchOperator.Equals) {
+                              onUpdate(field.id, Model.SearchOperator.Equals);
                             }
                             break;
                         }
