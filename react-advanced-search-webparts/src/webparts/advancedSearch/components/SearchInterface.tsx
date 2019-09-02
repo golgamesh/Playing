@@ -146,6 +146,7 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
                             onResolveSuggestions={null}
                             onChanged={e => this.ctrl_changed(e, field)}
                             label={field.name}
+                            placeholder={field.operator}
                             data-index={i}
                             key={key++} 
                         />);

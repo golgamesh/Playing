@@ -7,10 +7,14 @@ import {
     SearchQuery 
 } from '@pnp/sp';
 import {
-    NormalPeoplePicker, IPeoplePickerProps
+    NormalPeoplePicker, 
+    CompactPeoplePicker, 
+    IPeoplePickerProps, 
+    IBasePicker
 } from 'office-ui-fabric-react/lib/Pickers';
 import { IPersonaProps } from 'office-ui-fabric-react/lib/Persona';
 import { Label } from 'office-ui-fabric-react/lib/Label';
+import styles from './PeoplePicker.module.scss';
 
 export interface PeoplePickerProps extends IPeoplePickerProps {
     label?: string;
@@ -30,6 +34,7 @@ export interface PeopleSearchResult extends SearchResult {
 }
 
 export default class PeoplePicker extends React.Component<PeoplePickerProps, PeoplePickerState> {
+
     constructor(props: PeoplePickerProps) {
         super(props);
 
@@ -40,19 +45,40 @@ export default class PeoplePicker extends React.Component<PeoplePickerProps, Peo
 
     public state: PeoplePickerState;
     public RowLimit = 5;
+    private _timerId: number;
+    private _pauseDuration: number = 1000;
+    private _picker: IBasePicker<IPersonaProps>;
 
     
     public render(): React.ReactElement<PeoplePickerProps> {
         return (
-            <div>
+            <div className={styles.PeoplePicker}>
                 <Label>{this.props.label}</Label>
-                <NormalPeoplePicker
+                <CompactPeoplePicker
                     onResolveSuggestions={this.onPersonPicker_ResolveSuggestions}
                     onChange={this.onPersonPicker_change}
+                    onInputChange={this.onPersonPicker_inputChange}
                     itemLimit={1}
+                    componentRef={this.componetRefCall}
                 />
             </div>
         );
+    }
+
+    protected onPersonPicker_inputChange = (input: string): string => {
+        console.log('input change');
+        return input;
+    }
+
+    protected componetRefCall = (component?: IBasePicker<IPersonaProps>): void => {
+
+        this._picker = component;
+
+        if(this.props.placeholder) {
+            let input = component['input'].current._inputElement.current as HTMLInputElement;
+            input.placeholder = this.props.placeholder;
+        }
+
     }
 
     protected onPersonPicker_change = (items?: IPersonaProps[]): void => {
@@ -69,19 +95,27 @@ export default class PeoplePicker extends React.Component<PeoplePickerProps, Peo
             let currPersons = [];
             let histPersons = [];
             let p = [];
-            
-            p.push(this._searchPeople(filter).then(persons => {
-                currPersons = persons;
-            }));
-            
-            p.push(this._searchManagedProperty(filter, "Author").then(persons => {
-                histPersons = persons;
-            }));
 
-            return Promise.all(p).then(() => {
-                histPersons = this._cleanMultivalueResults(histPersons, filter);
-                return this._removeDuplicates(currPersons.concat(histPersons));
+            if(this._timerId) {
+                clearTimeout(this._timerId);
+            }
+
+            return this._delay(this._pauseDuration).then(() => {
+
+                p.push(this._searchPeople(filter).then(persons => {
+                    currPersons = persons;
+                }));
+                
+                p.push(this._searchManagedProperty(filter, "Author").then(persons => {
+                    histPersons = persons;
+                }));
+
+                return Promise.all(p).then(() => {
+                    histPersons = this._cleanMultivalueResults(histPersons, filter);
+                    return this._removeDuplicates(currPersons.concat(histPersons));
+                });
             });
+
         } else {
             return Promise.resolve([]);
         }
@@ -145,6 +179,15 @@ export default class PeoplePicker extends React.Component<PeoplePickerProps, Peo
 
         });
 
+    }
+
+    private _delay(ms: number, args?: any): Promise<any> {
+        let timerId: number;
+
+        return new Promise((resolve, reject) => {
+            timerId = setTimeout(resolve.bind(null, args), ms) as any;
+            this._timerId = timerId;
+        });
     }
 
     private _removeDuplicates(persons: Array<IPersonaProps>): Array<IPersonaProps> {

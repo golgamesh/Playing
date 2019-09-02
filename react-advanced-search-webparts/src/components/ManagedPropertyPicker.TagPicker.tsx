@@ -92,7 +92,7 @@ export default class ManagedPropertyPicker extends React.Component<IManagedPrope
         let timerId: number;
 
         return new Promise((resolve, reject) => {
-            timerId = setTimeout(resolve.bind(null, args), ms);
+            timerId = setTimeout(resolve.bind(null, args), ms) as any;
             this._timerId = timerId;
         });
     }

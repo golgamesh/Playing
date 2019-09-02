@@ -115,7 +115,7 @@ export default class SearchQueryBuilder {
             var oper: Model.SearchOperator = field.value['operator'] || field.operator;
             var dateVal: IDateRangeValue = <IDateRangeValue> field.value;
             var numbVal: INumberRangeValue = <any> field.value;
-            
+
             if(field.type === Model.PropertyValueType.DateTime) {
                 if(!dateVal.date || (dateVal.operator === DateRangeOperator.Between && !dateVal.dateEnd)){
                     // skip if range value is invalid
@@ -132,6 +132,8 @@ export default class SearchQueryBuilder {
                 case Model.SearchOperator.Equals:
                     if(field.type === Model.PropertyValueType.Numeric) {
                         criteria.push(prop + '=' + value);
+                    } else if(field.type === Model.PropertyValueType.Person) {
+                        criteria.push(prop + ':"*' + value + '*"');
                     } else {
                         criteria.push(prop + ':"' + value + '"');
                     }
