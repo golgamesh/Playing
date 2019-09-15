@@ -95,7 +95,7 @@ export default class AdvancedSearchWebPart extends BaseClientSideWebPart<IAdvanc
     const element: React.ReactElement<IAdvancedSearchProps> = React.createElement(
       AdvancedSearch,
       <IAdvancedSearchProps> {
-        config: this.properties.searchConfig,
+        config: this._deepCopyConfig(this.properties.searchConfig),
         isDebug: this.properties.isDebug,
         context: this.context,
         startMinimized: this.properties.startMinimized,
@@ -125,6 +125,16 @@ export default class AdvancedSearchWebPart extends BaseClientSideWebPart<IAdvanc
         field.propIndex = idx;
       });
     }
+  }
+
+  private _deepCopyConfig(config: Array<Model.ISearchProperty>): Array<Model.ISearchProperty> {
+    let copy: Array<Model.ISearchProperty> = [];
+
+    config.forEach(p =>{
+      copy.push({ ...p });
+    });
+
+    return copy;
   }
 
   protected onPropertyPaneConfigurationStart(): void {
