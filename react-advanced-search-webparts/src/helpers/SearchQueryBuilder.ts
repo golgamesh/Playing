@@ -1,6 +1,7 @@
 import * as Model from '../model/AdvancedSearchModel';
 import { IDateRangeValue, DateRangeOperator } from '../components/DateRange';
 import { INumberRangeValue, NumberRangeOperator } from '../components/NumberRange';
+import { IPersonaProps } from 'office-ui-fabric-react/lib/Persona';
 
 export default class SearchQueryBuilder {
     constructor () {
@@ -106,7 +107,7 @@ export default class SearchQueryBuilder {
         for (var i = 0; i < properties.length; i++) {
             var field: Model.ISearchProperty = properties[i];
             var prop: string = field.property;
-            var value: string | number | IDateRangeValue | INumberRangeValue = field.value;
+            var value: string | number | IDateRangeValue | INumberRangeValue | Array<IPersonaProps> = field.value;
 
             if(!value) {
                 continue;
@@ -115,6 +116,11 @@ export default class SearchQueryBuilder {
             var oper: Model.SearchOperator = field.value['operator'] || field.operator;
             var dateVal: IDateRangeValue = <IDateRangeValue> field.value;
             var numbVal: INumberRangeValue = <any> field.value;
+            var perVal: Array<IPersonaProps> = <any> field.value;
+
+            if(perVal.length === 0) {
+                continue;
+            }
 
             if(field.type === Model.PropertyValueType.DateTime) {
                 if(!dateVal.date || (dateVal.operator === DateRangeOperator.Between && !dateVal.dateEnd)){
@@ -133,7 +139,8 @@ export default class SearchQueryBuilder {
                     if(field.type === Model.PropertyValueType.Numeric) {
                         criteria.push(prop + '=' + value);
                     } else if(field.type === Model.PropertyValueType.Person) {
-                        criteria.push(prop + ':"*' + value + '*"');
+                        let name = perVal[0].text;
+                        criteria.push(prop + ':"*' + name + '*"');
                     } else {
                         criteria.push(prop + ':"' + value + '"');
                     }
@@ -159,25 +166,26 @@ export default class SearchQueryBuilder {
                     }
                     break;
                 case Model.SearchOperator.LessThanEqual:
-                    criteria.push(prop + '<=' + value);
+                    criteria.push(prop + '<=' + numbVal.number);
                     break;
                 case Model.SearchOperator.Before:
                     //LastModifiedTime<=2018-06-30T04:00:00.000Z
                     //add day to include selected date in results
-                    criteria.push(prop + '<=' + this._addDays(new Date(value as string), 1).toISOString());
+                    criteria.push(prop + '<=' + this._addDays(dateVal.date, 1).toISOString());
                     //searchString += prop + '<=' + this._addDays(new Date(value as string), 1).toISOString();
                     break;
                 case Model.SearchOperator.GreaterThanEqual:
                 case Model.SearchOperator.After:
                     //LastModifiedTime>=2018-06-30T04:00:00.000Z
                     //searchString += prop + '>=' + value;
-                    criteria.push(prop + '>=' + value);
+                    let val = numbVal.number || dateVal.date.toISOString();
+                    criteria.push(prop + '>=' + val);
                     break;
                 case Model.SearchOperator.GreatherThan:
-                    criteria.push(prop + '>' + value);
+                    criteria.push(prop + '>' + numbVal.number);
                     break;
                 case Model.SearchOperator.LessThan:
-                    criteria.push(prop + '<' + value);
+                    criteria.push(prop + '<' + numbVal.number);
                     break;
                 default:
                     console.log('Unexpected Operator: ', oper);

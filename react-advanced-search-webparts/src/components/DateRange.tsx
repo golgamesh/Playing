@@ -119,16 +119,18 @@ export interface IDateRangeValue {
 export default class DateRange extends React.Component<IDateRangeProps, {}> {
     constructor(props: IDateRangeProps) {
         super(props);
-
+/* 
         if(!props.value) {                                                  // If initial value is not set
             props.value = DateRange.emptyValue;                             // Default to empty date range value
-        }
+        } */
 
-        let dateEndClass = props.value.operator === DateRangeOperator.Between ? '' : styles.dateEndHidden;
+        let value = props.value || DateRange.emptyValue;
+
+        let classNameDateEnd = value.operator === DateRangeOperator.Between ? '' : styles.dateEndHidden;
 
         this.state = {                                                      // Initialize State Object
-            classNameDateEnd: dateEndClass,                                 // Set CSS class for revealing 2nd date control
-            value: props.value                                              // Set initial date range value
+            classNameDateEnd,                                 // Set CSS class for revealing 2nd date control
+            value                                              // Set initial date range value
         } as IDateRangeState;
         
         this._populateOptions();                                            // Populate drop down control
@@ -221,9 +223,9 @@ export default class DateRange extends React.Component<IDateRangeProps, {}> {
                         onSelectDate={date => this._onSelectDate_end(date)} 
                         formatDate={this._onFormatDate}
                         className={this.state.classNameDateEnd}
-                        minDate={this.props.value.date}
+                        minDate={this.state.value.date}
                         strings={this.dateRangeStrings}
-                        isRequired={this.props.value.date !== null && this.props.value.operator === DateRangeOperator.Between}
+                        isRequired={this.state.value.date !== null && this.state.value.operator === DateRangeOperator.Between}
                     />
                 </div>
             </div>
@@ -326,6 +328,7 @@ export default class DateRange extends React.Component<IDateRangeProps, {}> {
      * Generator options for the date range operator dropdown menu
      */
     protected _populateOptions(): void {
+        let value = this.props.value || DateRange.emptyValue
         for (let opName in DateRangeOperator) {                                 // Loop through DateRangeOperator values
             let op = DateRangeOperator[opName];
             this._options.push({                                            // Create a new option for each operator
@@ -334,7 +337,7 @@ export default class DateRange extends React.Component<IDateRangeProps, {}> {
                 data: {
                     value: op
                 },
-                selected: (op === this.props.value.operator) ? true : undefined       // Mark the correct one as selected
+                selected: (op === value.operator) ? true : undefined       // Mark the correct one as selected
             } as IDropdownOption);
         }
     }

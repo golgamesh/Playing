@@ -23,6 +23,8 @@ import * as Model from '../../../model/AdvancedSearchModel';
 import styles from './AdvancedSearch.module.scss';
 import DropdownResettable, { IDropdownResettableOption } from '../../../components/DropdownResettable';
 import { IPersonaProps } from 'office-ui-fabric-react/lib/Persona';
+import { FieldTypes } from '@pnp/sp';
+import { IBasePicker } from 'office-ui-fabric-react/lib/Pickers';
 
 const AdvancedMinimized: string = `${styles.pnlAdvanced} ${styles.pnlAdvancedMinimized}`;
 const AdvancedExpanded: string = styles.pnlAdvanced;
@@ -65,6 +67,7 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
     private readonly columns: number = 2;
     private readonly fieldHeight: number = 61;
     private readonly buttonRowHeight: number = 62;
+    private fieldRefs: Array<PeoplePicker> = [];
 
     public componentWillMount(): void {
 
@@ -89,9 +92,9 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
         let rows: JSX.Element[] = [];
         let key: number = 1;
 
-        const { config: searchModel } = this.state;
+        const { config } = this.state;
 
-        searchModel.forEach((field: Model.ISearchProperty, i: number) => {
+        config.forEach((field: Model.ISearchProperty, i: number) => {
 
             switch(field.type) {
                 case Model.PropertyValueType.Int32:
@@ -134,7 +137,7 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
                                 onChanged={(e) => this.ctrl_changed(e, field)}
                                 data-index={i}
                                 type={"numeric"}
-                                value={field.value ? field.value.toString() : ''}
+                                //value={field.value ? field.value.toString() : ''}
                                 key={key++} 
                             />);
 
@@ -143,12 +146,15 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
                     break;
                 case Model.PropertyValueType.Person:
                     controls.push(<PeoplePicker
-                            onResolveSuggestions={null}
                             onChanged={e => this.ctrl_changed(e, field)}
                             label={field.name}
+                            componentRef={(component: PeoplePicker): void => {
+                                this.fieldRefs.push(component);
+                            }}
                             placeholder={field.operator}
                             data-index={i}
-                            key={key++} 
+                            key={key++}
+                            //selectedItems={field.value as Array<IPersonaProps>}
                         />);
                     break;
                 case Model.PropertyValueType.Boolean:
@@ -159,7 +165,7 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
                             //onChange={e => this.ctrl_change(e, field)}
                             onChanged={e => this.ctrl_changed(e, field)}
                             options={field.propertyChoices as IDropdownResettableOption[]}
-                            selectedKey={field.choicesSelectedKey as any}
+                            //selectedKey={field.choicesSelectedKey as any}
                             data-index={i} 
                             key={key++} 
                         />);
@@ -174,7 +180,7 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
                             placeHolder={field.name} 
                             label={field.name}
                             onChanged={e => this.ctrl_changed(e, field)}
-                            value={field.data.value as any}
+                            //value={field.data.value as any}
                             data-index={i}
                             key={key++}
                         />);
@@ -204,9 +210,7 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
         
         return (
             <div className={styles.searchInterface}>
-                <div>
-                    {this.keywordSearch()}
-                </div>
+                {this.keywordSearch()}
                 <div 
                     className={this.state.classNameAdvanced}
                     style={{
@@ -327,10 +331,18 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
 
         config.forEach((field: Model.ISearchProperty) => {
 
-            if(field.type == Model.PropertyValueType.DateTime) {
+            if(field.type === Model.PropertyValueType.DateTime) {
                 field.data.value = null;
             } else if(field.type === Model.PropertyValueType.Numeric) {
                 field.value = null;
+            } else if(field.type === Model.PropertyValueType.Person) {
+                field.value = null;
+                let refs = this.fieldRefs.filter(r => r.props['data-index'] === field.propIndex);
+                if(refs.length) {
+                    let ref = refs[0];
+                    ref.reset();
+                }
+
             } else if(this._hasChoices(field) || field.type === Model.PropertyValueType.Boolean) {
 
                 field.choicesSelectedKey = null;
@@ -357,13 +369,21 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
 
     protected ctrl_changed(val: any, field: Model.ISearchProperty): void {
         
-        let newOptions = { ...this.state.config } as Array<Model.ISearchProperty>;
-        let newProp = newOptions[field.propIndex];
-        newProp.value = (!!val && val.value !== undefined) ? val.value : val;
+        //let config = [ ...this.state.config ] as Array<Model.ISearchProperty>;
+        //let newProp = config[field.propIndex];
+        //newProp.value = (!!val && val.value !== undefined) ? val.value : val;
+        //newProp.value = val;
 
+        field.value = val;
+/* 
+        this.setState({
+            ...this.state,
+            config
+        }); */
+
+/* 
         if(field.type === Model.PropertyValueType.DateTime) {
             let drVal = val as IDateRangeValue;
-/* 
             newProp.data.value = drVal;
             newProp.operator = drVal.operator as any;
 
@@ -373,18 +393,23 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
 
             if(drVal.operator === DateRangeOperator.Between && drVal.dateEnd) {
                 newProp.value += ';' + drVal.dateEnd;
-            } */
+            }
 
             //newProp.operator = drVal.operator.internal as any;
             newProp.value = drVal;
 
+        } */
+/* 
+        if(field.type === Model.PropertyValueType.Person) {
+            let perVal = val as Array<IPersonaProps>;
+            newProp.value = perVal;
         }
 
         if(field.type === Model.PropertyValueType.Numeric) {
             let numVal = val as INumberRangeValue;
             //newProp.operator = numVal.operator.internal as any;
             newProp.value = numVal;
-        }
+        } */
 
     }
 
@@ -400,7 +425,7 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
 
         controls.forEach((control: JSX.Element, i: number) => {
             cells.push(
-                <div className="ms-Grid-col ms-sm12 ms-xl6 ms-xxl4" key={key++}>{control}</div>
+                <div className="ms-Grid-col ms-sm12 ms-xl6" key={key++}>{control}</div>
             );
         });
         return (
@@ -451,9 +476,7 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
                         value
                     } as Model.ISearchPropertyChoice);
                 });
-
             }
-
         });
     }
 }

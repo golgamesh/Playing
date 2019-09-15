@@ -148,22 +148,25 @@ export interface INumberRangeValue {
 export default class NumberRange extends React.Component<INumberRangeProps, INumberRangeState> {
     constructor(props: INumberRangeProps) {
         super(props);
-
+/* 
         if(!props.value) {                                                  // If initial value is not set
-            props.value = NumberRange.emptyValue;                             // Default to empty date range value
-        }
+            props.value = { ...this.emptyValue() };                    // Default to empty date range value
+        } */
 
-        let numberEndClass = props.value.operator === NumberRangeOperator.Between ? '' : styles.numberEndHidden;
+        let value = props.value || NumberRange.emptyValue 
+
+        let classNameNumberEnd = value.operator === NumberRangeOperator.Between ? '' : styles.numberEndHidden;
 
         this.state = {
-            classNameNumberEnd: numberEndClass,
-            value: props.value
+            classNameNumberEnd,
+            value
         } as INumberRangeState;
 
         this._populateOptions();
     }
 
     public state: INumberRangeState;
+
     public static get emptyValue(): INumberRangeValue {
         return {
             operator: NumberRangeOperator.Equals,
@@ -171,7 +174,7 @@ export default class NumberRange extends React.Component<INumberRangeProps, INum
             numberEnd: null
         };
     }
-
+    
     private _options: Array<IDropdownOption> = [];
 
     public render(): React.ReactElement<INumberRangeProps> {
@@ -188,14 +191,14 @@ export default class NumberRange extends React.Component<INumberRangeProps, INum
                     />
 
                     <TextField
-                        value={this.state.value.number as any}
+                        value={this.state.value.number || '' as any}
                         onChanged={this.onNumber1_changed}
                         placeholder={NumberRangeOperatorMeta[this.state.value.operator].placeholder1}
                         type={"number"}
                     />
 
                     <TextField
-                        value={this.state.value.numberEnd as any}
+                        value={this.state.value.numberEnd || '' as any}
                         onChanged={this.onNumber2_changed} 
                         placeholder={NumberRangeOperatorMeta[this.state.value.operator].placeholder2}
                         className={this.state.classNameNumberEnd}
@@ -281,6 +284,7 @@ export default class NumberRange extends React.Component<INumberRangeProps, INum
      * Generator options for the number range operator dropdown menu
      */
     protected _populateOptions(): void {
+        let value = this.props.value || NumberRange.emptyValue;
         for (let opName in NumberRangeOperator) {                               // Loop through DateRangeOperator values
             let op = NumberRangeOperator[opName];
             this._options.push({                                            // Create a new option for each operator
@@ -289,7 +293,7 @@ export default class NumberRange extends React.Component<INumberRangeProps, INum
                 data: {
                     value: op
                 },
-                selected: (op === this.props.value.operator) ? true : undefined       // Mark the correct one as selected
+                selected: (op === value.operator) ? true : undefined       // Mark the correct one as selected
             } as IDropdownOption);
         }
     }

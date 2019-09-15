@@ -16,11 +16,13 @@ import { IPersonaProps } from 'office-ui-fabric-react/lib/Persona';
 import { Label } from 'office-ui-fabric-react/lib/Label';
 import styles from './PeoplePicker.module.scss';
 
-export interface PeoplePickerProps extends IPeoplePickerProps {
+export interface PeoplePickerProps {
     label?: string;
     placeholder?: string;
     ManagedProperty?: string;
-    onChanged?: Function;  
+    onChanged?: Function;
+    selectedItems?: Array<IPersonaProps>;
+    componentRef?: (component?: PeoplePicker) => void;   
 }
 
 export interface PeoplePickerState {
@@ -39,14 +41,14 @@ export default class PeoplePicker extends React.Component<PeoplePickerProps, Peo
         super(props);
 
         this.state = {
-
+            //selectedItems: props.selectedItems
         } as PeoplePickerState;
     }
 
     public state: PeoplePickerState;
     public RowLimit = 5;
     private _timerId: number;
-    private _pauseDuration: number = 1000;
+    private _pauseDuration: number = 500;
     private _picker: IBasePicker<IPersonaProps>;
 
     
@@ -59,10 +61,41 @@ export default class PeoplePicker extends React.Component<PeoplePickerProps, Peo
                     onChange={this.onPersonPicker_change}
                     onInputChange={this.onPersonPicker_inputChange}
                     itemLimit={1}
-                    componentRef={this.componetRefCall}
+                    componentRef={this.componentRefCall}
+                    //selectedItems={this.props.selectedItems}
                 />
             </div>
         );
+    }
+
+    public componentDidMount() {
+        const { componentRef } = this.props;
+        componentRef && componentRef(this);
+    }
+
+    public componentWillUnmount() {
+        const { componentRef } = this.props;
+        componentRef && componentRef(undefined);
+    }
+
+    /**
+     * Life cycle event handler
+     * @param nextProps new incoming props
+     */
+    public componentWillReceiveProps(nextProps: PeoplePickerProps): void {
+        let selectedItems = nextProps.selectedItems || [];
+        this.setState({
+            ...this.state,
+            selectedItems
+        } as PeoplePickerState,
+        () => this._setPlaceholder());
+    }
+
+    public reset(): void {
+        this._picker['setState']({
+            ...this._picker['state'],
+            items: []
+        });
     }
 
     protected onPersonPicker_inputChange = (input: string): string => {
@@ -70,21 +103,22 @@ export default class PeoplePicker extends React.Component<PeoplePickerProps, Peo
         return input;
     }
 
-    protected componetRefCall = (component?: IBasePicker<IPersonaProps>): void => {
+    protected componentRefCall = (component?: IBasePicker<IPersonaProps>): void => {
 
         this._picker = component;
 
-        if(this.props.placeholder) {
-            let input = component['input'].current._inputElement.current as HTMLInputElement;
-            input.placeholder = this.props.placeholder;
-        }
+        this._setPlaceholder();
 
     }
 
     protected onPersonPicker_change = (items?: IPersonaProps[]): void => {
 
         if(typeof this.props.onChanged === 'function') {
-            this.props.onChanged(items.length ? items[0].primaryText : null);
+            this.props.onChanged(items.length ? items : []);
+        }
+
+        if(items.length === 0) {
+            this._setPlaceholder();
         }
 
     }
@@ -121,6 +155,18 @@ export default class PeoplePicker extends React.Component<PeoplePickerProps, Peo
         }
     }
 
+    private _setPlaceholder(): void {
+        if(this.props.placeholder && this._picker) {
+            let p: any = this._picker;
+            if(p.input && p.input.current && p.input.current._inputElement) {
+                let input: HTMLInputElement = p.input.current._inputElement.current;
+                if(input && !input.value) {
+                    input.placeholder = this.props.placeholder;
+                }   
+            }
+        }
+    }
+
     private _searchPeople(searchTerms: string): Promise<Array<IPersonaProps>> {
         let SelectProperties = [
             "PreferredName",
@@ -144,7 +190,7 @@ export default class PeoplePicker extends React.Component<PeoplePickerProps, Peo
                 return {
                     secondaryText: row.JobTitle,
                     imageUrl: row.PictureURL,
-                    primaryText: row.PreferredName
+                    text: row.PreferredName
                 } as IPersonaProps;
             });
         });
@@ -173,7 +219,7 @@ export default class PeoplePicker extends React.Component<PeoplePickerProps, Peo
                 return {
                     secondaryText: '',
                     imageUrl: '',
-                    primaryText: row.Author
+                    text: row.Author
                 } as IPersonaProps;
             });
 
@@ -193,8 +239,8 @@ export default class PeoplePicker extends React.Component<PeoplePickerProps, Peo
     private _removeDuplicates(persons: Array<IPersonaProps>): Array<IPersonaProps> {
         let unique = {};
         persons.forEach(p => {
-          if(!unique[p.primaryText]) {
-            unique[p.primaryText] = p;
+          if(!unique[p.text]) {
+            unique[p.text] = p;
           }
         });
         let arr: Array<IPersonaProps> = [];
@@ -206,27 +252,27 @@ export default class PeoplePicker extends React.Component<PeoplePickerProps, Peo
     }
 
     private _cleanMultivalueResults(persons: Array<IPersonaProps>, searchTerm: string): Array<IPersonaProps> {
-        let multis = persons.filter(p => p.primaryText.indexOf(';') !== -1);
+        let multis = persons.filter(p => p.text.indexOf(';') !== -1);
         let lowerTerm = searchTerm.toLowerCase();
 
         multis.forEach(p => {
-            let lowerString = p.primaryText.toLowerCase();
+            let lowerString = p.text.toLowerCase();
             if(lowerString.indexOf(lowerTerm) === -1) {
-               p.primaryText = '';
+               p.text = '';
                return;
             }
             let lowerNames = lowerString.split(';');
-            let properNames = p.primaryText.split(';');
+            let properNames = p.text.split(';');
             for(let i = 0; i < lowerNames.length; i++) {
                 let n = lowerNames[i];
                 if(n.indexOf(lowerTerm) !== -1) {
-                    p.primaryText = properNames[i];
+                    p.text = properNames[i];
                     break;
                 }
             }
         });
 
-        return persons.filter(p => p.primaryText !== '');
+        return persons.filter(p => p.text !== '');
     }
     
 }

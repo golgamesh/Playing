@@ -3,6 +3,7 @@ import { IColumn } from 'office-ui-fabric-react/lib/DetailsList';
 import { IDateRangeValue, DateRangeOperator } from '../components/DateRange';
 import { IDropdownOption } from 'office-ui-fabric-react/lib/Dropdown';
 import { INumberRangeValue, NumberRangeOperator } from '../components/NumberRange';
+import { IPersonaProps } from 'office-ui-fabric-react/lib/Persona';
 
 export interface ISearchProperty {
     name: string;
@@ -11,7 +12,7 @@ export interface ISearchProperty {
     type: PropertyValueType;
     //control?: SearchControlType;
     //options?: ISearchPropertyOptions;
-    value?: string | number | undefined | IDateRangeValue | INumberRangeValue;
+    value?: string | number | undefined | IDateRangeValue | INumberRangeValue | Array<IPersonaProps>;
     propIndex?: number;
     choices?: String;
     propertyChoices?: Array<ISearchPropertyChoice>;
