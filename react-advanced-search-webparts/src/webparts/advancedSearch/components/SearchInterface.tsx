@@ -1,5 +1,5 @@
 import { DefaultButton, PrimaryButton } from 'office-ui-fabric-react/lib/Button';
-import { TextField, ITextFieldProps } from 'office-ui-fabric-react/lib/TextField';
+import { TextField, ITextFieldProps, ITextField } from 'office-ui-fabric-react/lib/TextField';
 import { 
     Dropdown,
     IDropdown,
@@ -50,7 +50,6 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
 
     constructor(props: ISearchInterfaceProps) {
         super(props);
-        console.log('Interfaceprops: ', props);
 
         this._conformPropertyChoices(props.config);
         this.state = {
@@ -67,7 +66,7 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
     private readonly columns: number = 2;
     private readonly fieldHeight: number = 61;
     private readonly buttonRowHeight: number = 62;
-    private fieldRefs: Array<PeoplePicker> = [];
+    private fieldRefs: any = {};
 
     public componentWillMount(): void {
 
@@ -136,7 +135,11 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
                                 label={field.name} 
                                 onChanged={(e) => this.ctrl_changed(e, field)}
                                 data-index={i}
-                                type={"numeric"}
+                                type={field.type === Model.PropertyValueType.Numeric ? "numeric" : ""}
+                                componentRef={(component: ITextField): void => {
+                                    this.fieldRefs[field.property] = component;
+                                }}
+                                autoComplete={"off"}
                                 //value={field.value ? field.value.toString() : ''}
                                 key={key++} 
                             />);
@@ -149,7 +152,7 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
                             onChanged={e => this.ctrl_changed(e, field)}
                             label={field.name}
                             componentRef={(component: PeoplePicker): void => {
-                                this.fieldRefs.push(component);
+                                this.fieldRefs[field.property] = component;
                             }}
                             placeholder={field.operator}
                             data-index={i}
@@ -249,6 +252,7 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
                         value={this.state.keywordSearch}
                         onChanged={this.keywordSearch_changed}
                         autoFocus={true}
+                        autoComplete={"off"}
                         onRenderPrefix={(props: ITextFieldProps): JSX.Element => {
                             return (
                                 <DefaultButton
@@ -333,16 +337,19 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
 
             if(field.type === Model.PropertyValueType.DateTime) {
                 field.data.value = null;
-            } else if(field.type === Model.PropertyValueType.Numeric) {
-                field.value = null;
+            } else if(field.type === Model.PropertyValueType.Numeric ||
+                      field.type === Model.PropertyValueType.String) {
+                if(field.operator === Model.SearchOperator.NumberRange) {
+                    field.value = null;
+                } else {
+                    field.value = null;
+                    let ref: TextField = this.fieldRefs[field.property];
+                    this._resetTextfield(ref);
+                }
             } else if(field.type === Model.PropertyValueType.Person) {
                 field.value = null;
-                let refs = this.fieldRefs.filter(r => r.props['data-index'] === field.propIndex);
-                if(refs.length) {
-                    let ref = refs[0];
-                    ref.reset();
-                }
-
+                let ref: PeoplePicker = this.fieldRefs[field.property];
+                ref.reset();
             } else if(this._hasChoices(field) || field.type === Model.PropertyValueType.Boolean) {
 
                 field.choicesSelectedKey = null;
@@ -417,6 +424,15 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
         return (
             <div className="ms-Grid" key={key++}>{rows}</div>
         );
+    }
+
+    private _resetTextfield(field: ITextField): void {
+
+        field['setState']({
+            ...field['state'],
+            value: ''
+        });
+
     }
 
     private _row(controls: JSX.Element[], key: number): JSX.Element {

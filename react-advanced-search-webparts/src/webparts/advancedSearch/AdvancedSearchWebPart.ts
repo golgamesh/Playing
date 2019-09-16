@@ -260,8 +260,8 @@ export default class AdvancedSearchWebPart extends BaseClientSideWebPart<IAdvanc
                                   selected: true
                                 }
                               ];
-                              if(value !== 'DateRange') {
-                                onUpdate(field.id, 'DateRange');
+                              if(value !== Model.SearchOperator.DateRange) {
+                                onUpdate(field.id, Model.SearchOperator.DateRange);
                               }
                             break;
                           case Model.PropertyValueType.String:

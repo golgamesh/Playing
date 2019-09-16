@@ -146,7 +146,16 @@ export default class PeoplePicker extends React.Component<PeoplePickerProps, Peo
 
                 return Promise.all(p).then(() => {
                     histPersons = this._cleanMultivalueResults(histPersons, filter);
-                    return this._removeDuplicates(currPersons.concat(histPersons));
+                    let matches = this._removeDuplicates(currPersons.concat(histPersons));
+                    let exact = matches.filter(m => {
+                        return (m.text || "").toLowerCase() === filter.toLowerCase();
+                    });
+                    if(exact.length > 0) {
+                        let match = exact[0];
+                        selectedItems.push(match);
+                        return [];
+                    }
+                    return matches;
                 });
             });
 
@@ -182,8 +191,10 @@ export default class PeoplePicker extends React.Component<PeoplePickerProps, Peo
             SourceId,
             EnablePhonetic
         };
+
+        let query = `${searchTerms}*`; 
         
-        const q = SearchQueryBuilder(searchTerms, queryOptions);
+        const q = SearchQueryBuilder(query, queryOptions);
 
         return sp.search(q).then((r: SearchResults) => {
             return r.PrimarySearchResults.map((row: PeopleSearchResult) => {
@@ -214,14 +225,22 @@ export default class PeoplePicker extends React.Component<PeoplePickerProps, Peo
         const q = SearchQueryBuilder(searchTerms, queryOptions);
 
         return sp.search(q).then((r: SearchResults) => {
-            console.log('results: ', r.PrimarySearchResults);
-            return r.PrimarySearchResults.map(row => {
-                return {
-                    secondaryText: '',
-                    imageUrl: '',
-                    text: row.Author
-                } as IPersonaProps;
-            });
+            try {
+                if(r.RowCount) {
+                    console.log('results: ', r.PrimarySearchResults);
+                    return r.PrimarySearchResults.map(row => {
+                        return {
+                            secondaryText: '',
+                            imageUrl: '',
+                            text: row.Author
+                        } as IPersonaProps;
+                    });
+                } else {
+                    return [];
+                }
+            } catch(err)  {
+                return [];
+            }
 
         });
 
