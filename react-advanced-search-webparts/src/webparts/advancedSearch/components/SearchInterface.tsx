@@ -115,16 +115,15 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
                         
                         if(this._hasChoices(field)) {
                             
-                        controls.push(<DropdownResettable
-                                placeHolder={field.operator}
-                                label={field.name}
-                                options={field.propertyChoices as IDropdownResettableOption[]}
-                                selectedKey={field.choicesSelectedKey as any}
-                                //onChange={e => this.ctrl_change(e, field)}
-                                onChanged={e => this.ctrl_changed(e, field)}
-                                data-index={i}
-                                key={key++} 
-                            />);
+                            controls.push(<DropdownResettable
+                                    placeHolder={field.operator}
+                                    label={field.name}
+                                    options={field.propertyChoices as IDropdownResettableOption[]}
+                                    selectedKey={field.choicesSelectedKey as any}
+                                    onChanged={e => this.ctrl_changed(e, field)}
+                                    data-index={i}
+                                    key={key++} 
+                                />);
 
                         }
                         else {
@@ -297,7 +296,6 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
     }
 
     protected resettableChanged(selected: IDropdownOption): void {
-        console.log('resettable changed');
 
         this.setState({
             ...this.state,
@@ -306,11 +304,10 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
     }
 
     public formChange(): void {
-        console.log('form change');
+
     }
 
     protected btnAdvanced_click = (e: React.MouseEvent<any>): void => {
-        console.log('click');
         let { showAdvanced } = this.state;
 
         showAdvanced = !showAdvanced;
@@ -342,9 +339,13 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
                 if(field.operator === Model.SearchOperator.NumberRange) {
                     field.value = null;
                 } else {
-                    field.value = null;
-                    let ref: TextField = this.fieldRefs[field.property];
-                    this._resetTextfield(ref);
+                    if(field.choices) {
+                        field.choicesSelectedKey = '';
+                    } else {
+                        field.value = null;
+                        let ref: TextField = this.fieldRefs[field.property];
+                        this._resetTextfield(ref);
+                    }
                 }
             } else if(field.type === Model.PropertyValueType.Person) {
                 field.value = null;

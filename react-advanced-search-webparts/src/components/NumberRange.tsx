@@ -5,7 +5,7 @@ import {
     DropdownMenuItemType, 
     IDropdownOption 
 } from 'office-ui-fabric-react/lib/Dropdown';
-import { TextField } from 'office-ui-fabric-react/lib/TextField';
+import { TextField, ITextField } from 'office-ui-fabric-react/lib/TextField';
 import { Label } from 'office-ui-fabric-react/lib/Label';
 import styles from './NumberRange.module.scss';
 import * as strings from 'AdvancedSearchWebPartStrings';
@@ -166,6 +166,7 @@ export default class NumberRange extends React.Component<INumberRangeProps, INum
     }
 
     public state: INumberRangeState;
+    private _textFieldNumberEnd: ITextField;
 
     public static get emptyValue(): INumberRangeValue {
         return {
@@ -193,7 +194,9 @@ export default class NumberRange extends React.Component<INumberRangeProps, INum
                     <TextField
                         value={this.state.value.number || '' as any}
                         onChanged={this.onNumber1_changed}
+                        onBlur={this.onNumber1_blur}
                         placeholder={NumberRangeOperatorMeta[this.state.value.operator].placeholder1}
+                        autoComplete={"off"}
                         type={"number"}
                     />
 
@@ -201,8 +204,14 @@ export default class NumberRange extends React.Component<INumberRangeProps, INum
                         value={this.state.value.numberEnd || '' as any}
                         onChanged={this.onNumber2_changed} 
                         placeholder={NumberRangeOperatorMeta[this.state.value.operator].placeholder2}
+                        autoComplete={"off"}
                         className={this.state.classNameNumberEnd}
+                        componentRef={(component: ITextField):void => {
+                            this._textFieldNumberEnd = component;
+                        }}
+                        validateOnFocusIn={true}
                         type={"number"}
+                        onGetErrorMessage={v => this.onGetErrorMessage(v)}
                     />
 
                 </div>
@@ -239,7 +248,16 @@ export default class NumberRange extends React.Component<INumberRangeProps, INum
                 number: newValue ? parseInt(newValue) : null
             } as INumberRangeValue
         },
-        () => this._changed());
+        () => {
+            this._changed(); 
+        });
+    }
+
+    protected onNumber1_blur = (event: React.FocusEvent<HTMLInputElement>): void => {
+        let { operator } = this.state.value;
+        if(operator === NumberRangeOperator.Between) {
+            this._textFieldNumberEnd.focus();
+        }
     }
 
     protected onNumber2_changed = (newValue: string): void => {
@@ -253,6 +271,19 @@ export default class NumberRange extends React.Component<INumberRangeProps, INum
         },
         () => this._changed());
 
+    }
+
+    protected onGetErrorMessage (numberEnd: string): string {
+        let  {number, operator } = this.state.value;
+        if(operator === NumberRangeOperator.Between) {
+            if(number !== null && numberEnd === null || numberEnd == '') {
+                return 'Required field';
+            }
+            if(parseInt(numberEnd) < this.state.value.number) {
+                return 'Must be greater than lower bounds';
+            }
+        }
+        return '';
     }
 
     protected onOperator_changed (optionOrValue: NumberRangeOperator): void;

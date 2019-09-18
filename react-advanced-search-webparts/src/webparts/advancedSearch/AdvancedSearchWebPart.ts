@@ -250,9 +250,9 @@ export default class AdvancedSearchWebPart extends BaseClientSideWebPart<IAdvanc
                       title: 'Operator',
                       required: true,
                       type: CustomCollectionFieldType.custom,
-                      onCustomRender: (field, value, onUpdate, item, itemId) => {
+                      onCustomRender: (field, value: Model.SearchOperator, onUpdate, item: Model.ISearchProperty, itemId) => {
                         let options: Array<IDropdownOption>;
-                        switch(item['type']) {
+                        switch(item.type) {
                           case Model.PropertyValueType.DateTime:
                               options = [{
                                   key: Model.SearchOperator.DateRange,
@@ -316,12 +316,13 @@ export default class AdvancedSearchWebPart extends BaseClientSideWebPart<IAdvanc
                       id: 'choices',
                       title: 'Choices',
                       type: CustomCollectionFieldType.custom,
-                      onCustomRender: (field, val, onUpdate, item, itemId) => {
+                      onCustomRender: (field, val: string, onUpdate, item: Model.ISearchProperty, itemId) => {
                         let disabled: boolean = false;
-                        let type = item['type']; 
-                        let operator = item['operator'];
-                        console.log('operator: ', operator);
-                        if(type === 'DateTime' || type === 'Boolean' || operator === Model.SearchOperator.NumberRange) {
+                        let { type, operator } = item; 
+                        if(type === Model.PropertyValueType.DateTime || 
+                           type === Model.PropertyValueType.Boolean  ||
+                           type === Model.PropertyValueType.Person   || 
+                           operator === Model.SearchOperator.NumberRange) {
                           disabled = true;
                         }
                         return (

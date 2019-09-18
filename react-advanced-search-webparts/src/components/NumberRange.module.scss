@@ -19,6 +19,12 @@
 
     :global .ms-TextField {
         flex-grow: 1;
+        span > div {
+          position: absolute;
+          right:0px;
+          overflow-x: visible;
+          white-space: nowrap;
+        }
     }
 
     input[type=number] {
@@ -35,5 +41,4 @@
             -moz-appearance: number-input;
         } 
     }
-
 }

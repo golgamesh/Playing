@@ -129,8 +129,8 @@ export default class DateRange extends React.Component<IDateRangeProps, {}> {
         let classNameDateEnd = value.operator === DateRangeOperator.Between ? '' : styles.dateEndHidden;
 
         this.state = {                                                      // Initialize State Object
-            classNameDateEnd,                                 // Set CSS class for revealing 2nd date control
-            value                                              // Set initial date range value
+            classNameDateEnd,                                               // Set CSS class for revealing 2nd date control
+            value                                                           // Set initial date range value
         } as IDateRangeState;
         
         this._populateOptions();                                            // Populate drop down control
@@ -215,6 +215,7 @@ export default class DateRange extends React.Component<IDateRangeProps, {}> {
                         value={this.state.value.date}
                         onSelectDate={date => this._onSelectDate(date)} 
                         formatDate={this._onFormatDate}
+                        maxDate={this.state.value.dateEnd}
                         strings={this.dateRangeStrings}
                     />
                     <DatePicker 
@@ -238,13 +239,13 @@ export default class DateRange extends React.Component<IDateRangeProps, {}> {
      */
     public componentWillReceiveProps(nextProps: IDateRangeProps): void {
 
-        let val = nextProps.value || DateRange.emptyValue;
+        let value = nextProps.value || DateRange.emptyValue;
 
         this.setState({                                                     // Update state with new properites
             ...this.state,
-            value: val
+            value
         } as IDateRangeState,
-        () => this._onOperator_changed(val.operator));          // Call operator change handler in case new operator was provided
+        () => this._onOperator_changed(value.operator));          // Call operator change handler in case new operator was provided
     }
 
     /**

@@ -57,7 +57,6 @@ export default class AdvancedSearchResultsWebPart extends BaseClientSideWebPart<
         this.context.pageContext.web.serverRelativeUrl, 
         this.context.spHttpClient);
 
-        console.log(JSON.stringify(this.properties.columns));
 
     });
   }
@@ -65,8 +64,6 @@ export default class AdvancedSearchResultsWebPart extends BaseClientSideWebPart<
   private _sortableProperties: Array<IPropertyPaneDropdownOption> = [];
 
   public render(): void {
-
-    console.log(JSON.stringify(this.properties.columns));
 
     this.resultsConfig = this._parseConfig(this.properties.resultsConfig);
     const searchQuerySource: IDynamicDataSource | undefined = this.properties.searchQuery.tryGetSource();
@@ -151,8 +148,6 @@ export default class AdvancedSearchResultsWebPart extends BaseClientSideWebPart<
 
   protected onPropertyPaneFieldChanged(propertyPath: string, oldValue: any, newValue: any): void {
     super.onPropertyPaneFieldChanged(propertyPath, oldValue, newValue);
-
-    console.log(propertyPath, newValue);
 
     this.updateSortableProperties();
     this.context.propertyPane.refresh();
