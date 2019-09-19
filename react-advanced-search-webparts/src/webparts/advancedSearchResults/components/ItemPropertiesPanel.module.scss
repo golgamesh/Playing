@@ -22,8 +22,14 @@
   display:flex;
   flex-direction: column;
   justify-content: space-around;
+  z-index: 2000;
 }
 
 .frmPropsLoadingHidden {
   display: none;
+}
+
+.frmOverflowTop {
+  //top: -90px;
+  position: relative;
 }

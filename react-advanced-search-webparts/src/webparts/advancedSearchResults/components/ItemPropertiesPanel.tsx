@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Spinner, SpinnerSize } from 'office-ui-fabric-react/lib/Spinner';
-import ListFormDialogHeler from '../../../helpers/ListFormDialogHelper';
+import ListFormDialogHelper from '../../../helpers/ListFormDialogHelper';
 import { 
     Panel, 
     PanelType,
@@ -54,16 +54,13 @@ export default class ItemPropertiesPanel extends React.Component<IItemProperties
                     type={PanelType.medium}
                     isLightDismiss={true}
                     onDismiss={() => this.viewPanel_dismiss()}>
-                    <div className={styles.frmPropsAnchor} style={
-                        {
-                            
-                        }}>
+                    <div className={styles.frmPropsAnchor} style={{}}>
                         <div className={this.state.loadingPanelHideClass}>
                             <Spinner size={SpinnerSize.large} />
                         </div>
-                        <iframe 
+                        <iframe
                             src={this.state.viewPanelUrl} 
-                            className={`${styles.frmViewPanel} mg-results-form-dialog`}
+                            className={`${styles.frmViewPanel} ${styles.frmOverflowTop} mg-results-form-dialog`}
                             frameBorder={0}
                             onLoad={e => this.panelFrame_load(e)} 
                         />
@@ -88,19 +85,44 @@ export default class ItemPropertiesPanel extends React.Component<IItemProperties
     }
 
     protected panelFrame_load(e: React.SyntheticEvent<HTMLIFrameElement>): void {
-        let frm = e.currentTarget;
+        let frm: HTMLIFrameElement = e.currentTarget;
         console.log('Frame loaded at: ', frm.src);
         if(this._ensureDialogFriendlyPage(frm)) {
             this._showLoadingPanel(false);
             this._activateCancelButtons(frm);
+            this._override_commitPopup(frm);
+            this._override_classicStyles(frm);
         }
     }
+
 
     protected viewPanel_dismiss(): void {
         console.log('Frame state reset');
         /* this._showLoadingPanel(true).then(_ => {
         }); */
         this.props.onDismiss();
+    }
+
+    private _override_classicStyles(frame: HTMLIFrameElement): void {
+        let doc = frame.contentDocument;
+        let style = doc.createElement('style');
+        style.innerText = `
+            .BreadcrumbBar-list,
+            .BreadcrumbBar,
+            .od-ListForm-breadcrumb{
+                display:none !important;
+            }
+
+            .od-SearchBox,
+            .od-Search,
+            .od-TopBar-search {
+                display:none !important;
+            }`;
+        frame.contentDocument.body.appendChild(style);
+    }
+
+    private _override_commitPopup(frame: HTMLIFrameElement): void {
+        frame.contentWindow.frameElement['commitPopup'] = () => this.viewPanel_dismiss();
     }
 
     private _listFormUrl(props: IItemPropertiesPanelProps): string {
