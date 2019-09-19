@@ -167,7 +167,7 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
                             //onChange={e => this.ctrl_change(e, field)}
                             onChanged={e => this.ctrl_changed(e, field)}
                             options={field.propertyChoices as IDropdownResettableOption[]}
-                            //selectedKey={field.choicesSelectedKey as any}
+                            selectedKey={field.choicesSelectedKey as any}
                             data-index={i} 
                             key={key++} 
                         />);
@@ -339,8 +339,9 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
                 if(field.operator === Model.SearchOperator.NumberRange) {
                     field.value = null;
                 } else {
-                    if(field.choices) {
+                    if(this._hasChoices(field)) {
                         field.choicesSelectedKey = '';
+                        field.value = null;
                     } else {
                         field.value = null;
                         let ref: TextField = this.fieldRefs[field.property];
@@ -353,7 +354,7 @@ export default class SearchInterface extends React.Component<ISearchInterfacePro
                 ref.reset();
             } else if(this._hasChoices(field) || field.type === Model.PropertyValueType.Boolean) {
 
-                field.choicesSelectedKey = null;
+                field.choicesSelectedKey = '';
                 field.value = null;
 
             } else {

@@ -10,7 +10,8 @@ import {
     NormalPeoplePicker, 
     CompactPeoplePicker, 
     IPeoplePickerProps, 
-    IBasePicker
+    IBasePicker,
+    ValidationState
 } from 'office-ui-fabric-react/lib/Pickers';
 import { IPersonaProps } from 'office-ui-fabric-react/lib/Persona';
 import { Label } from 'office-ui-fabric-react/lib/Label';
