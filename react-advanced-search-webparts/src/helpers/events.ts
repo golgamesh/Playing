@@ -21,7 +21,8 @@ export function on(element: HTMLElement, event: string, selectorOrHandler: strin
 }
 
 function getElementMatches(): (string) => boolean {
-    return 
+    let m =  
+    Element.prototype.matches ||
     Element.prototype['matchesSelector'] ||
     Element.prototype['mozMatchesSelector'] ||
     Element.prototype['msMatchesSelector'] ||
@@ -33,4 +34,6 @@ function getElementMatches(): (string) => boolean {
         while (--i >= 0 && matches.item(i) !== this) {}
         return i > -1;
     };
+
+    return m;
 }
