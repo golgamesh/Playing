@@ -7,7 +7,8 @@ import {
     SelectionMode,
     IColumn,
     IObjectWithKey,
-    IDetailsRowProps
+    IDetailsRowProps,
+    ISelectionOptions
 } from 'office-ui-fabric-react/lib/DetailsList';
 import { 
     CommandBar, 
@@ -38,6 +39,7 @@ import { Label } from 'office-ui-fabric-react/lib/Label';
 import OfficeURIHelper from '../../../helpers/OfficeURIHelper';
 import { IContextualMenuItem } from 'office-ui-fabric-react/lib/ContextualMenu';
 import stickybits from 'stickybits';
+import { IDragDropContext } from 'office-ui-fabric-react/lib/utilities/dragdrop';
 
 export interface IResultsInterfaceProps {
     isDebug: boolean;
@@ -126,7 +128,7 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
                     documentReaderOpen: false,
                 });
             }
-        });
+        } as ISelectionOptions);
 
         this._scrollParent = this._findScrollContainer(this.props.context.domElement);
         this._scrollParent.setAttribute('data-is-scrollable', 'true');
@@ -222,19 +224,19 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
                     Your search returned zero matches.
                 </div>
                 <DetailsList
-                        items={this.state.results}
-                        compact={true}
-                        columns={this.state.columns}
-                        selectionMode={SelectionMode.single}
-                        setKey="set"
-                        layoutMode={DetailsListLayoutMode.justified}
-                        isHeaderVisible={true}
-                        selection={this._selection}
-                        selectionPreservedOnEmptyClick={true}
-                        //onItemInvoked={this._onItemInvoked}
-                        enterModalSelectionOnTouch={true}
-                        onRenderMissingItem={this._onRenderMissingItem}
-                    />
+                    items={this.state.results}
+                    compact={true}
+                    columns={this.state.columns}
+                    selectionMode={SelectionMode.single}
+                    setKey="set"
+                    layoutMode={DetailsListLayoutMode.justified}
+                    isHeaderVisible={true}
+                    selection={this._selection}
+                    selectionPreservedOnEmptyClick={true}
+                    //onItemInvoked={this._onItemInvoked}
+                    enterModalSelectionOnTouch={true}
+                    onRenderMissingItem={this._onRenderMissingItem}
+                />
                 <div className={ this.state.results.length ? styles.anchor : `${styles.anchor} ${styles.hidden}` }>
                     <div className={this.state.showLoading ? `${styles.pnlLoading} ${styles.fadein}` : styles.pnlLoading } style={{ display: this.state.showLoading ? 'flex' : 'none' }} > {/* */}
                         <div className={styles.loading}>
@@ -353,8 +355,6 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
             listItemID: '',
             contentTypeId: ''
         };
-
-        console.log('Frame state reset');
 
         this.setState(newState);
     }

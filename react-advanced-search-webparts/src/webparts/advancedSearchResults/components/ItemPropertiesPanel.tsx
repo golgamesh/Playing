@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Spinner, SpinnerSize } from 'office-ui-fabric-react/lib/Spinner';
-import ListFormDialogHelper from '../../../helpers/ListFormDialogHelper';
+
 import { 
     Panel, 
     PanelType,
@@ -52,6 +52,7 @@ export default class ItemPropertiesPanel extends React.Component<IItemProperties
                 <Panel {...this.props }
                     isOpen={this.state.isOpen}
                     type={PanelType.medium}
+                    className={styles.panel}
                     isLightDismiss={true}
                     onDismiss={() => this.viewPanel_dismiss()}>
                     <div className={styles.frmPropsAnchor} style={{}}>
@@ -60,7 +61,7 @@ export default class ItemPropertiesPanel extends React.Component<IItemProperties
                         </div>
                         <iframe
                             src={this.state.viewPanelUrl} 
-                            className={`${styles.frmViewPanel} ${styles.frmOverflowTop} mg-results-form-dialog`}
+                            className={`${styles.frmViewPanel} mg-results-form-dialog`}
                             frameBorder={0}
                             onLoad={e => this.panelFrame_load(e)} 
                         />
@@ -86,7 +87,6 @@ export default class ItemPropertiesPanel extends React.Component<IItemProperties
 
     protected panelFrame_load(e: React.SyntheticEvent<HTMLIFrameElement>): void {
         let frm: HTMLIFrameElement = e.currentTarget;
-        console.log('Frame loaded at: ', frm.src);
         if(this._ensureDialogFriendlyPage(frm)) {
             this._showLoadingPanel(false);
             this._activateCancelButtons(frm);
@@ -97,27 +97,13 @@ export default class ItemPropertiesPanel extends React.Component<IItemProperties
 
 
     protected viewPanel_dismiss(): void {
-        console.log('Frame state reset');
-        /* this._showLoadingPanel(true).then(_ => {
-        }); */
         this.props.onDismiss();
     }
 
     private _override_classicStyles(frame: HTMLIFrameElement): void {
         let doc = frame.contentDocument;
         let style = doc.createElement('style');
-        style.innerText = `
-            .BreadcrumbBar-list,
-            .BreadcrumbBar,
-            .od-ListForm-breadcrumb{
-                display:none !important;
-            }
-
-            .od-SearchBox,
-            .od-Search,
-            .od-TopBar-search {
-                display:none !important;
-            }`;
+        style.innerText = `.BreadcrumbBar-list,.BreadcrumbBar,.od-ListForm-breadcrumb{display:none !important;}.od-SearchBox,.od-Search,.od-TopBar-search {display:none !important;}`;
         frame.contentDocument.body.appendChild(style);
     }
 
@@ -176,7 +162,6 @@ export default class ItemPropertiesPanel extends React.Component<IItemProperties
     }
     
     protected onClose_click(e): void {
-        console.log('close');
         this.props.onDismiss();
     }
 

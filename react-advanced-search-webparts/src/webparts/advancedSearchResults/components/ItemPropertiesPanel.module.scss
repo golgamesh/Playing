@@ -1,5 +1,15 @@
 .ItemPropertiesPanel {
     display:block;
+
+}
+.panel {
+  display: block;
+
+  :global {
+    .ms-Panel-content {
+      padding: 10px;
+    }
+  }
 }
 
 .frmViewPanel {
@@ -27,9 +37,4 @@
 
 .frmPropsLoadingHidden {
   display: none;
-}
-
-.frmOverflowTop {
-  //top: -90px;
-  position: relative;
 }

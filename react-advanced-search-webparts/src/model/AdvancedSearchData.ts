@@ -2,12 +2,13 @@ import {
     sp, 
     SearchResults,
     SearchResult, 
-    SearchQueryBuilder,
+    //SearchQueryBuilder,
     SearchQuery 
 } from '@pnp/sp';
 import { uniq } from '@microsoft/sp-lodash-subset';
 import { BaseComponentContext } from '@microsoft/sp-component-base';
 import * as Model from './AdvancedSearchModel';
+import { SearchQueryBuilder } from "@pnp/polyfill-ie11/dist/searchquerybuilder";
 
 export interface IAdvancedSearchResult extends SearchResult {
     Title: string; 
@@ -24,6 +25,7 @@ export interface IAdvancedSearchResult extends SearchResult {
     ListID: string;
     ContentTypeId: string;
     ListItemID: string;
+    ResultItemType: Model.ResultItemType;
 }
 
 export default class AdvancedSearchData {
@@ -100,6 +102,8 @@ export default class AdvancedSearchData {
                 this.totalRows = 0;
             }
 
+            r.PrimarySearchResults.forEach((row: IAdvancedSearchResult) => this._transformResult(row));
+
             console.log(r);
 
             return r;
@@ -109,19 +113,90 @@ export default class AdvancedSearchData {
 
     public next(): Promise<SearchResults> {
         return this.currentResults.getPage(++this.page).then((r: SearchResults) => {
+            r.PrimarySearchResults.forEach((row: IAdvancedSearchResult) => this._transformResult(row));
             return  r; 
         });
     }
 
     public prev(): Promise<SearchResults> {
         return this.currentResults.getPage(--this.page).then((r: SearchResults) => {
+            r.PrimarySearchResults.forEach((row: IAdvancedSearchResult) => this._transformResult(row));
             return r;
         });
     }
 
     public getPage(page: number): Promise<SearchResults> {
         return this.currentResults.getPage(this.page = page).then((r: SearchResults) => {
+            r.PrimarySearchResults.forEach((row: IAdvancedSearchResult) => this._transformResult(row));
             return r;
         });
     }
+
+    private _transformResult(item: IAdvancedSearchResult): void {
+        item.ResultItemType = this._determineItemType(item);
+    }
+
+    private _determineItemType(item: IAdvancedSearchResult): Model.ResultItemType {
+        let type = Model.ResultItemType;
+        switch(true) {
+            case this._isWeb(item):
+                return type.Web;
+            case this._isList(item):
+                return type.List;
+            case this._isLibrary(item):
+                return type.Library;
+            case this._isOneDrive(item):
+                return type.OneDrive;
+            case this._isPage(item):
+                return type.Page;
+            case this._isListItem(item):
+                return type.ListItem;
+            default:
+                return type.Unknown;
+        }
+    }
+
+    private _isWeb(result: IAdvancedSearchResult): boolean {
+        return  result.IsDocument == "false" as any && 
+                result.FileType === "aspx" &&
+                result.IsContainer == "true" as any &&
+                result.IsListItem === null;
+    }
+
+    private _isList(result: IAdvancedSearchResult): boolean {
+        return  this._isListOrLibrary(result) &&
+                result.OriginalPath.match(/.+\/Lists\/[^/]+\/[^/]+.aspx$/i) !== null;
+    }
+
+    private _isLibrary(result: IAdvancedSearchResult): boolean {
+        return  this._isListOrLibrary(result) &&
+                result.OriginalPath.match(/.+\/Forms\/[^/]+.aspx$/i) !== null;
+    }
+
+    private _isListOrLibrary(result: IAdvancedSearchResult): boolean {
+        return  result.IsDocument == "false" as any &&
+                result.FileType === "html" &&
+                result.IsContainer == "false" as any &&
+                result.IsListItem === null;                
+    }
+
+    private _isListItem(result: IAdvancedSearchResult): boolean {
+        return  result.IsDocument == "false" as any &&
+                result.FileType === null &&
+                result.IsContainer == "false" as any &&
+                result.IsListItem == "true";
+    }
+
+    private _isPage(result: IAdvancedSearchResult): boolean {
+        return  result.FileExtension === "aspx" || 
+                result.FileType === "html";
+    }
+
+    private _isOneDrive(result: IAdvancedSearchResult): boolean {
+        return  result.IsDocument == "false" as any &&
+                result.FileType === null &&
+                result.IsContainer == "true" as any &&
+                result.IsListItem === null;
+    }
+
 }

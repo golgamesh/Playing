@@ -98,3 +98,14 @@ export enum PropertyValueType {
     Null = "Null",
     Person = "Person"
 }
+
+export enum ResultItemType {
+    Document="Document",
+    ListItem="ListItem",
+    Web="Web",
+    List="List",
+    Library="Library",
+    Page="Page",
+    OneDrive="OneDrive",
+    Unknown="Unknown"
+}
