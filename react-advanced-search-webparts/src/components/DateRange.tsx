@@ -329,7 +329,7 @@ export default class DateRange extends React.Component<IDateRangeProps, {}> {
      * Generator options for the date range operator dropdown menu
      */
     protected _populateOptions(): void {
-        let value = this.props.value || DateRange.emptyValue
+        let value = this.props.value || DateRange.emptyValue;
         for (let opName in DateRangeOperator) {                                 // Loop through DateRangeOperator values
             let op = DateRangeOperator[opName];
             this._options.push({                                            // Create a new option for each operator

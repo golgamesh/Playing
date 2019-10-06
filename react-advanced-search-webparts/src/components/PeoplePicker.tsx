@@ -71,12 +71,16 @@ export default class PeoplePicker extends React.Component<PeoplePickerProps, Peo
 
     public componentDidMount() {
         const { componentRef } = this.props;
-        componentRef && componentRef(this);
+        if(componentRef) { 
+            componentRef(this);
+        }
     }
 
     public componentWillUnmount() {
         const { componentRef } = this.props;
-        componentRef && componentRef(undefined);
+        if(componentRef) { 
+            componentRef(undefined);
+        }
     }
 
     /**

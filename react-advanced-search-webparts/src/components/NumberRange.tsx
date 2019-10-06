@@ -153,7 +153,7 @@ export default class NumberRange extends React.Component<INumberRangeProps, INum
             props.value = { ...this.emptyValue() };                    // Default to empty date range value
         } */
 
-        let value = props.value || NumberRange.emptyValue 
+        let value = props.value || NumberRange.emptyValue;
 
         let classNameNumberEnd = value.operator === NumberRangeOperator.Between ? '' : styles.numberEndHidden;
 

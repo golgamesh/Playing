@@ -28,7 +28,7 @@ import WebPartPropertiesHelper from '../../helpers/WebPartPropertiesHelper';
 import SearchSchemaHelper from '../../helpers/SearchSchemaHelper';
 import ManagedPropertyPicker from '../../components/ManagedPropertyPicker';
 import { SortDirection } from '@pnp/sp';
-import '@pnp/polyfill-ie11/dist/'
+//import '@pnp/polyfill-ie11'
 
 const defaultSortProperties: Array<string> = [
   'Rank'

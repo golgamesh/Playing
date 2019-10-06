@@ -139,21 +139,33 @@ export default class AdvancedSearchData {
     private _determineItemType(item: IAdvancedSearchResult): Model.ResultItemType {
         let type = Model.ResultItemType;
         switch(true) {
+            case this._isPage(item):
+                return type.Page;
+            case this._isDocument(item):
+                return type.Document;
             case this._isWeb(item):
                 return type.Web;
+            case this._isOneDrive(item):
+                return type.OneDrive;
+            case this._isListItem(item):
+                return type.ListItem;
             case this._isList(item):
                 return type.List;
             case this._isLibrary(item):
                 return type.Library;
-            case this._isOneDrive(item):
-                return type.OneDrive;
-            case this._isPage(item):
-                return type.Page;
-            case this._isListItem(item):
-                return type.ListItem;
             default:
+                console.log(`Unknown Type: ${item.FileExtension}`);
+                console.log(`IsDocument: ${item.IsDocument}`);
+                console.log(`FileType: ${item.FileType}`);
+                console.log(`IsContainer: ${item.IsContainer}`);
+                console.log(`IsListItem: ${item.IsListItem}`);
+                console.log(``);
                 return type.Unknown;
         }
+    }
+
+    private _isDocument(result: IAdvancedSearchResult): boolean {
+        return result.IsDocument == "true" as any;
     }
 
     private _isWeb(result: IAdvancedSearchResult): boolean {
@@ -164,12 +176,20 @@ export default class AdvancedSearchData {
     }
 
     private _isList(result: IAdvancedSearchResult): boolean {
-        return  this._isListOrLibrary(result) &&
-                result.OriginalPath.match(/.+\/Lists\/[^/]+\/[^/]+.aspx$/i) !== null;
+        return   result.IsDocument == "false" as any &&
+                 result.FileType === "html" &&
+                 result.IsContainer == "false" as any &&
+                 result.IsListItem === null &&
+                 this._isListOrLibrary(result) &&
+                 result.OriginalPath.match(/.+\/Lists\/[^/]+\/[^/]+.aspx$/i) !== null;
     }
 
     private _isLibrary(result: IAdvancedSearchResult): boolean {
-        return  this._isListOrLibrary(result) &&
+        return  result.IsDocument == "false" as any &&
+                result.FileType === "html" &&
+                result.IsContainer == "false" as any &&
+                result.IsListItem === null &&  
+                this._isListOrLibrary(result) &&
                 result.OriginalPath.match(/.+\/Forms\/[^/]+.aspx$/i) !== null;
     }
 
@@ -188,8 +208,11 @@ export default class AdvancedSearchData {
     }
 
     private _isPage(result: IAdvancedSearchResult): boolean {
-        return  result.FileExtension === "aspx" || 
-                result.FileType === "html";
+        return (result.FileExtension === "aspx" || 
+                result.FileType === "html") &&
+                result.IsContainer == "false" as any &&
+                result.IsDocument == "false" as any;
+
     }
 
     private _isOneDrive(result: IAdvancedSearchResult): boolean {

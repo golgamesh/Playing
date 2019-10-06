@@ -1,3 +1,4 @@
+@import '~@microsoft/sp-office-ui-fabric-core/dist/sass/SPFabricCore.scss';
 .ItemPropertiesPanel {
     display:block;
 
@@ -9,12 +10,19 @@
     .ms-Panel-content {
       padding: 10px;
     }
+    
+    .ms-Panel-navigation {
+      background-color: $ms-color-themeDarker;
+      .ms-Button {
+        @include ms-fontColor-white;
+      }
+    }
   }
 }
 
 .frmViewPanel {
     width:100%;
-    height:calc(100vh - 70px);
+    height:calc(100vh - 50px);
     //border:1px solid coral;
 }
 

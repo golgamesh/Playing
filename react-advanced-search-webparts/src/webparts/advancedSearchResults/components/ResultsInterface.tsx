@@ -157,11 +157,29 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
         isIconOnly: true,
         fieldName: 'FileType',
         minWidth: 20,
-        maxWidth: 20,
+        maxWidth: 120,
         //onColumnClick: this._onColumnClick,
         onRender: (item: IAdvancedSearchResult) => {
             let web = this.props.context.pageContext.web.absoluteUrl;
+            let type = Model.ResultItemType;
 
+            switch(item.ResultItemType) {
+                case type.List:
+                    return <div title={item.ResultItemType} className={styles.mgCustomIcon}><img src={`${web}/_layouts/15/images/itgen.png?rev=45`} alt="SharePoint List" title="SharePoint List" /></div>;
+                case type.Library:
+                    return <Icon iconName="DocLibrary" title="Document Library" className={styles.mgCustomIcon} />;
+                case type.Web:
+                    return <div title={item.ResultItemType} className={styles.mgCustomIcon}><img src={`https://static2.sharepointonline.com/files/fabric/assets/brand-icons/product/png/sharepoint_16x1_5.png`} alt="SharePoint Site" title="SharePoint List or Library" /></div>;
+                case type.OneDrive:
+                    return <div title={item.ResultItemType} className={styles.mgCustomIcon}><img src={`https://static2.sharepointonline.com/files/fabric/assets/brand-icons/product/png/onedrive_16x1_5.png`} alt="OneDrive" title="SharePoint List or Library" /></div>;
+                case type.ListItem:
+                    return <Icon iconName="CustomList" title="List Item" className={styles.mgCustomIcon} />;
+                case type.Page:
+                case type.Document:
+                default:
+                    return <Icon title={item.ResultItemType} {...getFileTypeIconProps({extension: item.FileType, size: 20})} />;
+            }
+/* 
             if (this._isListOrLibrary(item)) {
                 if(this._isList(item)) {
                     return <div className={styles.mgCustomIcon}><img src={`${web}/_layouts/15/images/itgen.png?rev=45`} alt="SharePoint List" title="SharePoint List" /></div>;
@@ -176,7 +194,7 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
                 return <Icon iconName="CustomList" title="List Item" className={styles.mgCustomIcon} />;
             } else {
                 return <Icon {...getFileTypeIconProps({extension: item.FileType, size: 20})} />;             
-            }
+            } */
         }
     },
     {
@@ -264,9 +282,10 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
                     isLightDismiss={true}>
                 </ItemPropertiesPanel>
 
-                <Panel 
+                <Panel
                     type={PanelType.smallFluid}
                     isOpen={this.state.documentReaderOpen}
+                    className={styles.readerPanel}
                     onDismiss={() => this.documentReaderPanel_dismiss()}>
                     <div>
                         <iframe
