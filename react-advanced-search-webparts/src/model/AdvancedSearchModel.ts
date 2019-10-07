@@ -107,5 +107,7 @@ export enum ResultItemType {
     Library="Library",
     Page="Page",
     OneDrive="OneDrive",
+    Folder="Folder",
+    OneNote="OneNote",
     Unknown="Unknown"
 }

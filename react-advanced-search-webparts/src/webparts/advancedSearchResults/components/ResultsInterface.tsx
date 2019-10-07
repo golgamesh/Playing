@@ -28,7 +28,7 @@ import {
     SortDirection
 } from '@pnp/sp';
 import { Icon } from 'office-ui-fabric-react/lib/Icon';
-import { getFileTypeIconProps, initializeFileTypeIcons } from '@uifabric/file-type-icons';
+import { getFileTypeIconProps, initializeFileTypeIcons, FileIconType } from '@uifabric/file-type-icons';
 import { uniq } from '@microsoft/sp-lodash-subset';
 import ItemPropertiesPanel, {
     PageTypes
@@ -83,6 +83,7 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
         
         this.searchData = new AdvancedSearchData(props.context, props.columns);
         this.searchData.rowLimit = props.rowLimit;
+        this.searchData.bench();
         initializeFileTypeIcons();
         //this._closePanelRedirectUrl = `${this.props.context.pageContext.web.absoluteUrl}/siteassets/advanced-search-webpart-close-panel.aspx`;
         let cols = uniq<Model.IResultProperty>([
@@ -167,13 +168,19 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
                 case type.List:
                     return <div title={item.ResultItemType} className={styles.mgCustomIcon}><img src={`${web}/_layouts/15/images/itgen.png?rev=45`} alt="SharePoint List" title="SharePoint List" /></div>;
                 case type.Library:
-                    return <Icon iconName="DocLibrary" title="Document Library" className={styles.mgCustomIcon} />;
+                    return <div title={item.ResultItemType} className={styles.mgCustomIcon}><img src={`${web}/_layouts/15/images/itdl.png?rev=47`} alt="SharePoint Library" title="SharePoint Library" /></div>;
                 case type.Web:
-                    return <div title={item.ResultItemType} className={styles.mgCustomIcon}><img src={`https://static2.sharepointonline.com/files/fabric/assets/brand-icons/product/png/sharepoint_16x1_5.png`} alt="SharePoint Site" title="SharePoint List or Library" /></div>;
+                    return <div title={item.ResultItemType} className={styles.mgCustomIcon}><img src={`https://static2.sharepointonline.com/files/fabric/assets/brand-icons/product/png/sharepoint_16x1_5.png`} alt="SharePoint Site" title="SharePoint Site or Web" /></div>;
                 case type.OneDrive:
-                    return <div title={item.ResultItemType} className={styles.mgCustomIcon}><img src={`https://static2.sharepointonline.com/files/fabric/assets/brand-icons/product/png/onedrive_16x1_5.png`} alt="OneDrive" title="SharePoint List or Library" /></div>;
+                    return <div title={item.ResultItemType} className={styles.mgCustomIcon}><img src={`https://static2.sharepointonline.com/files/fabric/assets/brand-icons/product/png/onedrive_16x1_5.png`} alt="OneDrive" title="OneDrive" /></div>;
                 case type.ListItem:
-                    return <Icon iconName="CustomList" title="List Item" className={styles.mgCustomIcon} />;
+                    //return <Icon iconName="CustomList" title="List Item" className={styles.mgCustomIcon} />;
+                    return <div title={item.ResultItemType} className={styles.mgCustomIcon}><img src={'https://spoprod-a.akamaihd.net/files/fabric/assets/item-types/20/listitem.svg?refresh1'} alt={item.ResultItemType} title={item.ResultItemType} /></div>
+                case type.Folder:
+                    //return <Icon iconName="FabricFolder" title="Folder" className={styles.mgCustomIcon} />;
+                    return <Icon title={item.ResultItemType} {...getFileTypeIconProps({ type: FileIconType.folder})} />;
+                case type.OneNote:
+                    return <div title={item.ResultItemType} className={styles.mgCustomIcon}><img src={'https://spoprod-a.akamaihd.net/files/fabric/assets/item-types/20/one.svg?refresh1'} alt={item.ResultItemType} title={item.ResultItemType} /></div>
                 case type.Page:
                 case type.Document:
                 default:
@@ -420,6 +427,9 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
                 let dl = selected.OriginalPath + '?Web=0';
                 window.location.href = dl;
                 break;
+            case 'log':
+                console.log(JSON.stringify(selected));
+                break;
             default:
                 break;
 
@@ -616,6 +626,15 @@ export default class ResultsInterface extends React.Component<IResultsInterfaceP
                 onClick: (e, btn) => this.btnCommandbar_click(e, btn)
             });
         }
+
+        items.push({
+            key: 'log',
+            name: 'Log',
+            iconProps: {
+                iconName: 'M365InvoicingLogo'
+            },
+            onClick: (e, btn) => this.btnCommandbar_click(e, btn)
+        })
 
         return items;
 
